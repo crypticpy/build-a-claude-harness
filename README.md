@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 ![Node 20+](https://img.shields.io/badge/node-20%2B-brightgreen)
 
-> Learn to turn Claude Code from a chat tool into a system that **remembers across sessions, checks its own work, and improves itself** — by building one, principle by principle.
+> Claude Code already remembers a little across sessions. Learn to make it remember **well** — structured, self-summarizing memory, plus verification gates, a self-improvement loop, and code intelligence it has no built-in answer for — by **extending its own hooks, skills, agents, and MCP**, principle by principle.
 
 > ✅ **Complete and CI-verified** — all nine course parts, the concept docs, and the runnable [reference harness](reference/) are authored, and CI builds every lesson's answer key and runs its self-tests on each push. _([Found a rough edge walking a lesson? Tell us.](.github/ISSUE_TEMPLATE/lesson_feedback.md))_
 
@@ -12,15 +12,15 @@
 
 ## The problem this solves
 
-[Claude Code](docs/glossary.md#claude-code) is powerful out of the box. But its memory of the conversation gets cleared periodically to free up space (this is called [compaction](docs/glossary.md#compaction-context-compaction)), and when it does, the detail of what just happened is gone. So teams rebuild the same context every session, re-explain the same preferences, and re-discover the same mistakes.
+[Claude Code](docs/glossary.md#claude-code) is an agentic coding tool — capable out of the box, and it even ships some memory of its own (a `CLAUDE.md` you write, plus auto memory it keeps across sessions). But that memory is coarse: when the context window fills, Claude Code [compacts](docs/glossary.md#compaction-context-compaction) — summarizing the older conversation and dropping its **verbatim** detail to make room. So the fine-grained story of a session still fades, and teams re-explain the same preferences and re-discover the same mistakes.
 
-A **harness** is the layer you wrap around Claude Code to fix that — [hooks](docs/glossary.md#hook), [commands](docs/glossary.md#command-slash-command), [skills](docs/glossary.md#skill), [agents](docs/glossary.md#sub-agent), and a small [MCP server](docs/glossary.md#mcp-model-context-protocol) that together give the assistant persistent memory, verification gates, and a self-improvement loop. _(Don't know those five words yet? That's fine — [What is a harness?](docs/what-is-a-harness.md) defines each one, and every term links to the [glossary](docs/glossary.md).)_
+A **harness** is the customization layer you build _on top of_ Claude Code — using its own [hooks](docs/glossary.md#hook), [commands](docs/glossary.md#command-slash-command), [skills](docs/glossary.md#skill), [agents](docs/glossary.md#sub-agent), and a small [MCP server](docs/glossary.md#mcp-model-context-protocol) — to push past those defaults: richer structured memory, verification gates, and a self-improvement loop. _(Don't know those five words yet? That's fine — [What is a harness?](docs/what-is-a-harness.md) defines each one, and every term links to the [glossary](docs/glossary.md).)_
 
 This repo teaches you to build one, organized around **transferable principles**, using one real, working harness as the worked example. You'll finish able to build _your own_ — not just copy this one.
 
 ## What you'll be able to do
 
-- **Stop re-explaining yourself** — give Claude memory that survives [compaction](docs/glossary.md#compaction-context-compaction), so it remembers decisions across sessions.
+- **Stop re-explaining yourself** — give Claude _richer_ memory than the built-in baseline: structured summaries that survive [compaction](docs/glossary.md#compaction-context-compaction), so it keeps decisions across sessions.
 - **Move faster with your own shortcuts** — author slash commands, skills, and sub-agents tailored to your workflow.
 - **Trust the output more** — wire verification gates so nothing is called "done" until something checks it.
 - **Make Claude code-aware** — build a tiny MCP server that answers questions about your codebase instead of re-reading whole files.

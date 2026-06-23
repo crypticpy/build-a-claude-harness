@@ -42,7 +42,7 @@ reference/
 ├── agents/                # example review agents
 ├── plugins/context-layer/ # local code-intelligence + memory MCP server (TypeScript)
 ├── settings.template.json # event → script routing (rendered to settings.json by install.sh)
-├── mcp-servers.json       # MCP registration manifest
+├── mcp-servers.json       # this repo's MCP manifest — install.sh reads it to register servers (not a Claude Code-native file)
 ├── .env.example           # every env var the harness reads, documented
 └── install.sh             # idempotent installer
 ```

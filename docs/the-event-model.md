@@ -21,7 +21,7 @@ Here are the events the reference harness attaches to, roughly in the order you 
 | `PreCompact`       | just before Claude [compacts](glossary.md#compaction-context-compaction) the conversation | [write memory to disk](the-memento-pattern.md) before it's forgotten             |
 | `Stop`             | Claude finishes its turn                                                                  | run [verification gates](glossary.md#verification-gate) (type-check, self-check) |
 
-There are more events than this (Claude Code adds them over time), but these six carry the whole reference harness. You attach to the ones you need and ignore the rest.
+These six are a subset — Claude Code documents roughly thirty lifecycle events and adds more over time — but they carry the whole reference harness. You attach to the ones you need and ignore the rest.
 
 ## `settings.json` is the router
 

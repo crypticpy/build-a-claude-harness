@@ -29,9 +29,11 @@ You are planning before implementation for: $ARGUMENTS
 
 **Reach for a command when:** _you_ know you want this behavior right now, and you want to trigger it by name. `/plan`, `/evolve`, `/retrospective`, `/freview` are all just saved prompts. The reference harness ships them in [`reference/commands/`](../reference/commands/).
 
+> **Commands and skills have merged.** Claude Code now treats `.claude/commands/plan.md` and `.claude/skills/plan/SKILL.md` as equivalent — both create `/plan`. A single-file command is the lightweight form (you invoke it by name); a skill adds a folder, supporting files, and model-decided invocation. The distinction below — _you_ type a command vs. _Claude_ reaches for a skill — is still the useful way to think about it; just know they're now one mechanism with two shapes, and your existing `.claude/commands/*.md` files keep working.
+
 ## Skill — an ability Claude invokes itself
 
-A skill is like a command, but **Claude decides on its own when to use it** — based on the skill's `description`. That description is not decoration: it's the text the harness matches against the situation to decide whether to load the skill. So a skill's description is written to say _exactly when it applies_, and the body says how to do the job.
+A skill is like a command, but **Claude decides on its own when to use it** — based on the skill's `description`. That description is not decoration: it's the text **Claude** matches against the situation to decide whether to load the skill. So a skill's description is written to say _exactly when it applies_, and the body says how to do the job.
 
 From [`reference/skills/example-skill/SKILL.md`](../reference/skills/example-skill/SKILL.md):
 

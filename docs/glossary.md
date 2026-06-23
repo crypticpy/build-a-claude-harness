@@ -8,11 +8,11 @@ New to all of this? Read [What is a harness?](what-is-a-harness.md) first, then 
 
 ### Harness
 
-The extra layer of customizations you wrap around Claude Code to give it abilities it doesn't have out of the box — memory, self-checking, shortcuts. This whole repo teaches you to build one.
+The customization layer you build _on top of_ Claude Code — using its own hooks, commands, skills, agents, and MCP — to extend its built-in memory, verification, and automation beyond the defaults. (Claude Code is itself an agentic "harness" around the Claude model; here you're extending that harness.) This whole repo teaches you to build one.
 
 ### Claude Code
 
-Anthropic's command-line tool for coding with Claude. It runs in your terminal and can read/write files, run commands, and hold a conversation. The harness customizes _it_.
+Anthropic's **agentic coding tool** for working with Claude. It reads your codebase, edits files, runs commands, and integrates with your dev tools — in the terminal, IDE, desktop app, and browser. Out of the box it already includes an agent loop, `CLAUDE.md` + auto memory, subagents, and compaction; the harness extends all of that.
 
 ### Hook
 
@@ -24,11 +24,11 @@ One of the moments during a Claude Code session that a hook can attach to: the s
 
 ### `settings.json`
 
-The configuration file where you list which script runs on which event. It's the **router** of the whole system: change one mapping here and you've changed a behavior. (Not a Wi-Fi router — "router" just means it directs each event to the right script.)
+The configuration file where you list which script runs on which event. It's the **routing table** of the whole system: Claude Code reads it and, when an event fires, runs the script you mapped to it — change one mapping and you've changed a behavior. (Not a Wi-Fi router — it just maps each event to the right script.)
 
 ### Command (slash command)
 
-A shortcut you type, like `/plan` or `/evolve`, that triggers a saved instruction. You write commands as Markdown files. Think "saved prompt with a name."
+A shortcut you type, like `/plan` or `/evolve`, that triggers a saved instruction. You write commands as Markdown files. Think "saved prompt with a name." (Claude Code has since **merged commands into skills**: a `.claude/commands/plan.md` and a `.claude/skills/plan/SKILL.md` both create `/plan`. The single-file command is the lightweight legacy form; both still work.)
 
 ### Skill
 
@@ -40,15 +40,15 @@ A separate Claude instance you delegate a focused job to, so it works in its own
 
 ### MCP (Model Context Protocol)
 
-A standard way for Claude Code to talk to an external helper program. An **MCP server** is just that helper — a small program Claude Code can ask questions ("summarize this file", "what depends on this function?") or store things in. Under the hood it's a simple back-and-forth of messages; see [MCP in plain terms](mcp-in-plain-terms.md).
+A standard way for Claude Code to talk to an external helper program. An **MCP server** exposes a few **tools** (and optionally data **resources** and reusable **prompts**) that Claude Code discovers and the model can call during a session — e.g. "summarize this file", "what depends on this function?". Under the hood it's a simple back-and-forth of JSON-RPC messages; see [MCP in plain terms](mcp-in-plain-terms.md).
 
 ### Context window (or "context")
 
-Claude's short-term memory for the current conversation. It holds everything Claude is currently "aware of" — and it's limited in size.
+Claude's short-term memory for the current conversation. It holds everything Claude is currently "aware of" — and it's limited in size. (Durable memory across sessions comes from `CLAUDE.md`, auto memory, and the harness's memory layer — not from the context window.)
 
 ### Compaction (context compaction)
 
-When the context window fills up, Claude Code **clears out older parts of the conversation** to make room. That frees space but **loses the detail** of what happened earlier. This forgetting is the core problem the harness's memory features solve.
+When the context window fills up, Claude Code **summarizes the older conversation into a compact summary** and drops the verbatim detail to make room. The high-level thread (your requests, the files touched, the errors fixed) is kept; the **exact** earlier transcript — full tool outputs and intermediate reasoning — is gone. (`CLAUDE.md` and auto memory are re-read from disk afterward, so those survive.) This loss of specifics is what the harness's richer memory layer is built to soften.
 
 ### Token
 
@@ -132,7 +132,7 @@ The system **proposes** changes (e.g. "here's how I'd improve the harness") but 
 
 ### Stateless model
 
-The model doesn't remember anything between sessions on its own. Any memory has to be **stored on disk by you** and fed back in. This fact is _why_ the Memento pattern exists.
+The raw model doesn't remember anything between sessions on its own — any memory has to be **stored on disk** and fed back in. (Claude Code the tool adds some persistence on top via `CLAUDE.md` and auto memory; this entry is about the model underneath.) This fact is _why_ the Memento pattern exists.
 
 ### Memento pattern
 

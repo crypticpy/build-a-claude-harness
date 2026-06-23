@@ -4,13 +4,15 @@
 
 ## The problem: the model forgets, twice over
 
-The model is [**stateless**](glossary.md#stateless-model) — on its own it remembers nothing between sessions. Worse, it forgets _mid-session_: when the [context window](glossary.md#context-window-or-context) fills up, Claude Code [compacts](glossary.md#compaction-context-compaction) the conversation, discarding older turns to make room. The detail of what you were just doing is gone.
+The raw model is [**stateless**](glossary.md#stateless-model) — on its own it remembers nothing between sessions. It also loses detail _mid-session_: when the [context window](glossary.md#context-window-or-context) fills up, Claude Code [compacts](glossary.md#compaction-context-compaction) the conversation — summarizing older turns and dropping their **verbatim** detail to make room. The gist survives in the summary, but the specifics of what you were just doing are gone.
 
 So persistence isn't a feature you bolt on. It's a simple pair of moves:
 
 > **Write what matters to disk before the model forgets. Read it back at the start of the next turn.**
 
 That read/write pair _is_ the memory system. Everything else is plumbing.
+
+> **Claude Code ships a version of this now.** Its built-in _auto memory_ writes notes to disk and reloads them each session — the same write-then-reload move. Building it yourself (this chapter) is how you learn the pattern and take control of exactly _what_ gets remembered and _how_ it's distilled: a structured per-session summary you shape, not just freeform notes.
 
 ## Why "Memento"?
 
@@ -73,7 +75,7 @@ The post-compaction window has lost the transcript, but it still sees _the proje
    you submit next prompt  →  UserPromptSubmit: read ─────┘ → <session-memory> to the model
 ```
 
-One write before forgetting, one read after. That loop is the difference between a model that starts every prompt from zero and one that remembers your project across hours and sessions.
+One write before forgetting, one read after. That loop is the difference between a post-compaction window that has lost the thread and one that still carries your project's direction and history across hours and sessions.
 
 ## Where this shows up
 

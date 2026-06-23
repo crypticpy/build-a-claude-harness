@@ -4,12 +4,12 @@
 
 ## The one-minute version
 
-Claude Code is great at coding tasks. But it has two everyday frustrations:
+Claude Code is an agentic coding tool — it reads your codebase, edits files, and runs commands, and it even remembers some things across sessions on its own. But two everyday gaps remain:
 
-1. **It forgets.** Every so often it clears its short-term memory (this is called [compaction](glossary.md#compaction-context-compaction)) and loses the details of what you were just doing. Tomorrow's session starts from zero.
+1. **It forgets the specifics.** Every so often it compacts (this is called [compaction](glossary.md#compaction-context-compaction)) — summarizing the older conversation and dropping the exact detail of what you were just doing. Claude Code _does_ carry some memory across sessions (a `CLAUDE.md` you write, plus auto memory it keeps), but it's coarse — the fine-grained story of a session still resets.
 2. **It does the same things repeatedly,** and you re-type the same instructions, re-explain your preferences, and re-discover the same mistakes.
 
-A **harness** is a thin layer you wrap around Claude Code to fix this. It's not a different tool — it's _your_ Claude Code, customized. With a harness, Claude can:
+A **harness** is a thin layer you build _on top of_ Claude Code to close those gaps. It's not a different tool — it's _your_ Claude Code, extended. (Claude Code is itself an agentic "harness" around the Claude model; here you're extending that harness through its own seams.) With a harness, Claude can:
 
 - **Remember** what happened across sessions (write notes to disk, read them back).
 - **Run your shortcuts** (type `/plan` instead of a paragraph of instructions).
@@ -34,7 +34,7 @@ The clever part is that **all of it is wired together by one file**, [`settings.
 
 ## Why build your own instead of installing one?
 
-You _can_ just install the finished [reference harness](../reference/) and use it. But the goal of this course is bigger: once you understand the handful of patterns, you can build exactly the harness _you_ want — and customize Claude Code for your own workflow, team, or company. The reference harness is the worked example, not the destination.
+You _can_ just install the finished [reference harness](../reference/) and use it. But the goal of this course is bigger: once you understand the handful of patterns, you can build exactly the harness _you_ want — and customize Claude Code for your own workflow, team, or company. Claude Code ships its own version of some of these pieces (memory, subagents); building them yourself is how you learn to control them and push past the defaults. The reference harness is the worked example, not the destination.
 
 ## What you need (and what you don't)
 

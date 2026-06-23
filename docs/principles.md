@@ -10,13 +10,13 @@ You don't need to absorb these up front. Meet them one at a time in the course, 
 
 ## 1. Stateless model, disk-backed memory
 
-The model remembers nothing on its own between sessions, and it actively forgets mid-session at [compaction](glossary.md#compaction-context-compaction). So persistence isn't a feature you bolt on — it's a simple pair of moves: **write what matters to disk before the model forgets, read it back at the start of the next turn.** That read/write pair _is_ the memory system; everything else is plumbing.
+The raw **model** remembers nothing between sessions on its own, and detail fades mid-session at [compaction](glossary.md#compaction-context-compaction). Claude Code already layers some persistence on top (a `CLAUDE.md` you write, plus auto memory it keeps) — but it's coarse, so the same principle is yours to extend: **write what matters to disk before the model forgets, read it back at the start of the next turn.** That read/write pair _is_ the memory system; everything else is plumbing.
 
 > Evidence: the harness writes a session-memory file on the `PreCompact` event and re-injects it on the next `UserPromptSubmit`. Taught in [Part 2](../course/02-memory/).
 
 ## 2. `settings.json` is the router
 
-Every behavior in the harness is one mapping: _when this event happens, run that script._ There's no framework and no magic — just a table of events to commands. Internalize that and the entire system becomes legible; you can read any behavior by finding its row.
+Every behavior in the harness is one mapping: _when this event happens, run that script._ There's no framework and no magic — just a table of events to commands. (Strictly, _Claude Code_ dispatches each event; `settings.json` is the declarative routing table it reads — and in this harness every row points at one dispatcher script that does the final `switch`.) Internalize that and the entire system becomes legible; you can read any behavior by finding its row.
 
 > Evidence: a single dispatcher script is wired to every lifecycle event in `settings.json`. Taught in [Part 1](../course/01-foundations/).
 

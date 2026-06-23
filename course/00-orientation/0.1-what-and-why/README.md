@@ -19,9 +19,9 @@ Nothing to set up. If you want the long version of everything here, open [What i
 
 ### Principle
 
-A **harness** is the layer of code and configuration you wrap around Claude Code to make it behave the way _you_ want — automatically, every time, without you having to ask.
+A **harness** is the layer of code and configuration you build _on top of_ Claude Code to make it behave the way _you_ want — automatically, every time, without you having to ask. (Claude Code is itself an agentic tool around the model; you're extending it through its own seams.)
 
-Out of the box, Claude Code is already capable. But it forgets things between sessions, it doesn't know your team's conventions, and it does exactly what you type and nothing more. A harness closes those gaps. It's the difference between a sharp knife and a sharp knife _with a handle, a guard, and a sheath_ — same blade, far more usable, far harder to hurt yourself with.
+Out of the box, Claude Code is already capable — it even carries some memory across sessions (a `CLAUDE.md` you write, plus auto memory it keeps). But that memory is coarse, it doesn't know all your team's conventions, and it does mostly what you type and little more. A harness closes those gaps. It's the difference between a sharp knife and a sharp knife _with a handle, a guard, and a sheath_ — same blade, far more usable, far harder to hurt yourself with.
 
 Concretely, a harness is made of small pieces that each react to a moment:
 
@@ -35,7 +35,7 @@ None of these are clever on their own. The course is about wiring enough of them
 
 Here is the single fact that motivates the biggest part of the course.
 
-Claude Code has a **context window** — a finite amount of text it can "see" at once: your conversation, the files it read, the commands it ran. When that window gets close to full, Claude Code performs **compaction**: it summarizes the older parts of the conversation and throws away the details to make room. This is necessary — without it, long sessions would simply hit a wall — but it means **Claude forgets specifics**. The careful decision you made an hour ago, the reason you rejected approach A for approach B, the exact file it was about to fix — all of it can get squeezed out.
+Claude Code has a **context window** — a finite amount of text it can "see" at once: your conversation, the files it read, the commands it ran. When that window gets close to full, Claude Code performs **compaction**: it summarizes the older parts of the conversation and drops their **verbatim** detail to make room. This is necessary — without it, long sessions would simply hit a wall — but it means **Claude forgets specifics**. The careful decision you made an hour ago, the reason you rejected approach A for approach B, the exact file it was about to fix — all of it can get squeezed out.
 
 You've probably felt this even if you didn't have a name for it: a long session where Claude starts re-asking things it already knew, or re-discovering a file it edited twenty minutes ago.
 
@@ -60,7 +60,7 @@ If both come out clean without scrolling up, you've got it. A passing answer to 
 
 ## Recap + next
 
-You learned the two anchor ideas of the whole course: a harness is automation wrapped around Claude Code, and compaction is the forgetting that the harness's memory layer exists to fight.
+You learned the two anchor ideas of the whole course: a harness is automation you build on top of Claude Code (extending it), and compaction is the loss of specifics that the harness's memory layer exists to soften.
 
 Next: **[0.2 — The event model and the router](../0.2-event-model-and-router/)** — _how_ a script gets to run at those moments in the first place.
 

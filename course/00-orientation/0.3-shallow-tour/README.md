@@ -40,7 +40,7 @@ reference/
 ├── agents/                 ← example review sub-agents (Part 3)
 ├── plugins/context-layer/  ← the MCP code-intelligence server (Part 4)
 ├── settings.template.json  ← the event → script wiring you saw in 0.2
-├── mcp-servers.json        ← MCP registration manifest (Part 6)
+├── mcp-servers.json        ← this repo's MCP manifest the installer reads (not a Claude Code-native file) (Part 6)
 └── install.sh              ← the idempotent installer (Part 6)
 ```
 
