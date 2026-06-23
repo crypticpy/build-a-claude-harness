@@ -1,0 +1,12 @@
+{
+  "_comment": "MCP servers for register-mcp.sh to register via `claude mcp add`. Read this as DATA — it carries no secrets. Anything secret (e.g. an API key) is read from the environment at registration time, never stored here. ${HOME} is a marker the script expands; it is not a real path until then.",
+  "servers": [
+    {
+      "name": "context-layer",
+      "command": "node",
+      "args": ["${HOME}/.claude/plugins/context-layer/dist/mcp-server.js"],
+      "skip_if_missing": "${HOME}/.claude/plugins/context-layer/dist/mcp-server.js",
+      "comment": "The code-intelligence + memory MCP server you built in Part 4. Registered only if its built dist/ file exists."
+    }
+  ]
+}

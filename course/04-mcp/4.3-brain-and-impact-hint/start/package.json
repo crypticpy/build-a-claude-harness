@@ -1,0 +1,19 @@
+{
+  "name": "my-context-layer",
+  "version": "0.3.0",
+  "description": "Lesson 4.3 — MCP server with semantic_lookup, impact_check, and brain_search over lessons.jsonl. MVH+.",
+  "type": "module",
+  "bin": {
+    "my-context-layer": "dist/mcp-server.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/mcp-server.js",
+    "index": "node dist/mcp-server.js --index"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.4.0"
+  },
+  "license": "MIT"
+}

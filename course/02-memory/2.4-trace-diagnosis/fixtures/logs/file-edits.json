@@ -1,0 +1,23 @@
+{
+  "files": {
+    "src/app.js": {
+      "editCount": 3,
+      "firstEdit": "2026-06-23T04:00:00.000Z",
+      "lastEdit": "2026-06-23T05:30:00.000Z",
+      "edits": [
+        {
+          "timestamp": "2026-06-23T04:00:00.000Z",
+          "summary": "Added the request handler"
+        },
+        {
+          "timestamp": "2026-06-23T04:45:00.000Z",
+          "summary": "Fixed the off-by-one in pagination"
+        },
+        {
+          "timestamp": "2026-06-23T05:30:00.000Z",
+          "summary": "Raised the test timeout"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "_comment": "After the refactor, BOTH events point at the same unified-hook.mjs — only the last argument differs (prompt vs post-edit). That single shared entry point is the whole win. Paste these blocks into the \"hooks\" object of $HOME/.claude/settings.json and adjust the path to where you saved unified-hook.mjs.",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $HOME/.claude/hooks/unified/unified-hook.mjs prompt"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $HOME/.claude/hooks/unified/unified-hook.mjs post-edit"
+          }
+        ]
+      }
+    ]
+  }
+}

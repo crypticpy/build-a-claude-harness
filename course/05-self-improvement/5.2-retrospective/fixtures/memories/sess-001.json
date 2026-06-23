@@ -1,0 +1,6 @@
+{
+  "startedAt": "2026-05-01T10:00:00Z",
+  "projectContext": "payments-api",
+  "overallDirection": "Fix a bug in the refund flow and add a test for it.",
+  "compactionCount": 2
+}

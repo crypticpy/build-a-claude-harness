@@ -1,0 +1,54 @@
+{
+  "version": "1.0.0",
+  "description": "Reference harness config. Model/provider come from the environment (LLM_MODEL / LLM_BASE_URL / LLM_API_FORMAT); this file only sets per-role token budgets and reasoning effort, so the same config works against any provider.",
+
+  "llm": {
+    "_lever": "maxTokens is the PRIMARY cost lever and is always active. reasoningEffort is a SECONDARY lever that only takes effect on the Responses API when LLM_REASONING is enabled and LLM_MODEL is a reasoning model (see hooks/unified/modules/llm-call.mjs).",
+    "summarize": {
+      "maxTokens": 8000,
+      "reasoningEffort": "low",
+      "description": "Per-compaction session summary. Runs on EVERY compaction (high frequency) → cheap, small budget. The token-economy 'spend little, often' role."
+    },
+    "recall": {
+      "maxTokens": 25000,
+      "reasoningEffort": "medium",
+      "description": "On-demand deep analysis (/evolve, /retrospective). Runs RARELY (low frequency) but matters more → afford a bigger budget (and more effort, on a reasoning model). The 'spend more, seldom' role."
+    }
+  },
+
+  "rolling_log": {
+    "maxEntries": 10000,
+    "maxAgeDays": 30
+  },
+
+  "formatting": {
+    "enabled": true,
+    "comment": "Formatters run on PostToolUse for Write|Edit. Uses npx for JS/TS so no global install is needed. Missing formatters are a no-op (fail-silent).",
+    "extensions": {
+      ".ts": "npx --yes prettier --write",
+      ".tsx": "npx --yes prettier --write",
+      ".js": "npx --yes prettier --write",
+      ".jsx": "npx --yes prettier --write",
+      ".json": "npx --yes prettier --write",
+      ".md": "npx --yes prettier --write",
+      ".py": "black -q",
+      ".go": "gofmt -w",
+      ".rs": "rustfmt"
+    }
+  },
+
+  "qualityGates": {
+    "onStop": {
+      "enabled": true,
+      "comment": "Run only when matching files changed this session; never throws. null = no gate for that stack.",
+      "commands": {
+        "typescript": "npx tsc --noEmit",
+        "default": null
+      }
+    }
+  },
+
+  "evolution": {
+    "minSessionsForAnalysis": 3
+  }
+}

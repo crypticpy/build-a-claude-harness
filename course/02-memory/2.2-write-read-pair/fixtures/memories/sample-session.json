@@ -1,0 +1,12 @@
+{
+  "sessionId": "sample-session",
+  "startedAt": "2026-06-23T04:00:00.000Z",
+  "lastCompactionAt": "2026-06-23T05:30:00.000Z",
+  "compactionCount": 2,
+  "projectContext": "Learning the Memento pattern in Part 2 of the harness course",
+  "overallDirection": "Proving the write→read memory loop works with a hardcoded note",
+  "milestones": [
+    "Wrote a session-memory note on PreCompact",
+    "Read the note back and saw the <session-memory> block"
+  ]
+}

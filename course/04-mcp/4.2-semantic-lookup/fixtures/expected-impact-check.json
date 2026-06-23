@@ -1,0 +1,5 @@
+{
+  "target": "src/logger.ts",
+  "kind": "file",
+  "consumers": ["src/app.ts"]
+}

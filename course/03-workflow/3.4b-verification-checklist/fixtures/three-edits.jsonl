@@ -1,0 +1,4 @@
+{"type":"user","message":{"content":[{"type":"text","text":"refactor the auth flow across the client files"}]}}
+{"type":"assistant","message":{"content":[{"type":"text","text":"Editing three files."},{"type":"tool_use","name":"Edit","id":"t1","input":{"file_path":"src/auth.js"}}]}}
+{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Edit","id":"t2","input":{"file_path":"src/client.js"}}]}}
+{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Write","id":"t3","input":{"file_path":"src/session.js"}}]}}

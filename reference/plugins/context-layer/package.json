@@ -1,0 +1,19 @@
+{
+  "name": "context-layer",
+  "version": "0.1.0",
+  "description": "A tiny, from-scratch MCP server (hand-rolled JSON-RPC over stdio) for code intelligence and persistent memory. Teaching reference: no MCP SDK, no native modules.",
+  "type": "module",
+  "bin": {
+    "context-layer": "dist/mcp-server.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/mcp-server.js",
+    "index": "node dist/mcp-server.js --index"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.4.0"
+  },
+  "license": "MIT"
+}

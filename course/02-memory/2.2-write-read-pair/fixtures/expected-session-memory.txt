@@ -1,0 +1,10 @@
+<session-memory>
+Compaction #2
+
+Project: Learning the Memento pattern in Part 2 of the harness course
+Direction: Proving the write→read memory loop works with a hardcoded note
+
+Progression (punch list of major events):
+  • Wrote a session-memory note on PreCompact
+  • Read the note back and saw the <session-memory> block
+</session-memory>

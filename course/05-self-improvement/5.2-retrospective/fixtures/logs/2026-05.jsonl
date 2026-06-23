@@ -1,0 +1,10 @@
+{"tool_name":"Read","output_summary":"read 120 lines"}
+{"tool_name":"Edit","output_summary":"edited src/auth/middleware.ts"}
+{"tool_name":"Bash","output_summary":"npm test: 2 failed"}
+{"tool_name":"Bash","output_summary":"error: command not found: vitest"}
+{"tool_name":"Read","output_summary":"read package.json"}
+{"tool_name":"Edit","output_summary":"edited src/payments/refund.ts"}
+{"tool_name":"Bash","output_summary":"npm test: all passed"}
+{"tool_name":"Grep","output_summary":"12 matches"}
+{"tool_name":"Edit","output_summary":"edited src/config/deploy.json"}
+{"tool_name":"Bash","output_summary":"deploy failed: ENOENT config"}

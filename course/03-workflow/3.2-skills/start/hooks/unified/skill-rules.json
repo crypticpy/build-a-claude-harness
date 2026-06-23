@@ -1,0 +1,27 @@
+{
+  "version": "1.0",
+  "description": "Skill activation triggers. This is the CANONICAL rules file the activation hook loads (NOT the decoy at skills/skill-rules.json).",
+  "skills": {
+    "changelog-entry": {
+      "type": "domain",
+      "enforcement": "suggest",
+      "priority": "high",
+      "description": "Draft a single CHANGELOG entry from the current change.",
+      "promptTriggers": {
+        "keywords": [
+          "TODO blank 2: list the literal phrases that should trigger this skill. Include at least: changelog entry, update the changelog. Add 2-3 more close variants.",
+          "update the changelog"
+        ],
+        "intentPatterns": [
+          "TODO blank 3: one regex matching add/write/draft a changelog entry. Example shape: (add|write|draft|create)\\s+(a\\s+|the\\s+)?changelog\\s+(entry|line)"
+        ],
+        "excludePatterns": [
+          "release notes",
+          "whole version",
+          "plan",
+          "thinking about"
+        ]
+      }
+    }
+  }
+}

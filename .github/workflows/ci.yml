@@ -1,0 +1,135 @@
+name: ci
+on:
+  push:
+  pull_request:
+
+jobs:
+  depersonalization:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for personal/secret tokens
+        run: bash scripts/check-depersonalized.sh
+
+  secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"
+
+  # Verifies the reference harness AND every course answer key, so the course's
+  # promise — "every solution/ is verified to run in CI" — is actually true.
+  solutions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Syntax-check all hook scripts (node --check)
+        run: |
+          fail=0
+          while IFS= read -r f; do
+            node --check "$f" || { echo "SYNTAX FAIL: $f"; fail=1; }
+          done < <(find course reference -name '*.mjs' -not -path '*/node_modules/*')
+          exit $fail
+
+      - name: Lint all shell scripts (bash -n)
+        run: |
+          fail=0
+          while IFS= read -r f; do
+            bash -n "$f" || { echo "BASH FAIL: $f"; fail=1; }
+          done < <(find course reference -name '*.sh')
+          exit $fail
+
+      - name: Validate JSON / JSONL
+        run: |
+          fail=0
+          while IFS= read -r f; do
+            case "$f" in
+              *.jsonl) python3 -c "import sys,json;[json.loads(l) for l in open('$f') if l.strip()]" || { echo "JSON FAIL: $f"; fail=1; } ;;
+              *) python3 -c "import json;json.load(open('$f'))" || { echo "JSON FAIL: $f"; fail=1; } ;;
+            esac
+          done < <(find course reference \( -name '*.json' -o -name '*.jsonl' \) \
+                     -not -path '*/node_modules/*' -not -path '*/dist/*' -not -name 'package-lock.json')
+          exit $fail
+
+      # Build the reference MCP + every Part 4 answer-key package. Skips the
+      # `start/` skeletons (they are intentionally incomplete).
+      - name: Build TypeScript answer keys (tsc)
+        run: |
+          while IFS= read -r pkg; do
+            case "$pkg" in */node_modules/*|*/start/*) continue ;; esac
+            dir=$(dirname "$pkg")
+            echo "::group::build $dir"
+            ( cd "$dir" && (npm ci || npm install) && npm run build --if-present ) || exit 1
+            echo "::endgroup::"
+          done < <(find course reference -name package.json -not -path '*/node_modules/*')
+
+      # Run the lesson self-tests shipped with the solutions (stub fetch, the
+      # /evolve + /retrospective + context-report tests). Skips `start/` copies,
+      # which are meant to fail until the learner fills them in.
+      - name: Run lesson self-tests
+        run: |
+          fail=0
+          while IFS= read -r t; do
+            case "$t" in */node_modules/*|*/start/*) continue ;; esac
+            echo "::group::test $t"
+            node "$t" || { echo "TEST FAIL: $t"; fail=1; }
+            echo "::endgroup::"
+          done < <(find course -name '*.test.mjs')
+          exit $fail
+
+      - name: Smoke-test the reference MCP (JSON-RPC handshake)
+        run: |
+          printf '%s\n' \
+            '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}' \
+            '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}' \
+            | node reference/plugins/context-layer/dist/mcp-server.js \
+            | grep -q '"serverInfo"' || { echo "MCP smoke failed"; exit 1; }
+
+      - name: Reference hooks fail silent without a key
+        run: |
+          for ev in session-start prompt precompact post-edit post-tool stop; do
+            echo '{}' | LLM_API_KEY= node reference/hooks/unified/unified-hook.mjs "$ev" >/dev/null 2>&1 \
+              || { echo "router event '$ev' did not exit 0"; exit 1; }
+          done
+
+  links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check that every relative markdown link resolves
+        run: |
+          python3 - <<'PY'
+          import os, re, sys
+          link_re = re.compile(r'\[[^\]]*\]\(([^)]+)\)')
+          bad = 0; checked = 0
+          for dp, dn, fn in os.walk('.'):
+              if any(x in dp for x in ('node_modules', '/dist', '/.git', '/.store')):
+                  continue
+              for f in fn:
+                  if not f.endswith('.md'):
+                      continue
+                  p = os.path.join(dp, f)
+                  txt = open(p, encoding='utf-8', errors='ignore').read()
+                  for m in link_re.finditer(txt):
+                      t = m.group(1).strip()
+                      if t.startswith(('http://', 'https://', 'mailto:', '#')):
+                          continue
+                      t = t.split('#', 1)[0].split('?', 1)[0]
+                      if not t:
+                          continue
+                      checked += 1
+                      if not os.path.exists(os.path.normpath(os.path.join(dp, t))):
+                          print(f"DEAD LINK: {p} -> {t}")
+                          bad += 1
+          print(f"{checked} relative links checked, {bad} dead")
+          sys.exit(1 if bad else 0)
+          PY

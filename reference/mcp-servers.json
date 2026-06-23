@@ -1,0 +1,21 @@
+{
+  "_comment": "MCP servers registered by install.sh via `claude mcp add`. Read this as data — it carries no secrets. Anything secret (e.g. REF_API_KEY) is read from the environment at install time, never stored here.",
+  "servers": [
+    {
+      "name": "context-layer",
+      "type": "stdio",
+      "command": "node",
+      "args": ["${HOME}/.claude/plugins/context-layer/dist/mcp-server.js"],
+      "requires_env": [],
+      "skip_if_missing": "${HOME}/.claude/plugins/context-layer/dist/mcp-server.js",
+      "comment": "The in-repo, hand-rolled code-intelligence + memory MCP server. Built by install.sh (tsc -> dist/mcp-server.js)."
+    },
+    {
+      "name": "Ref",
+      "type": "http",
+      "url": "https://api.ref.tools/mcp?apiKey=${REF_API_KEY}",
+      "requires_env": ["REF_API_KEY"],
+      "comment": "Optional documentation-lookup MCP. Skipped at install time when REF_API_KEY is unset."
+    }
+  ]
+}

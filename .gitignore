@@ -1,0 +1,35 @@
+# macOS
+.DS_Store
+
+# Secrets — must never be committed
+.credentials.json
+.env
+.env.*
+*.key
+
+# Node
+node_modules/
+dist/
+dist-test/
+*.tsbuildinfo
+
+# MCP local store (generated at runtime by the context-layer server)
+.store/
+**/.store/
+
+# Harness runtime data (PII: per-project memories, logs, paths) — generated at runtime
+reference/hooks/unified/logs/
+reference/hooks/unified/memories/
+reference/hooks/unified/evolution/
+reference/**/lessons.jsonl
+reference/**/data/
+reference/**/*.db
+settings.json
+settings.local.json
+
+# Editor / backups
+*.bak
+*.backup*
+
+# NOTE: course/ and docs/ are intentionally NOT ignored — they are the product.
+# Lesson solution/ dirs may carry their own local runtime data; covered by the rules above.

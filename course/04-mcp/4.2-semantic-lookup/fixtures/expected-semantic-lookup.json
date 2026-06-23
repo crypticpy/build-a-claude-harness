@@ -1,0 +1,10 @@
+{
+  "results": [
+    {
+      "path": "src/logger.ts",
+      "found": true,
+      "summary": "logger.ts — a one-function logging helper. Prefixes each line with a level. This is the file we'll ask impact_check about: \"who imports the logger?\"",
+      "symbols": ["log", "LEVELS"]
+    }
+  ]
+}

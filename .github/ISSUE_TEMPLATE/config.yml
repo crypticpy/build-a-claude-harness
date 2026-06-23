@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Question about the concepts
+    url: https://github.com/crypticpy/build-a-claude-harness/discussions
+    about: Not sure how something works, or want to share what you built? Start a Discussion.
+  - name: Read the docs first
+    url: https://github.com/crypticpy/build-a-claude-harness/tree/main/docs
+    about: The glossary and concept pages answer most "what does X mean?" questions.

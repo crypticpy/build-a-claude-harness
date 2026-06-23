@@ -1,0 +1,121 @@
+{
+  "version": "1.0",
+  "description": "Skill activation triggers. High-precision triggers for explicit implementation requests, not broad pattern-matching — the goal is to suggest a skill when the user clearly wants the thing the skill does, and stay quiet during planning/discussion turns.",
+  "skills": {
+    "frontend-design": {
+      "type": "domain",
+      "enforcement": "suggest",
+      "priority": "high",
+      "description": "Create distinctive, production-grade frontend interfaces with high design quality. Generates polished code that avoids generic AI aesthetics.",
+      "promptTriggers": {
+        "keywords": [
+          "frontend design",
+          "interface design",
+          "polished UI",
+          "distinctive interface",
+          "design system",
+          "build UI",
+          "build a UI",
+          "build the UI",
+          "build a component",
+          "build the component",
+          "create a component",
+          "create the component"
+        ],
+        "intentPatterns": [
+          "(build|create|implement)\\s+(a\\s+|the\\s+)?(component|page|interface|UI|frontend)",
+          "(make|design)\\s+(it|this|a|the)\\s+(beautiful|polished|distinctive|production-grade)",
+          "(avoid|prevent)\\s+(generic|bland|cookie-cutter|AI)\\s+(design|aesthetic|look)"
+        ],
+        "excludePatterns": [
+          "plan",
+          "planning",
+          "mockup",
+          "mock up",
+          "discuss",
+          "thinking about"
+        ]
+      }
+    },
+    "impact-check": {
+      "type": "proactive",
+      "enforcement": "suggest",
+      "priority": "high",
+      "description": "Check downstream consumers before editing public APIs. Triggers only on explicit refactor/rename/delete or impact-check requests.",
+      "promptTriggers": {
+        "keywords": [
+          "refactor",
+          "rename function",
+          "rename class",
+          "rename method",
+          "delete function",
+          "remove function",
+          "delete class",
+          "remove class",
+          "breaking change",
+          "downstream",
+          "consumers",
+          "dependents",
+          "who uses",
+          "what calls",
+          "what depends on",
+          "impact check",
+          "impact_check"
+        ],
+        "intentPatterns": [
+          "(refactor|rename|delete|remove)\\s+(the\\s+)?(function|class|method|module)\\s+\\w+",
+          "(check|find|show)\\s+(the\\s+)?(impact|dependents|consumers|callers)\\s+of",
+          "what\\s+(uses|calls|depends on|imports)\\s+\\w+",
+          "who\\s+(uses|calls|imports)\\s+\\w+",
+          "before\\s+(I\\s+)?(edit|modify|delete|rename)\\s+\\w+",
+          "is it safe to (delete|remove|rename)"
+        ],
+        "excludePatterns": [
+          "^commit",
+          "^git",
+          "commit.*?change",
+          "plan",
+          "mockup"
+        ],
+        "proactiveHint": "About to refactor/rename/delete? Find downstream consumers first."
+      }
+    },
+    "evolve": {
+      "type": "slash-command",
+      "enforcement": "suggest",
+      "priority": "medium",
+      "description": "Self-evolution analysis — aggregates lessons across sessions and proposes harness improvements. Closes the feedback loop.",
+      "action": "Use the /evolve slash command (type it directly), NOT the Skill tool.",
+      "promptTriggers": {
+        "keywords": [
+          "/evolve",
+          "harness improvement",
+          "improve hooks",
+          "evolve the harness",
+          "analyze lessons across sessions"
+        ],
+        "intentPatterns": [
+          "(evolve|improve)\\s+(the\\s+)?(harness|hooks|config)",
+          "(review|analyze)\\s+lessons\\s+across\\s+sessions"
+        ]
+      }
+    }
+  },
+  "notes": {
+    "enforcement_types": {
+      "suggest": "Skill suggestion appears but doesn't block execution",
+      "block": "Requires skill to be used before proceeding (guardrail)",
+      "warn": "Shows warning but allows proceeding"
+    },
+    "priority_levels": {
+      "high": "Important — trigger for most matches",
+      "medium": "Moderate — trigger for clear matches",
+      "low": "Optional — trigger only for explicit matches"
+    },
+    "skill_types": {
+      "domain": "Standard skill invoked via the Skill tool",
+      "proactive": "Skill that provides proactive hints",
+      "slash-command": "Slash command invoked directly (e.g. /evolve), NOT via the Skill tool"
+    }
+  }
+}

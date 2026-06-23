@@ -1,0 +1,4 @@
+{
+  "redirect": true,
+  "comment": "DECOY. This top-level skills/skill-rules.json is NOT the file the activation hook reads. It is a redirect stub: the hook sees `redirect: true` and skips it. The canonical rules live in hooks/unified/skill-rules.json. Editing this file does nothing — a classic afternoon-waster if you don't know it's here."
+}

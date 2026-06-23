@@ -1,0 +1,369 @@
+/**
+ * Session start — bootstrap the environment in one shot.
+ *
+ * On SessionStart, emit a <project-snapshot> block describing the working
+ * environment: detected languages, package managers, project markers, key
+ * config files, recent git activity, uncommitted changes, the state of the
+ * memory layer, recent lessons, and active TODOs. The goal is to spend a few
+ * milliseconds of shell here to save the model several early exploration turns.
+ *
+ * The expensive part (stack detection) runs as ONE compound shell command with
+ * @@MARKER@@ delimiters, parsed back into sections — far cheaper than a dozen
+ * separate spawns. Everything is best-effort: any failed probe just omits its
+ * section, and a fatal error returns null (no snapshot, no crash).
+ */
+
+import { execSync } from "node:child_process";
+import { readFileSync, existsSync, readdirSync } from "node:fs";
+import { join } from "node:path";
+
+/** Split @@MARKER@@-delimited stdout into { section -> content }. */
+function parseMarkerSections(stdout) {
+  const sections = {};
+  let currentKey = null;
+  let currentLines = [];
+
+  for (const line of stdout.split("\n")) {
+    const marker = line.match(/^@@(\w+)@@$/);
+    if (marker) {
+      if (currentKey) sections[currentKey] = currentLines.join("\n").trim();
+      currentKey = marker[1];
+      currentLines = [];
+    } else {
+      currentLines.push(line);
+    }
+  }
+  if (currentKey) sections[currentKey] = currentLines.join("\n").trim();
+  return sections;
+}
+
+/**
+ * Detect the stack via a single compound command. `which` guards keep each
+ * probe fast; `|| true` keeps a missing tool from failing the whole command.
+ * Shell vars like $f must stay in regular strings so JS doesn't interpolate them.
+ */
+function gatherStackSnapshot(cwd) {
+  const escapedCwd = cwd.replace(/'/g, "'\\''");
+
+  const cmd = [
+    // -- Languages --
+    "echo '@@LANGUAGES@@'",
+    "(which python3 >/dev/null 2>&1 && python3 --version 2>&1 || true)",
+    "(which node >/dev/null 2>&1 && node --version 2>&1 | sed 's/^/node /' || true)",
+    "(which go >/dev/null 2>&1 && go version 2>&1 | sed 's/go version //' || true)",
+    "(which rustc >/dev/null 2>&1 && rustc --version 2>&1 || true)",
+    "(which java >/dev/null 2>&1 && java -version 2>&1 | head -1 || true)",
+    "(which gcc >/dev/null 2>&1 && gcc --version 2>&1 | head -1 || true)",
+    "(which ruby >/dev/null 2>&1 && ruby --version 2>&1 | head -1 || true)",
+    "(which swift >/dev/null 2>&1 && swift --version 2>&1 | head -1 || true)",
+
+    // -- Package managers --
+    "echo '@@PKGMGRS@@'",
+    "(which pip3 >/dev/null 2>&1 && echo 'pip3' || true)",
+    "(which npm >/dev/null 2>&1 && echo 'npm' || true)",
+    "(which yarn >/dev/null 2>&1 && echo 'yarn' || true)",
+    "(which pnpm >/dev/null 2>&1 && echo 'pnpm' || true)",
+    "(which cargo >/dev/null 2>&1 && echo 'cargo' || true)",
+    "(which go >/dev/null 2>&1 && echo 'go modules' || true)",
+    "(which brew >/dev/null 2>&1 && echo 'brew' || true)",
+
+    // -- Project markers --
+    "echo '@@PROJECT@@'",
+    "(cd '" +
+      escapedCwd +
+      "' && for f in package.json pyproject.toml Cargo.toml go.mod Makefile docker-compose.yml Dockerfile requirements.txt Gemfile Package.swift; do [ -f \"$f\" ] && echo \"$f\"; done || true)",
+
+    // -- Disk space --
+    "echo '@@DISK@@'",
+    "df -h '" + escapedCwd + "' 2>/dev/null | tail -1 | awk '{print $4}' || true",
+
+    // -- Key config files --
+    "echo '@@CONFIGS@@'",
+    "(cd '" +
+      escapedCwd +
+      "' && for f in .env.example .editorconfig tsconfig.json .eslintrc.json .eslintrc.js .prettierrc .prettierrc.json biome.json vite.config.ts vite.config.js next.config.js next.config.mjs webpack.config.js jest.config.ts jest.config.js vitest.config.ts .github/workflows CLAUDE.md; do [ -e \"$f\" ] && echo \"$f\"; done || true)",
+    "(cd '" + escapedCwd + "' && [ -d '.claude' ] && echo '.claude/' || true)",
+
+    // -- Recent git log --
+    "echo '@@GITLOG@@'",
+    "(cd '" + escapedCwd + "' && git log --oneline -5 2>/dev/null || true)",
+
+    // -- Git branch --
+    "echo '@@GITBRANCH@@'",
+    "(cd '" + escapedCwd + "' && git branch --show-current 2>/dev/null || true)",
+  ].join(" && ");
+
+  try {
+    const stdout = execSync(cmd, { cwd, encoding: "utf-8", timeout: 5000 });
+    return parseMarkerSections(stdout);
+  } catch (e) {
+    if (process.env.DEBUG) console.error("[session-start] stack detection failed:", e.message);
+    return {};
+  }
+}
+
+/**
+ * Summarize the memory layer so the model knows whether a lookup will return
+ * anything. Counts lessons.jsonl lines and any JSON insight files, checking the
+ * project-local context-layer first, then the user-global one.
+ */
+function getMemoryLayerStatus(cwd) {
+  const home = process.env.HOME || "";
+  const counts = { lessons: 0, fileInsights: 0, conventions: 0, hotFiles: 0 };
+  let lastUpdated = null;
+
+  const trackTs = (ts) => {
+    if (!ts) return;
+    if (!lastUpdated || ts > lastUpdated) lastUpdated = ts;
+  };
+
+  for (const p of [
+    join(cwd, ".claude", "context-layer", "lessons.jsonl"),
+    join(home, ".claude", "context-layer", "lessons.jsonl"),
+  ]) {
+    try {
+      if (!existsSync(p)) continue;
+      const content = readFileSync(p, "utf-8").trim();
+      counts.lessons = content ? content.split("\n").filter((l) => l.trim()).length : 0;
+      break;
+    } catch {
+      /* skip */
+    }
+  }
+
+  const jsonFiles = [
+    ["file-insights.json", "fileInsights", "insights"],
+    ["conventions.json", "conventions", "patterns"],
+    ["hot-files.json", "hotFiles", "hotFiles"],
+  ];
+  for (const [filename, countKey, dataKey] of jsonFiles) {
+    for (const p of [
+      join(cwd, ".claude", "context-layer", filename),
+      join(home, ".claude", "context-layer", filename),
+    ]) {
+      try {
+        if (!existsSync(p)) continue;
+        const obj = JSON.parse(readFileSync(p, "utf-8"));
+        const data = obj[dataKey];
+        if (Array.isArray(data)) counts[countKey] = data.length;
+        else if (data && typeof data === "object") counts[countKey] = Object.keys(data).length;
+        trackTs(obj.lastUpdated);
+        break;
+      } catch {
+        /* skip */
+      }
+    }
+  }
+
+  const total = counts.lessons + counts.fileInsights + counts.conventions;
+  const mostlyEmpty = total < 5;
+  const tsHint = lastUpdated ? ` · last update ${lastUpdated.slice(0, 10)}` : "";
+  const guidance = mostlyEmpty
+    ? "_(mostly empty — memory lookups won't return much yet; it builds up as you save memories at natural breakpoints)_"
+    : "_The memory layer has accumulated lessons and insights worth consulting before diving in._";
+
+  return (
+    `${counts.lessons} lesson${counts.lessons === 1 ? "" : "s"}, ` +
+    `${counts.fileInsights} file-insight${counts.fileInsights === 1 ? "" : "s"}, ` +
+    `${counts.conventions} convention${counts.conventions === 1 ? "" : "s"}${tsHint}\n${guidance}`
+  );
+}
+
+/** Load the most recent lessons from context-layer (project-local, then global). */
+function loadRecentLessons(cwd, count = 5) {
+  const paths = [
+    join(cwd, ".claude", "context-layer", "lessons.jsonl"),
+    join(process.env.HOME || "", ".claude", "context-layer", "lessons.jsonl"),
+  ];
+
+  for (const p of paths) {
+    try {
+      if (!existsSync(p)) continue;
+      const content = readFileSync(p, "utf-8").trim();
+      if (!content) continue;
+
+      const lines = content.split("\n").filter((l) => l.trim());
+      const recent = lines.slice(-count);
+
+      const lessons = [];
+      for (const line of recent) {
+        try {
+          const obj = JSON.parse(line);
+          // Handle both singular (manual) and plural (trace-diagnosis) shapes.
+          const summary =
+            obj.lesson ||
+            obj.summary ||
+            obj.message ||
+            (Array.isArray(obj.lessons) ? obj.lessons.filter(Boolean).join("; ") : null);
+          if (summary) {
+            lessons.push({
+              lesson: summary,
+              type: obj.type || "unknown",
+              severity:
+                obj.severity || (obj.efficiency != null && obj.efficiency <= 5 ? "high" : "info"),
+              ts: obj.timestamp || null,
+            });
+          }
+        } catch {
+          /* skip malformed line */
+        }
+      }
+
+      if (lessons.length > 0) return lessons;
+    } catch {
+      /* skip inaccessible path */
+    }
+  }
+  return [];
+}
+
+/** Uncommitted changes, short form. */
+function getGitStatus(cwd) {
+  try {
+    const status = execSync("git status --short 2>/dev/null", {
+      cwd,
+      encoding: "utf-8",
+      timeout: 2000,
+    });
+    return status.trim() || null;
+  } catch {
+    return null;
+  }
+}
+
+/** Active TODOs across common source file types. */
+function getTodos(cwd) {
+  try {
+    const todos = execSync(
+      'rg "TODO:" ' +
+        "-t ts -t js -t py -t go -t rust -t ruby " +
+        '--glob "!node_modules" --glob "!.git" --glob "!vendor" ' +
+        '--glob "!dist" --glob "!build" --glob "!target" ' +
+        "--max-count 10 --no-heading " +
+        "2>/dev/null || true",
+      { cwd, encoding: "utf-8", timeout: 2000 },
+    );
+    return todos.trim() || null;
+  } catch {
+    return null;
+  }
+}
+
+// Project marker -> language version-string matcher. Scopes the "Languages"
+// line to languages the project actually uses.
+const MARKER_TO_LANG = {
+  "package.json": /^node\b/i,
+  "tsconfig.json": /^node\b/i,
+  "pyproject.toml": /python/i,
+  "requirements.txt": /python/i,
+  "setup.py": /python/i,
+  "Cargo.toml": /rustc/i,
+  "go.mod": /^go\b/i,
+  "pom.xml": /(openjdk|java)/i,
+  "build.gradle": /(openjdk|java)/i,
+  Gemfile: /^ruby\b/i,
+  "Package.swift": /swift/i,
+};
+
+function formatStackSection(sections) {
+  const parts = [];
+
+  if (sections.LANGUAGES) {
+    const langs = sections.LANGUAGES.split("\n").filter((l) => l.trim());
+    const markers = sections.PROJECT
+      ? sections.PROJECT.split("\n").map((l) => l.trim()).filter(Boolean)
+      : [];
+    const matchers = markers.map((m) => MARKER_TO_LANG[m]).filter(Boolean);
+    const filtered =
+      matchers.length > 0 ? langs.filter((lang) => matchers.some((re) => re.test(lang))) : langs;
+    if (filtered.length > 0) parts.push("**Languages**: " + filtered.join(", "));
+  }
+
+  if (sections.PKGMGRS) {
+    const pkgs = sections.PKGMGRS.split("\n").filter((l) => l.trim());
+    if (pkgs.length > 0) parts.push("**Pkg managers**: " + pkgs.join(", "));
+  }
+
+  if (sections.PROJECT) {
+    const markers = sections.PROJECT.split("\n").filter((l) => l.trim());
+    if (markers.length > 0) parts.push("**Project files**: " + markers.join(", "));
+  }
+
+  if (sections.DISK && sections.DISK.trim()) parts.push("**Disk free**: " + sections.DISK.trim());
+
+  return parts.length > 0 ? parts.join("\n") : null;
+}
+
+function formatConfigsSection(sections) {
+  if (!sections.CONFIGS) return null;
+  const configs = sections.CONFIGS.split("\n").filter((l) => l.trim());
+  return configs.length > 0 ? "**Key configs**: " + configs.join(", ") : null;
+}
+
+function formatGitLog(sections) {
+  if (!sections.GITLOG) return null;
+  const lines = sections.GITLOG.split("\n").filter((l) => l.trim());
+  if (lines.length === 0) return null;
+
+  const branch = sections.GITBRANCH?.trim() || "unknown";
+  return (
+    "**Branch**: `" + branch + "`\n**Recent commits**:\n" + lines.map((l) => "  " + l).join("\n")
+  );
+}
+
+function formatLessons(lessons) {
+  if (!lessons || lessons.length === 0) return null;
+  return lessons
+    .map((l) => {
+      const badge = l.severity === "high" ? "[!]" : "[-]";
+      return `  ${badge} ${l.lesson}`;
+    })
+    .join("\n");
+}
+
+export async function injectContext(_event, _config) {
+  try {
+    const cwd = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+    let output = "";
+
+    // ---- Compound environment detection (single exec) ----
+    const sections = gatherStackSnapshot(cwd);
+
+    output += "<project-snapshot>\n";
+
+    const stackInfo = formatStackSection(sections);
+    if (stackInfo) output += "### Stack\n" + stackInfo + "\n\n";
+
+    const configsInfo = formatConfigsSection(sections);
+    if (configsInfo) output += "### Config\n" + configsInfo + "\n\n";
+
+    const gitLog = formatGitLog(sections);
+    if (gitLog) output += "### Git Activity\n" + gitLog + "\n\n";
+
+    const gitStatus = getGitStatus(cwd);
+    if (gitStatus) output += "### Uncommitted Changes\n```\n" + gitStatus + "\n```\n\n";
+
+    try {
+      const memStatus = getMemoryLayerStatus(cwd);
+      if (memStatus) output += "### Memory Layer\n" + memStatus + "\n\n";
+    } catch (e) {
+      if (process.env.DEBUG) console.error("[session-start] memory status failed:", e);
+    }
+
+    const lessons = loadRecentLessons(cwd);
+    const lessonsFormatted = formatLessons(lessons);
+    if (lessonsFormatted) output += "### Recent Lessons\n" + lessonsFormatted + "\n\n";
+
+    const todos = getTodos(cwd);
+    if (todos) output += "### Active TODOs\n```\n" + todos + "\n```\n\n";
+
+    output += "</project-snapshot>";
+
+    // Only return if we have meaningful content beyond the wrapper tags.
+    const innerContent = output.replace(/<\/?project-snapshot>/g, "").trim();
+    return innerContent.length > 20 ? output : null;
+  } catch (err) {
+    if (process.env.DEBUG) console.error("[session-start] fatal:", err);
+    return null;
+  }
+}

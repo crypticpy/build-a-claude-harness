@@ -1,0 +1,31 @@
+{
+  "version": "1.0",
+  "description": "Skill activation triggers. High-precision triggers for explicit requests, not broad pattern-matching — suggest a skill only when the user clearly wants the thing it does. This is the CANONICAL rules file the activation hook loads.",
+  "skills": {
+    "changelog-entry": {
+      "type": "domain",
+      "enforcement": "suggest",
+      "priority": "high",
+      "description": "Draft a single CHANGELOG entry from the current change. Triggers on explicit changelog requests, not on general 'document this' asks.",
+      "promptTriggers": {
+        "keywords": [
+          "changelog entry",
+          "changelog line",
+          "update the changelog",
+          "add to the changelog",
+          "add a changelog"
+        ],
+        "intentPatterns": [
+          "(add|write|draft|create)\\s+(a\\s+|the\\s+)?changelog\\s+(entry|line)",
+          "(update|append to)\\s+(the\\s+)?changelog"
+        ],
+        "excludePatterns": [
+          "release notes",
+          "whole version",
+          "plan",
+          "thinking about"
+        ]
+      }
+    }
+  }
+}

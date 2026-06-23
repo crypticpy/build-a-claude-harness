@@ -1,0 +1,9 @@
+{
+  "files": {
+    "src/auth/middleware.ts": { "editCount": 14, "sessions": 4 },
+    "src/payments/refund.ts": { "editCount": 9, "sessions": 3 },
+    "src/config/deploy.json": { "editCount": 6, "sessions": 3 },
+    "src/ui/client.ts": { "editCount": 4, "sessions": 2 },
+    "README.md": { "editCount": 2, "sessions": 1 }
+  }
+}

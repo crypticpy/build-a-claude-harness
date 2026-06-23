@@ -1,0 +1,10 @@
+{
+  "_comment": "Trimmed harness config. Two LLM roles share the same MODEL (set by LLM_MODEL); only the budget differs. summarize runs every compaction → small budget. recall runs rarely (/evolve, /retrospective) → bigger budget, higher effort. The frequency of the job decides the spend.",
+  "llm": {
+    "summarize": { "maxTokens": 8000, "reasoningEffort": "low" },
+    "recall": { "maxTokens": 32000, "reasoningEffort": "high" }
+  },
+  "evolution": {
+    "minSessionsForAnalysis": 3
+  }
+}

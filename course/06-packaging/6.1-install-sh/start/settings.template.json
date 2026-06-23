@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "_comment": "TEMPLATE — install.sh copies this VERBATIM to $CLAUDE_DIR/settings.json. The $HOME below is NOT expanded by the installer; Claude Code expands it inside hook command strings at hook-execution time. A straight `cp` is the whole render step.",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $HOME/.claude/hooks/unified/unified-hook.mjs prompt"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $HOME/.claude/hooks/unified/unified-hook.mjs precompact"
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash $HOME/.claude/statusline-command.sh"
+  }
+}

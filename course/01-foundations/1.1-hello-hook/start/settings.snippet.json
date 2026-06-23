@@ -1,0 +1,16 @@
+{
+  "_comment": "Paste the UserPromptSubmit block below into the \"hooks\" object of your $HOME/.claude/settings.json. If you have no settings.json yet, this whole file is a valid one to start from. Edit the path so it points at where you saved hello-hook.mjs.",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $HOME/.claude/hooks/hello-hook.mjs"
+          }
+        ]
+      }
+    ]
+  }
+}

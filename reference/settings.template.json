@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "_comment": "TEMPLATE — install.sh copies this to the live settings location (default $HOME/.claude/settings.json). Paths use $HOME, which Claude Code expands inside hook command strings. Only the unified-hook event wiring and a data-only statusLine live here; level-up tooling is intentionally omitted.",
+  "env": {
+    "CLAUDE_CODE_AUTO_COMPACT_WINDOW": "260000",
+    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "80"
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $HOME/.claude/hooks/unified/unified-hook.mjs session-start"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $HOME/.claude/hooks/unified/unified-hook.mjs prompt"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $HOME/.claude/hooks/unified/unified-hook.mjs precompact"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $HOME/.claude/hooks/unified/unified-hook.mjs post-edit"
+          }
+        ]
+      },
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $HOME/.claude/hooks/unified/unified-hook.mjs post-tool"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $HOME/.claude/hooks/unified/unified-hook.mjs stop"
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash $HOME/.claude/statusline-command.sh"
+  }
+}

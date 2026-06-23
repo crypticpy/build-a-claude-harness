@@ -1,0 +1,5 @@
+{"type":"user","message":{"content":"Run the tests."}}
+{"type":"assistant","message":{"content":[{"type":"text","text":"Running the test suite."},{"type":"tool_use","name":"Bash","input":{"command":"npm test"}}]}}
+{"type":"user","message":{"content":[{"type":"tool_result","is_error":true,"content":"1 test failed: timeout"}]}}
+{"type":"assistant","message":{"content":[{"type":"text","text":"Fixing the timeout and re-running."},{"type":"tool_use","name":"Edit","input":{"file_path":"src/app.js"}}]}}
+{"type":"user","message":{"content":[{"type":"tool_result","content":"File updated."}]}}

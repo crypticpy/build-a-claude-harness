@@ -1,0 +1,8 @@
+{
+  "_comment": "DATA ONLY — a per-model price table (USD per million tokens). The powerline/ directory is a pricing lookup, NOT the statusline source. Don't go looking here for the bar-drawing code; that's statusline-command.sh. This file just lets a fancier statusline turn token counts into dollars.",
+  "data": {
+    "claude-haiku-4-5": { "input": 1, "output": 5, "cache_read": 0.1 },
+    "claude-sonnet-4-5": { "input": 3, "output": 15, "cache_read": 0.3 },
+    "gpt-4o-mini": { "input": 0.15, "output": 0.6, "cache_read": 0.075 }
+  }
+}

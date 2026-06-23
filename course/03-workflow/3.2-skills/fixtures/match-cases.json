@@ -1,0 +1,30 @@
+{
+  "comment": "Deterministic matcher cases for the 3.2 checkpoint. Each case: a prompt and the skill the hook should suggest (null = stay quiet).",
+  "cases": [
+    {
+      "prompt": "please add a changelog entry for the retry fix",
+      "expect": "changelog-entry",
+      "why": "explicit keyword 'changelog entry'"
+    },
+    {
+      "prompt": "update the changelog with the new flag",
+      "expect": "changelog-entry",
+      "why": "intent pattern: update the changelog"
+    },
+    {
+      "prompt": "write the full release notes for version 2.0",
+      "expect": null,
+      "why": "excludePattern 'release notes' short-circuits to no match"
+    },
+    {
+      "prompt": "let's plan the changelog format thinking about future versions",
+      "expect": null,
+      "why": "excludePattern 'plan' / 'thinking about' suppresses it during discussion"
+    },
+    {
+      "prompt": "summarize what this function does",
+      "expect": null,
+      "why": "no trigger matches — the hook stays silent"
+    }
+  ]
+}

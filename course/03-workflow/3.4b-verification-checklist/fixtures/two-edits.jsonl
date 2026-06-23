@@ -1,0 +1,3 @@
+{"type":"user","message":{"content":[{"type":"text","text":"fix the two small bugs"}]}}
+{"type":"assistant","message":{"content":[{"type":"text","text":"Two quick edits."},{"type":"tool_use","name":"Edit","id":"t1","input":{"file_path":"src/a.js"}}]}}
+{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Edit","id":"t2","input":{"file_path":"src/b.js"}}]}}

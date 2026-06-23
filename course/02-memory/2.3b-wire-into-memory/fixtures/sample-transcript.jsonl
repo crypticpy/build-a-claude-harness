@@ -1,0 +1,4 @@
+{"type":"user","message":{"content":"Let's add the rolling log to the harness."}}
+{"type":"assistant","message":{"content":[{"type":"text","text":"I'll append every tool op to a per-session JSONL file."},{"type":"tool_use","name":"Write","input":{"file_path":"rolling-log.mjs"}}]}}
+{"type":"user","message":{"content":[{"type":"tool_result","content":"File created."}]}}
+{"type":"assistant","message":{"content":[{"type":"text","text":"Done. The log is append-only so parallel hooks can't clobber each other."}]}}

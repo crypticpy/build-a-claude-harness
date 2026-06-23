@@ -1,0 +1,8 @@
+{
+  "tool_name": "Bash",
+  "tool_input": {
+    "command": "npm install",
+    "description": "Install package dependencies"
+  },
+  "cwd": "/repo/my-project"
+}

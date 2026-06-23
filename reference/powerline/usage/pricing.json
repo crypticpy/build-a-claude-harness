@@ -1,0 +1,9 @@
+{
+  "_comment": "Data-only price table the statusline reads to turn token counts into dollars. USD per million tokens. Illustrative generic rows — replace with the rates your provider publishes.",
+  "_unit": "usd_per_million_tokens",
+  "models": {
+    "small-fast": { "input": 0.15, "output": 0.6, "cache_read": 0.015 },
+    "mid-balanced": { "input": 3.0, "output": 15.0, "cache_read": 0.3 },
+    "large-deep": { "input": 15.0, "output": 75.0, "cache_read": 1.5 }
+  }
+}

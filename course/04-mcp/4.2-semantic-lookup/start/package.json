@@ -1,0 +1,19 @@
+{
+  "name": "my-context-layer",
+  "version": "0.2.0",
+  "description": "Lesson 4.2 — MCP server with semantic_lookup + impact_check over a JSON store. Completes the MVH.",
+  "type": "module",
+  "bin": {
+    "my-context-layer": "dist/mcp-server.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/mcp-server.js",
+    "index": "node dist/mcp-server.js --index"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.4.0"
+  },
+  "license": "MIT"
+}
