@@ -19,7 +19,7 @@ Under the hood of a local (**stdio**) server like the one we build, there's no f
 
 (MCP also defines remote transports — HTTP, SSE, WebSocket — for servers that run as a network service. We use the simplest one, **stdio**: a loop over standard in/out, no network involved.)
 
-The format of those messages is **JSON-RPC**. Plainly:
+The format of those messages is **JSON-RPC**. Here is what that means:
 
 > **JSON-RPC** is a tiny convention for "call a function in another program by sending it JSON." You send `{ "method": "the function name", "params": {…the arguments…}, "id": 7 }`; you get back `{ "id": 7, "result": {…} }` (or an `error`). The `id` just lets you match each answer to its question. That's the entire idea — a function call, mailed as JSON.
 
@@ -41,7 +41,7 @@ The dispatch is a plain `switch` on `req.method` — read a request, match the m
 
 ## Why feed a summary, not the file
 
-Here's the part that makes an MCP server worth building. The reference server's tools don't return raw source — they return **distilled intelligence** ([Principle 5](principles.md#5-distilled-intelligence-over-raw-bytes)):
+This is what makes an MCP server worth building. The reference server's tools don't return raw source — they return **distilled intelligence** ([Principle 5](principles.md#5-distilled-intelligence-over-raw-bytes)):
 
 - **`semantic_lookup`** → a file's stored _summary_ and its exported [symbols](glossary.md#symbol--impact), **without** the file's contents.
 - **`impact_check`** → the list of downstream consumers (what would break if you change this), **without** reading every file by hand.
@@ -49,7 +49,7 @@ Here's the part that makes an MCP server worth building. The reference server's 
 
 Why is that better than just handing the model the file? Because raw bytes are expensive and noisy. Dumping a 600-line file to answer "what does this do and what depends on it?" burns [tokens](glossary.md#token) and buries the answer. A small program that has already _indexed_ the repo can hand back the processed answer — purpose, exports, dependents — in a fraction of the [context](glossary.md#context-window-or-context). You're trading a big dump of source for a small, precise answer. That single move — distilled answers over raw files — is described by the reference docs as the biggest quality upgrade in the whole harness.
 
-## So when do I want one?
+## When to reach for an MCP server
 
 Reach for an MCP server when the model keeps needing the _same kind of processed answer_ about your codebase or data — "summarize this file," "what calls this?", "what did we decide last week?" Anything you'd rather compute once and serve cheaply, instead of re-deriving from raw files every time, is a candidate for a tool.
 

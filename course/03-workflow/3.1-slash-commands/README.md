@@ -84,4 +84,4 @@ If `diff` shows a difference, you either left a `$ARGUMENTS` un-substituted (bla
 
 You built the simplest workflow primitive: a saved prompt with one placeholder, plus a testable model of the expansion Claude Code does for you. The trigger is _you_ typing the name.
 
-→ **[3.2 — Skills](../3.2-skills/)**, where the trigger moves to _Claude_: a skill the model invokes for itself based on its description — plus a hook that suggests it, and a decoy file designed to waste your afternoon if you don't know it's there.
+→ **[3.2 — Skills](../3.2-skills/)**, where the trigger moves to _Claude_: a skill the model invokes for itself based on its description — plus a hook that suggests it, and a decoy file that will cost you an afternoon of debugging if you don't know it's there.

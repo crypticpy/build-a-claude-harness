@@ -2,7 +2,7 @@
 
 > How the harness gets a chance to run at all. If you understand this one page, every other behavior in the system is just "which script runs on which event." This is the heart of [Principle 2: `settings.json` is the router](principles.md#2-settingsjson-is-the-router).
 
-## The idea in one sentence
+## The core mechanism
 
 Claude Code raises named **events** at fixed moments in a session, and a [hook](glossary.md#hook) is a script you ask it to run when a given event fires. That's the whole mechanism.
 

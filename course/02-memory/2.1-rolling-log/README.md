@@ -43,7 +43,7 @@ A [**rolling log**](../../../docs/glossary.md#rolling-log) is exactly this: an a
 
 ### Why append-only, never read-modify-write
 
-Here is the part most people get wrong on their first try. The naive way to add a line to a file is:
+This is the step most people get wrong on their first try. The naive way to add a line to a file is:
 
 > read the whole file → add my line in memory → write the whole file back.
 
@@ -69,7 +69,7 @@ The reference module [`reference/hooks/unified/modules/rolling-log.mjs`](../../.
 Open `start/rolling-log.mjs`. The file is complete except for **two blanks marked `// TODO`**:
 
 1. Build `sessionLogPath` — the path to `logs/<session_id>.jsonl`.
-2. **Append** the entry as one JSON line. This is the whole lesson in one statement.
+2. **Append** the entry as one JSON line. Those two steps are the entire pattern.
 
 Fill them in. (If you get stuck, the finished file is in `solution/` — diff against it.)
 

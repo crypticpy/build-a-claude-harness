@@ -18,7 +18,7 @@ Do 8.1 then 8.2. The transfer task lives at the end of 8.2 and is graded against
 
 ## The meta-moment
 
-Here's something worth sitting with before you start. **This very repository was depersonalized from a private one.** The harness you've been learning from started life full of one person's absolute paths, their employer's name, their email, private repo names, a non-public model id, an API key env var. None of that is here now — because it was put through exactly the audit 8.2 teaches. **The depersonalization checker you'll run in 8.2 — [`scripts/check-depersonalized.sh`](../../scripts/check-depersonalized.sh) — is the real one this repo uses in CI.** It's not a toy made for the lesson; it's the worked example, still on guard. 8.2 has you read it, understand its two-pass design, and run a version of it against your own harness.
+One thing is worth sitting with before you start. **This very repository was depersonalized from a private one.** The harness you've been learning from started life full of one person's absolute paths, their employer's name, their email, private repo names, a non-public model id, an API key env var. None of that is here now — because it was put through exactly the audit 8.2 teaches. **The depersonalization checker you'll run in 8.2 — [`scripts/check-depersonalized.sh`](../../scripts/check-depersonalized.sh) — is the real one this repo uses in CI.** It's not a toy made for the lesson; it's the worked example, still on guard. 8.2 has you read it, understand its two-pass design, and run a version of it against your own harness.
 
 That's the whole arc of the course in one move: you learned to build a harness, and now you learn to make _yours_ safe to publish — using the exact tool that made _this_ one safe to publish.
 

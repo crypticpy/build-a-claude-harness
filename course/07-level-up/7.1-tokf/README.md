@@ -36,7 +36,7 @@ It's a local Rust binary, so the filtering itself is **free in tokens and instan
 
 ### Why aggressive filtering is safe: the 🗜️ marker + `tokf raw last`
 
-Here's the part that makes this trustworthy instead of terrifying. If a tool silently _deleted_ 295 lines of output, you'd never adopt it — what if the answer was in line 200?
+This is what makes aggressive filtering trustworthy rather than risky. If a tool silently _deleted_ 295 lines of output, you'd never adopt it — what if the answer was in line 200?
 
 tokf doesn't delete. It **filters a view** and keeps the original. Two pieces make this safe:
 

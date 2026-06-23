@@ -8,7 +8,7 @@ it back, finds the patterns that **repeat**, and asks an LLM to turn them into
 concrete proposals: change this line in CLAUDE.md, add this config, write this
 hook. Then it stops — and hands the proposals to **you**.
 
-That last sentence is the whole lesson. The harness can notice its own
+That final step is the core idea of this lesson. The harness can notice its own
 recurring mistakes and draft fixes. It does **not** apply them. A human reads
 the proposals and decides. This is the safety rail that makes a self-improving
 system trustworthy.

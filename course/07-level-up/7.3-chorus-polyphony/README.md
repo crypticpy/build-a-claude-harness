@@ -34,7 +34,7 @@ This lesson has no `start/` — you're wiring real CLIs and running a real revie
 
 ### How it works: bring your own CLI
 
-Here's the clever bit that makes Chorus practical. It doesn't ask you for a pile of vendor API keys. Instead it **detects the AI CLIs you already have installed and authenticated** — your Claude Code, your Codex CLI, your Gemini CLI — and **shells out to them as subprocesses**, feeding each one the change and the review prompt on stdin. Each CLI uses its own existing auth. Chorus is an **orchestrator**, not a key vault: it holds no vendor credentials, it just convenes the tools already sitting on your machine.
+The design choice that makes Chorus practical is this: it doesn't ask you for a pile of vendor API keys. Instead it **detects the AI CLIs you already have installed and authenticated** — your Claude Code, your Codex CLI, your Gemini CLI — and **shells out to them as subprocesses**, feeding each one the change and the review prompt on stdin. Each CLI uses its own existing auth. Chorus is an **orchestrator**, not a key vault: it holds no vendor credentials, it just convenes the tools already sitting on your machine.
 
 That design has three nice consequences:
 

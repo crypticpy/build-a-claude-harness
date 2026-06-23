@@ -7,7 +7,7 @@ at the end of Part 4. It keeps memory, logs itself, runs your workflow commands,
 and answers questions about your own code. You _could_ stop here — it's a real,
 useful harness.
 
-Here's the reason not to. Everything you've built so far has been **quietly
+Here is why you should keep going. Everything you've built so far has been **quietly
 collecting evidence about how you and Claude actually work**: the lessons
 written on every compaction, the session summaries, the file-edit history, the
 tool logs. That pile of data has been accumulating for one purpose, and this is

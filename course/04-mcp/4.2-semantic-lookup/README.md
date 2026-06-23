@@ -56,7 +56,7 @@ The reference's `semantic_lookup` ([`reference/plugins/context-layer/src/tools/s
 
 ### Build — tool 1: `semantic_lookup`
 
-Open `start/src/tools/semantic-lookup.ts`. The path-matching is done. The **one blank** is the result object: return `path`, `found: true`, the `summary`, and the `symbols` from the indexed `entry`. (The hint is right there.) That blank is the principle in one line — serve the distilled answer, not the source.
+Open `start/src/tools/semantic-lookup.ts`. The path-matching is done. The **one blank** is the result object: return `path`, `found: true`, the `summary`, and the `symbols` from the indexed `entry`. (The hint is right there.) Filling that blank is the principle in action — you serve the distilled answer, not the source.
 
 ```bash
 npm run build

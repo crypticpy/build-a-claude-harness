@@ -30,7 +30,7 @@ This lesson has no `start/` — you're composing files you already built across 
 
 Step back and look at what you've built. Every single piece plugs into the same socket: **`settings.json` maps an event to a script** ([Principle 2](../../../docs/principles.md#2-settingsjson-is-the-router)). The rolling log, the session-memory writer, the impact-hint nudge, the quality gate, tokf, cf-approve — they are all just rows in that router table. Assembling a harness is therefore not a big integration project. It's: gather the scripts you want, write the router rows that fire them, and confirm nothing collides.
 
-That's the liberating realization the course was building toward. There's no framework to satisfy, no plugin lifecycle to honor. A harness is **a folder of small scripts and one table that says when each runs.**
+That is the key realization the course has been building toward. There's no framework to satisfy, no plugin lifecycle to honor. A harness is **a folder of small scripts and one table that says when each runs.**
 
 ### Choose your subset — you do not need all of it
 

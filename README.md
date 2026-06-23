@@ -27,6 +27,23 @@ This repo teaches you to build one, organized around **transferable principles**
 - **Let the system improve itself** — add a human-in-the-loop loop that proposes its own upgrades for you to approve.
 - **Reason about cost** — learn [where to spend tokens](docs/where-to-spend-tokens.md): cheap, high-frequency calls vs. expensive, rare ones.
 
+## Getting started
+
+Here is the fastest path from zero to a working customization running inside Claude Code.
+
+**1. Confirm your tools.** You need Claude Code, [Node.js](docs/glossary.md#nodejs-and-esm--mjs) 20+, and one [LLM API key](docs/glossary.md#api-key) — see [Prerequisites](#prerequisites) below for the details and a quick verification check.
+
+**2. Clone the repo:**
+
+```bash
+git clone https://github.com/crypticpy/build-a-claude-harness.git
+cd build-a-claude-harness
+```
+
+**3. Choose how you want to learn.** Pick a path from [How this repo is organized](#how-this-repo-is-organized) below — read the concepts, build through the course, or run the finished harness. Most learners do all three.
+
+**Want a hands-on result in your first 15 minutes?** Go straight to **[Part 1.1 — Hello, hook](course/01-foundations/1.1-hello-hook/)** and watch a script you wrote run automatically inside Claude Code. No prior harness experience required.
+
 ## How this repo is organized
 
 ```
@@ -55,11 +72,11 @@ Most people do all three: skim the docs, build through the course, and keep the 
 
 > **Which model?** Any small/cheap model works — the course uses a provider-neutral `LLM_API_KEY` / `LLM_MODEL` / `LLM_BASE_URL`, so the name is yours to choose.
 >
-> ⚠️ **One honest caveat:** the reference harness's background client speaks the **[OpenAI Responses API](docs/glossary.md#openai-responses-api-vs-chat-completions-api)** (OpenAI and Azure OpenAI support it directly). Many cheaper "OpenAI-compatible" providers (OpenRouter, Together, Groq, Ollama) only speak the older _Chat Completions_ format — so the course ships a small **adapter** to use them. Brand new? Start with OpenAI to skip the detour.
+> ⚠️ **One compatibility caveat:** the reference harness's background client speaks the **[OpenAI Responses API](docs/glossary.md#openai-responses-api-vs-chat-completions-api)** (OpenAI and Azure OpenAI support it directly). Many cheaper "OpenAI-compatible" providers (OpenRouter, Together, Groq, Ollama) only speak the older _Chat Completions_ format — so the course ships a small **adapter** to use them. Brand new? Start with OpenAI to skip the detour.
 
 > **Cost:** the core runs for **cents per day** (low single-digit dollars on a very heavy day). The memory summarizer fires often but uses a cheap model at low reasoning effort; the deeper "recall" features run rarely. We make the cost tradeoffs explicit as we go — that's [a principle](docs/principles.md#4-token-economy), not an afterthought.
 
-## The idea in one line
+## The core idea
 
 Treat the model as a capable but **forgetful, blind-to-itself** collaborator: give it memory, feed it carefully, remove its busywork, and never let it grade its own homework — all wired so the setup is reproducible.
 

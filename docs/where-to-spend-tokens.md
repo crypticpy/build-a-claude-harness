@@ -1,6 +1,6 @@
 # Where to Spend Tokens
 
-> The harness runs a small AI in the background. This page is the honest answer to "what does that cost, and how is it kept cheap?" It's [Principle 4: token economy](principles.md#4-token-economy) made concrete.
+> The harness runs a small AI in the background. This page answers "what does that cost, and how is it kept cheap?" It's [Principle 4: token economy](principles.md#4-token-economy) made concrete.
 
 ## The one rule: match the budget to the frequency
 
@@ -39,7 +39,7 @@ The cheapest token is one that never reaches a model at all ([Principle 4](princ
 
 ## A cents-per-day mental model
 
-Let's be honest rather than hand-wavy. Costs depend on your provider and model, so here's how to _reason_ about it, with one worked example.
+Costs depend on your provider and model, so here is how to _reason_ about it, with one worked example.
 
 The only call that runs automatically and repeatedly is `summarize`, on each compaction. A heavy day of continuous work might trigger compaction **10–20 times**. Each call reads a condensed transcript (capped, a few thousand input tokens) and writes at most 8,000 tokens back.
 
@@ -51,7 +51,7 @@ Plug in a small, cheap background model. Suppose it's priced around **$0.15 per 
 
 So the automatic background cost is **cents per day** — single-digit dollars only on an exceptional day. The `recall` role is bigger per call, but you trigger it by hand (you typed `/evolve`), and only now and then, so it doesn't change the daily picture.
 
-> ⚠️ This is a _mental model_, not a quote. The numbers move with your provider's prices and your model choice — and if you point the harness at a frontier-tier model for the background `summarize` role (don't), the same 20 calls could cost dollars instead of cents. The whole point of the role split is to put the cheap model on the frequent job. Pick a small model for `summarize` and the math above holds.
+> ⚠️ This is a _mental model_, not a quote. The numbers move with your provider's prices and your model choice — and if you point the harness at a frontier-tier model for the background `summarize` role — which you should avoid — the same 20 calls could cost dollars instead of cents. The whole point of the role split is to put the cheap model on the frequent job. Pick a small model for `summarize` and the math above holds.
 
 ## Where this shows up
 

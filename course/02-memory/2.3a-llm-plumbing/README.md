@@ -50,7 +50,7 @@ That's why `start/` ships `api-key.mjs` and `llm-call.mjs` **complete**. You don
 
 ### ⚠️ The gotcha: empty output is not an error
 
-This one trips everyone, so internalize it now. On the Responses API, `max_output_tokens` budgets _everything the model produces_ — including its internal reasoning on reasoning-capable models. If that budget is too small, **the reasoning eats it all and there's no text left.** You don't get an error. You get an empty response and `callLlm()` returns `null`.
+This behavior trips up almost everyone the first time, so learn to recognize it now. On the Responses API, `max_output_tokens` budgets _everything the model produces_ — including its internal reasoning on reasoning-capable models. If that budget is too small, **the reasoning eats it all and there's no text left.** You don't get an error. You get an empty response and `callLlm()` returns `null`.
 
 So the rule: **if your summary comes back empty, the first thing to try is RAISE the token budget** (`maxTokens` in the role config). Don't go hunting for a network bug — you probably just under-budgeted.
 

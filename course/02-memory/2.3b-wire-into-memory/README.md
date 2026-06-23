@@ -44,7 +44,7 @@ A subtle point worth internalizing: you do **not** make the per-compaction call 
 
 ### Why the model id lives in the environment, not the code
 
-The model id comes from `LLM_MODEL` in the environment. It is **never** hardcoded in a hook. Here's the caution tale that earns that rule:
+The model id comes from `LLM_MODEL` in the environment. It is **never** hardcoded in a hook. The following cautionary tale shows why that rule matters:
 
 > A real harness config once pinned a specific model id — call it `gpt-5.4-mini` — directly into the summarizer. That id was never a public model. Every compaction's summary call quietly **404'd**. Because the harness fails silent (a missing summary never crashes a turn — exactly as designed), nothing broke loudly. The memory just silently stopped updating, and it took a while to notice that the notes had gone stale. A hardcoded, non-public model id had turned the whole memory system into a no-op.
 
@@ -131,7 +131,7 @@ echo '{"session_id":"stub-3b"}' | node session-memory.mjs prompt
 
 ✅ **Same pass marker, offline:** `memories/stub-3b.json`'s `projectContext` is the stubbed line (`"A rolling-log harness module in the Part 2 course"`), **not** the placeholder — proof the model's fields land in the note. The `<session-memory>` block on read renders them. (This is exactly what the Part-2 CI check does: feed `callLlm` a canned JSON reply and assert the summary fields land in the note.)
 
-**If the note shows `(no summary — set LLM_API_KEY)` even with a key set:** your key isn't exported in this shell, your `LLM_MODEL` 404'd (remember the caution tale — try a known-public id like `gpt-4o-mini`), or your `maxTokens` is still `0` — see troubleshooting below.
+**If the note shows `(no summary — set LLM_API_KEY)` even with a key set:** your key isn't exported in this shell, your `LLM_MODEL` 404'd (remember the cautionary tale — try a known-public id like `gpt-4o-mini`), or your `maxTokens` is still `0` — see troubleshooting below.
 
 ### Troubleshooting an empty/placeholder note
 

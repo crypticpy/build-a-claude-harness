@@ -33,7 +33,7 @@ None of these are clever on their own. The course is about wiring enough of them
 
 ### Why this matters: compaction
 
-Here is the single fact that motivates the biggest part of the course.
+One fact motivates the biggest part of this course, and it's worth understanding before you build anything.
 
 Claude Code has a **context window** — a finite amount of text it can "see" at once: your conversation, the files it read, the commands it ran. When that window gets close to full, Claude Code performs **compaction**: it summarizes the older parts of the conversation and drops their **verbatim** detail to make room. This is necessary — without it, long sessions would simply hit a wall — but it means **Claude forgets specifics**. The careful decision you made an hour ago, the reason you rejected approach A for approach B, the exact file it was about to fix — all of it can get squeezed out.
 

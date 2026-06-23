@@ -2,7 +2,7 @@
 
 > The gentlest possible introduction. If you've never written a hook or touched an API key, start here. No jargon goes undefined.
 
-## The one-minute version
+## In brief
 
 Claude Code is an agentic coding tool — it reads your codebase, edits files, and runs commands, and it even remembers some things across sessions on its own. But two everyday gaps remain:
 

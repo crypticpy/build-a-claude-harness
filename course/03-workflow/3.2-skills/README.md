@@ -1,6 +1,6 @@
 # 3.2 — Skills (two activation paths)
 
-A command is a prompt _you_ trigger by name. A **skill** moves the trigger to _Claude_: it reads the skill's `description` and decides on its own when to invoke it. That's the powerful part and the subtle part — the description isn't decoration, it's the matcher. This lesson builds a skill two ways: the **model path** (description-driven) and the **hook path** (a `skill-rules.json` rule the harness matches and suggests) — and walks you straight into the decoy file that eats afternoons.
+A command is a prompt _you_ trigger by name. A **skill** moves the trigger to _Claude_: it reads the skill's `description` and decides on its own when to invoke it. This is what makes a skill powerful and easy to get wrong — the description isn't decoration, it's the matcher. This lesson builds a skill two ways: the **model path** (description-driven) and the **hook path** (a `skill-rules.json` rule the harness matches and suggests) — and walks you straight into the decoy file that can cost you an afternoon of debugging.
 
 ## Objectives
 
@@ -38,7 +38,7 @@ There are two independent activation paths, and a real harness uses both:
 
 ### Why it matters
 
-The model path is what makes skills feel magic — you ask for a thing and the right capability shows up. The hook path is the safety net and the testable surface: you can _prove_ a rule fires on the phrases it should and stays silent on the ones it shouldn't, which you can't do with a probabilistic model decision. Together they're belt and suspenders.
+The model path is what makes skills feel automatic — you ask for a thing and the right capability shows up. The hook path is the safety net and the testable surface: you can _prove_ a rule fires on the phrases it should and stays silent on the ones it shouldn't, which you can't do with a probabilistic model decision. Together they're belt and suspenders.
 
 ### How the reference does it
 
