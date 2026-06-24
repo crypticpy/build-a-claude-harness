@@ -1,0 +1,31 @@
+---
+// A build-time highlighted excerpt on vellum chrome, captioned with its source
+// permalink at the pinned SHA. Shiki runs here in frontmatter; no client JS.
+import { highlight } from '../../lib/highlight';
+import { permalink, SHORT_SHA } from '../../lib/repo';
+interface Props {
+  code: string;
+  lang?: string;
+  file?: string;
+  lines?: [number, number?];
+}
+const { code, lang = 'javascript', file, lines } = Astro.props;
+const html = await highlight(code, lang);
+const href = file ? permalink(file, lines) : null;
+const where = file
+  ? `${file}${lines ? `:${lines[0]}${lines[1] && lines[1] !== lines[0] ? `-${lines[1]}` : ''}` : ''}`
+  : null;
+---
+
+<figure class="code-excerpt">
+  {
+    file && (
+      <figcaption class="ce-caption mono">
+        <a href={href} target="_blank" rel="noopener">
+          {where} <span class="ep-stamp">@{SHORT_SHA}</span>
+        </a>
+      </figcaption>
+    )
+  }
+  <div class="ce-body" set:html={html} />
+</figure>

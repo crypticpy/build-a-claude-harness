@@ -1,0 +1,48 @@
+---
+// The sticky beat rail. Anchor links to the four beats; an IntersectionObserver
+// (enhancement only) lights the current one. JS-off, it is still a working
+// table of contents.
+interface Props {
+  beats: Array<{ id: string; label: string }>;
+}
+const { beats } = Astro.props;
+---
+
+<nav class="progress-rail" aria-label="Module beats">
+  <ol>
+    {
+      beats.map((b) => (
+        <li>
+          <a href={`#${b.id}`} data-rail={b.id}>
+            <span class="rail-dot" aria-hidden="true" />
+            {b.label}
+          </a>
+        </li>
+      ))
+    }
+  </ol>
+</nav>
+
+<script>
+  // Enhancement only: light the rail entry for the beat in view. No framework.
+  const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-rail]'));
+  if (links.length && 'IntersectionObserver' in window) {
+    const byId = new Map(links.map((l) => [l.dataset.rail, l]));
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            links.forEach((l) => l.removeAttribute('aria-current'));
+            byId.get(e.target.id)?.setAttribute('aria-current', 'true');
+          }
+        }
+      },
+      { rootMargin: '-40% 0px -55% 0px' },
+    );
+    links.forEach((l) => {
+      const id = l.dataset.rail!;
+      const target = document.getElementById(id);
+      if (target) io.observe(target);
+    });
+  }
+</script>

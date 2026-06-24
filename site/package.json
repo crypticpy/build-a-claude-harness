@@ -1,0 +1,36 @@
+{
+  "name": "harness-atlas",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "prebuild": "node scripts/generate-models.mjs",
+    "build": "astro build",
+    "dev": "astro dev",
+    "preview": "astro preview",
+    "check": "astro check",
+    "models": "node scripts/generate-models.mjs",
+    "guardrails": "node scripts/check-guardrails.mjs",
+    "links": "node scripts/check-links.mjs",
+    "budgets": "node scripts/check-budgets.mjs",
+    "verify": "node scripts/generate-models.mjs && astro build && node scripts/check-guardrails.mjs && node scripts/check-budgets.mjs && node scripts/check-links.mjs"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^4.3.14",
+    "@astrojs/preact": "^4",
+    "astro": "^5",
+    "motion": "^11",
+    "preact": "^10"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9",
+    "d3-scale": "^4",
+    "d3-shape": "^3",
+    "shiki": "^1",
+    "typescript": "^5",
+    "zod": "^3"
+  }
+}

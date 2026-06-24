@@ -1,0 +1,448 @@
+/*
+ * HEVA module chassis. Reading-route styling: the four beats, the sticky rail,
+ * the prediction/quiz CSS-only reveals, and the typographic fact/caveat/evidence
+ * components. Everything here renders with no JS; islands only enhance.
+ */
+
+.module {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--sp-8) var(--sp-6) var(--sp-16);
+}
+.module-grid {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  gap: var(--sp-8);
+}
+@media (max-width: 860px) {
+  .module-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.module-body {
+  max-width: 70ch;
+  min-width: 0;
+}
+
+/* ── Module header ──────────────────────────────────────────────────── */
+.module-head {
+  margin-bottom: var(--sp-12);
+}
+.eyebrow {
+  font-size: var(--fs-xs);
+  color: var(--ink-faint);
+  letter-spacing: 0.04em;
+}
+.eyebrow a {
+  color: var(--ink-muted);
+}
+.module-head h1 {
+  font-family: var(--font-display);
+  font-size: var(--fs-3xl);
+  line-height: 1.1;
+  margin: var(--sp-2) 0 var(--sp-4);
+  color: var(--ink);
+}
+.thesis {
+  font-size: var(--fs-lg);
+  line-height: 1.5;
+  color: var(--ink-muted);
+}
+
+/* ── Progress rail (sticky) ─────────────────────────────────────────── */
+.progress-rail {
+  position: sticky;
+  top: var(--sp-8);
+  align-self: start;
+  height: max-content;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+}
+@media (max-width: 860px) {
+  .progress-rail {
+    position: static;
+    margin-bottom: var(--sp-6);
+  }
+}
+.progress-rail ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+.progress-rail a {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-1) var(--sp-2);
+  min-height: var(--target-min);
+  color: var(--ink-faint);
+  border-radius: var(--radius-pin);
+}
+.progress-rail a:hover {
+  color: var(--ink-muted);
+}
+.progress-rail a[aria-current='true'] {
+  color: var(--signal);
+}
+.rail-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--radius-full);
+  border: 1px solid currentColor;
+  flex: none;
+}
+.progress-rail a[aria-current='true'] .rail-dot {
+  background: var(--signal);
+}
+
+/* ── Beats ──────────────────────────────────────────────────────────── */
+.beat {
+  margin: var(--sp-12) 0;
+  scroll-margin-top: var(--sp-8);
+}
+.beat-eyebrow {
+  font-size: var(--fs-2xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--signal);
+  margin-bottom: var(--sp-2);
+}
+.beat-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-2xl);
+  line-height: 1.15;
+  color: var(--ink);
+  margin: 0 0 var(--sp-4);
+}
+
+/* ── Prose (the Explain body) ───────────────────────────────────────── */
+.beat-body {
+  font-size: var(--fs-base);
+  line-height: 1.65;
+  color: var(--ink);
+}
+.beat-body p {
+  margin: 0 0 var(--sp-4);
+}
+.beat-body ul,
+.beat-body ol {
+  margin: 0 0 var(--sp-4);
+  padding-left: var(--sp-6);
+}
+.beat-body li {
+  margin-bottom: var(--sp-2);
+}
+.beat-body a {
+  color: var(--focus);
+  text-underline-offset: 2px;
+}
+.beat-body strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+.beat-body :not(pre) > code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  color: var(--ink-muted);
+  background: var(--surface-2);
+  padding: 1px 5px;
+  border-radius: var(--radius-pin);
+}
+
+/* ── Prediction (Hook) — CSS-only commit + reveal ───────────────────── */
+.prediction fieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+.pc-prompt {
+  font-size: var(--fs-lg);
+  color: var(--ink);
+  margin-bottom: var(--sp-4);
+  padding: 0;
+}
+.pc-options,
+.aq-options {
+  display: grid;
+  gap: var(--sp-2);
+}
+.pc-input,
+.aq-input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+.pc-label,
+.aq-label {
+  display: block;
+  padding: var(--sp-3) var(--sp-4);
+  min-height: var(--target-comfortable);
+  border: var(--border-hairline);
+  border-radius: var(--radius-panel);
+  color: var(--ink);
+  cursor: pointer;
+  transition: border-color var(--motion-tick) var(--ease-transit);
+}
+.pc-label:hover,
+.aq-label:hover {
+  border-color: var(--ink-muted);
+}
+.pc-input:focus-visible + .pc-label,
+.aq-input:focus-visible + .aq-label {
+  box-shadow: var(--focus-ring);
+}
+.pc-input:checked + .pc-label,
+.aq-input:checked + .aq-label {
+  border-color: var(--ink-muted);
+}
+
+/* After a commit: mark the correct option, and the chosen-if-wrong one. */
+.pc-options:has(input:checked) .pc-input[data-correct='true'] + .pc-label,
+.aq-options:has(input:checked) .aq-input[data-correct='true'] + .aq-label {
+  border-color: var(--allow);
+  color: var(--allow);
+}
+.pc-options:has(input:checked) .pc-input[data-correct='true'] + .pc-label::after,
+.aq-options:has(input:checked) .aq-input[data-correct='true'] + .aq-label::after {
+  content: ' ✓';
+  font-weight: 700;
+}
+.pc-input[data-correct='false']:checked + .pc-label,
+.aq-input[data-correct='false']:checked + .aq-label {
+  border-color: var(--deny);
+  color: var(--deny);
+}
+.pc-input[data-correct='false']:checked + .pc-label::after,
+.aq-input[data-correct='false']:checked + .aq-label::after {
+  content: ' ✗';
+  font-weight: 700;
+}
+
+/* Apply feedback per option, revealed after commit */
+.aq-feedback {
+  display: none;
+  margin-top: var(--sp-2);
+  font-size: var(--fs-sm);
+  color: var(--ink-muted);
+}
+.aq-options:has(input:checked) .aq-input:checked + .aq-label .aq-feedback {
+  display: block;
+}
+
+/* The answer key reveals once any option is committed */
+.pc-reveal {
+  display: none;
+  margin-top: var(--sp-4);
+  padding: var(--sp-4);
+  border-left: 2px solid var(--signal-dim);
+  background: var(--surface);
+}
+.prediction:has(input:checked) .pc-reveal {
+  display: block;
+}
+.pc-key {
+  margin: 0;
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  color: var(--ink-muted);
+}
+.pc-key-mark {
+  color: var(--signal);
+  font-size: var(--fs-2xs);
+  letter-spacing: 0.1em;
+  margin-right: var(--sp-2);
+}
+
+/* ── Fact ───────────────────────────────────────────────────────────── */
+.fact {
+  display: flex;
+  gap: var(--sp-3);
+  align-items: baseline;
+  margin: var(--sp-4) 0;
+  padding: var(--sp-3) var(--sp-4);
+  border: var(--border-evidence);
+  border-radius: var(--radius-panel);
+  background: var(--surface);
+}
+.fact-mark {
+  flex: none;
+  font-size: var(--fs-2xs);
+  letter-spacing: 0.1em;
+  color: var(--signal);
+}
+.fact-body {
+  color: var(--ink);
+}
+
+/* ── Caveat (diagonal-hatch honesty band) ───────────────────────────── */
+.caveat {
+  display: flex;
+  gap: var(--sp-3);
+  margin: var(--sp-4) 0;
+  padding: var(--sp-4);
+  border: var(--border-hairline);
+  border-radius: var(--radius-panel);
+  background-color: var(--surface-caveat);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 7px,
+    rgba(255, 180, 84, 0.06) 7px,
+    rgba(255, 180, 84, 0.06) 8px
+  );
+}
+.caveat-mark {
+  flex: none;
+  font-size: var(--fs-2xs);
+  letter-spacing: 0.1em;
+  color: var(--signal);
+}
+.caveat-body {
+  color: var(--ink);
+  font-size: var(--fs-base);
+  line-height: 1.6;
+}
+
+/* ── Evidence pin ───────────────────────────────────────────────────── */
+.evidence-pin {
+  margin: var(--sp-4) 0;
+  border: var(--border-evidence);
+  border-radius: var(--radius-panel);
+  overflow: hidden;
+}
+.ep-body {
+  padding: var(--sp-4);
+  color: var(--ink);
+}
+.ep-source {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  align-items: center;
+  padding: var(--sp-2) var(--sp-4);
+  background: var(--surface);
+  border-top: var(--border-hairline);
+  font-size: var(--fs-2xs);
+  color: var(--ink-faint);
+}
+.ep-stamp {
+  color: var(--signal);
+  letter-spacing: 0.04em;
+}
+.ep-where {
+  color: var(--ink-muted);
+}
+
+/* ── Code excerpt (Shiki on vellum) ─────────────────────────────────── */
+.code-excerpt {
+  margin: var(--sp-4) 0;
+  border: var(--border-hairline);
+  border-radius: var(--radius-panel);
+  overflow: hidden;
+}
+.ce-caption {
+  padding: var(--sp-2) var(--sp-4);
+  background: var(--surface);
+  border-bottom: var(--border-hairline);
+  font-size: var(--fs-2xs);
+}
+.ce-caption a {
+  color: var(--ink-muted);
+}
+.ce-body :global(pre.shiki) {
+  margin: 0;
+  padding: var(--sp-4);
+  overflow-x: auto;
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  background: var(--surface-2) !important;
+}
+.ce-body :global(pre.shiki):focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* ── Repo link (inline) ─────────────────────────────────────────────── */
+.repo-link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.repo-sha {
+  font-size: 0.85em;
+  color: var(--ink-faint);
+}
+
+/* ── Module nav ─────────────────────────────────────────────────────── */
+.module-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  margin-top: var(--sp-12);
+  padding-top: var(--sp-6);
+  border-top: var(--border-hairline);
+}
+.mn-link {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  max-width: 45%;
+}
+.mn-next {
+  text-align: right;
+}
+.mn-dir {
+  font-size: var(--fs-2xs);
+  color: var(--ink-faint);
+}
+.mn-title {
+  color: var(--ink);
+}
+
+/* ── Readiness meter ────────────────────────────────────────────────── */
+.module-foot {
+  margin-top: var(--sp-8);
+}
+.readiness-meter {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  font-size: var(--fs-2xs);
+  color: var(--ink-faint);
+}
+.rm-track {
+  flex: 1;
+  max-width: 220px;
+  height: 6px;
+  background: var(--surface-2);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+.rm-fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--signal);
+  transition: width var(--motion-settle) var(--ease-settle);
+}
+
+/* ── Pending viz placeholder ────────────────────────────────────────── */
+.viz-pending {
+  padding: var(--sp-8);
+  border: 1px dashed var(--ink-faint);
+  border-radius: var(--radius-panel);
+  color: var(--ink-faint);
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rm-fill,
+  .pc-label,
+  .aq-label {
+    transition: none;
+  }
+}

@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { href } from '../lib/href';
+---
+
+<BaseLayout title="Not found — Harness Atlas">
+  <main id="main" class="wrap notfound">
+    <p class="kicker mono">404</p>
+    <h1>That room is not on the map.</h1>
+    <p class="prose">
+      The page you asked for does not exist in the atlas. Head back to the entrance.
+    </p>
+    <a class="back mono" href={href()}>Return to the atlas</a>
+  </main>
+</BaseLayout>
+
+<style>
+  .notfound {
+    padding-block: var(--sp-16);
+    min-height: 70dvh;
+  }
+  .kicker {
+    color: var(--signal);
+    letter-spacing: 0.18em;
+  }
+  .back {
+    display: inline-block;
+    margin-top: var(--sp-6);
+    padding: var(--sp-2) var(--sp-4);
+    border: var(--border-evidence);
+    border-radius: var(--radius-pin);
+    text-decoration: none;
+    color: var(--ink);
+    min-height: var(--target-comfortable);
+  }
+</style>

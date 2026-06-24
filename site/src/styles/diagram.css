@@ -1,0 +1,366 @@
+/*
+ * Shared SVG grammar. Nodes are stroke-only at rest; exactly one thing is lit.
+ * Edges are neutral (--signal-dim solid) at rest and reveal their true type
+ * (hue + dash + glyph) only when lit. Everything is currentColor + shape + dash
+ * so forced-colors is a designed skin.
+ */
+
+.diagram {
+  width: 100%;
+  height: auto;
+  display: block;
+  color: var(--ink);
+  font-family: var(--font-mono);
+}
+
+.diagram .grid line {
+  stroke: var(--grid-color);
+  stroke-opacity: var(--grid-opacity);
+  stroke-width: 1;
+}
+
+/* ── Nodes: shape carries type; fill only on activation ─────────────── */
+.diagram .node {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+  transition:
+    fill-opacity var(--motion-settle) var(--ease-settle),
+    stroke var(--motion-settle) var(--ease-settle);
+}
+.diagram .node-fill {
+  fill: var(--signal);
+  fill-opacity: 0;
+  transition: fill-opacity var(--motion-settle) var(--ease-settle);
+}
+.diagram .is-lit > .node-fill,
+.diagram .node.is-lit {
+  fill-opacity: 1;
+}
+.diagram .is-visited > .node-fill {
+  fill-opacity: 0.3;
+}
+.diagram .node-label {
+  fill: var(--ink-muted);
+  font-size: 12px;
+  text-anchor: middle;
+}
+.diagram .is-lit .node-label {
+  fill: var(--ink);
+}
+
+/* Unsubscribed / platform-event treatment: dashed hollow, never filled. */
+.diagram .node--unsub {
+  stroke: var(--ink-faint);
+  stroke-dasharray: 4 3;
+}
+
+/* ── Edges: neutral at rest, typed when lit ─────────────────────────── */
+.diagram .edge {
+  fill: none;
+  stroke: var(--signal-dim);
+  stroke-width: 1.5;
+  stroke-dasharray: none;
+  vector-effect: non-scaling-stroke;
+  transition: stroke var(--motion-transit) var(--ease-transit);
+}
+.diagram .edge-group.is-lit .edge {
+  stroke: var(--ec, var(--signal));
+  stroke-dasharray: var(--ed, none);
+}
+.diagram .edge-glyph {
+  fill: var(--ec, var(--ink-muted));
+  font-size: 11px;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  opacity: 0;
+}
+.diagram .edge-group.is-lit .edge-glyph {
+  opacity: 1;
+}
+
+/* ── The token: one luminous capsule, glow is a baked gradient stroke ── */
+.diagram .token {
+  fill: var(--signal);
+  stroke: var(--signal);
+  stroke-opacity: 0.35;
+  stroke-width: 6;
+  paint-order: stroke;
+  opacity: 0;
+}
+.diagram .token.is-active {
+  opacity: 1;
+}
+
+/* ── Focus: tokenized double-stroke on SVG nodes via sibling rect ─────── */
+.diagram .focus-rect {
+  fill: none;
+  stroke: none;
+  rx: 4;
+}
+.diagram :focus-visible > .focus-rect,
+.diagram .node-group:focus-visible .focus-rect {
+  stroke: var(--focus);
+  stroke-width: 2;
+}
+.diagram .node-group:focus {
+  outline: none;
+}
+
+@media (forced-colors: active) {
+  .diagram .node,
+  .diagram .edge {
+    stroke: currentColor;
+  }
+  .diagram .node-fill {
+    fill: currentColor;
+  }
+  .diagram .token {
+    fill: currentColor;
+    stroke: none;
+  }
+  .diagram .node-group:focus-visible .focus-rect {
+    stroke: Highlight;
+    forced-color-adjust: none;
+  }
+}
+
+/* ── Legend ─────────────────────────────────────────────────────────── */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2) var(--sp-4);
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  color: var(--ink-faint);
+  margin-top: var(--sp-3);
+}
+.legend .legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+}
+.legend svg {
+  overflow: visible;
+}
+
+/* ── SVG / DATA toggle (CSS-only hidden-radio swap) ─────────────────── */
+.view-toggle {
+  display: inline-flex;
+  border: var(--border-hairline);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+}
+.view-toggle label {
+  padding: 6px 14px;
+  min-height: var(--target-min);
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  color: var(--ink-muted);
+}
+.view-toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.view-toggle input:checked + label {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+.view-toggle input:focus-visible + label {
+  box-shadow: var(--focus-ring);
+}
+
+.figure-svg,
+.figure-data {
+  margin-top: var(--sp-4);
+}
+/* default: SVG shown, DATA hidden; the radios flip it with no JS */
+.twin-host:has(.vt-data:checked) .figure-svg {
+  display: none;
+}
+.twin-host:has(.vt-svg:checked) .figure-data {
+  display: none;
+}
+
+/* ── Twin table / tree (the primary accessible surface) ─────────────── */
+.twin {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--ink);
+}
+.twin caption {
+  text-align: left;
+  color: var(--ink-muted);
+  font-size: var(--fs-xs);
+  margin-bottom: var(--sp-2);
+}
+.twin th,
+.twin td {
+  text-align: left;
+  padding: var(--sp-2) var(--sp-3);
+  border-bottom: var(--border-hairline);
+  vertical-align: top;
+}
+.twin th {
+  color: var(--ink-muted);
+  font-weight: 400;
+  white-space: nowrap;
+}
+.twin tr[aria-current='true'] {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
+.twin .twin-fact {
+  color: var(--signal);
+}
+.twin .twin-unsub {
+  color: var(--ink-faint);
+}
+.twin tr[data-step] {
+  cursor: default;
+}
+.twin code {
+  font-size: var(--fs-xs);
+  color: var(--ink-muted);
+}
+
+/* ── SV-1 spine: a single resting wire the token rides ──────────────── */
+.diagram .wire {
+  fill: none;
+  stroke: var(--signal-dim);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+@media (forced-colors: active) {
+  .diagram .wire {
+    stroke: currentColor;
+  }
+}
+
+/* ── Trace player controls (decorator island chrome) ────────────────── */
+.trace-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-top: var(--sp-4);
+}
+.tp-btn {
+  min-height: var(--target-min);
+  min-width: var(--target-min);
+  padding: 0 var(--sp-3);
+  background: var(--surface-2);
+  color: var(--ink);
+  border: var(--border-hairline);
+  border-radius: var(--radius-pin);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  cursor: pointer;
+}
+.tp-btn:hover:not(:disabled) {
+  border-color: var(--ink-muted);
+}
+.tp-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.tp-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+.tp-btn[aria-pressed='true'] {
+  background: var(--signal-dim);
+  color: var(--ink);
+}
+.tp-scrub {
+  flex: 1 1 160px;
+  display: flex;
+  align-items: center;
+  min-height: var(--target-min);
+}
+.tp-scrub input[type='range'] {
+  width: 100%;
+  accent-color: var(--signal);
+}
+.tp-scrub input[type='range']:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+.tp-counter {
+  color: var(--ink-faint);
+  font-size: var(--fs-2xs);
+  white-space: nowrap;
+}
+
+/* ── Drawers: the per-station inspector panel ───────────────────────── */
+.drawers {
+  margin-top: var(--sp-4);
+  min-height: 140px;
+}
+.drawer {
+  border: var(--border-hairline);
+  border-radius: var(--radius-panel);
+  background: var(--surface);
+  padding: var(--sp-4);
+}
+.drawer[hidden] {
+  display: none;
+}
+.drawer-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-3);
+}
+.drawer-title {
+  font-family: var(--font-mono);
+  font-size: var(--fs-base);
+  color: var(--ink);
+}
+.drawer-tag {
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  border: var(--border-hairline);
+  color: var(--ink-muted);
+}
+.drawer-tag.is-fact {
+  color: var(--signal);
+  border-color: var(--signal-dim);
+}
+.drawer-tag.is-unsub {
+  color: var(--ink-faint);
+  border-style: dashed;
+}
+.drawer-rows {
+  display: grid;
+  gap: var(--sp-2);
+}
+.drawer-row {
+  display: grid;
+  grid-template-columns: minmax(70px, auto) 1fr;
+  gap: var(--sp-2) var(--sp-3);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+}
+.drawer-row dt {
+  color: var(--ink-faint);
+}
+.drawer-row dd {
+  color: var(--ink);
+  margin: 0;
+  word-break: break-word;
+}
+.drawer-note {
+  margin-top: var(--sp-3);
+  color: var(--ink-muted);
+  font-size: var(--fs-sm);
+}

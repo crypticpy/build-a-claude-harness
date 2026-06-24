@@ -1,0 +1,56 @@
+---
+title: The lifecycle is a wire
+phase: 1
+order: 1
+estMinutes: 6
+viz: sv1
+thesis: A session turn is a token riding a wire through six platform events. This harness subscribes to five of them and deliberately leaves one alone.
+hook:
+  prompt: When a tool call finishes, how many hooks does this harness run on the PostToolUse event?
+  options:
+    - { id: a, label: "One: a single catch-all hook" }
+    - { id: b, label: "Two: a Write/Edit formatter, then a catch-all logger" }
+    - { id: c, label: "Zero: PostToolUse is not subscribed" }
+  correct: b
+  key: "PostToolUse is the one event that fans out. Two hooks run in file order: post-edit on the Write|Edit matcher, then post-tool on every tool."
+apply:
+  question: Which lifecycle event does this harness deliberately NOT subscribe to?
+  options:
+    - { id: a, label: "PreToolUse", feedback: "Right. There is no row for it, and the absence of a row is the fact." }
+    - { id: b, label: "PreCompact", feedback: "PreCompact is wired. It distills the transcript into narrative memory before the window collapses." }
+    - { id: c, label: "Stop", feedback: "Stop is wired. It runs the overseer stop-check when a turn ends." }
+  correct: a
+---
+
+import Fact from '../../components/heva/Fact.astro';
+import EvidencePin from '../../components/heva/EvidencePin.astro';
+import Caveat from '../../components/heva/Caveat.astro';
+
+A Claude Code session is not a loop you write. It is a sequence of **platform events**,
+and the harness gets to subscribe to the ones it cares about. Each subscription is a row
+in a settings file: an event name, a matcher that decides which tool calls it applies to,
+and a command to run. When the event fires, the platform runs the matching commands and
+reads what they print.
+
+So the whole lifecycle reduces to one question you can answer by reading a file: which
+events did this harness wire, and what runs at each one?
+
+<Fact>This harness wires five of the six session lifecycle events. PreToolUse is left unsubscribed.</Fact>
+
+Five of the six events carry a single hook. The sixth, PostToolUse, carries **two**, and
+the order matters: the formatter runs first on file edits, then a catch-all logger runs on
+every tool. That ordering is not incidental. The formatter has to touch the file before the
+logger records that the turn happened.
+
+<EvidencePin file="reference/settings.template.json">
+Every subscribed event in the visualization below is a real row in the settings file the
+build reads at the pinned commit. If a row changes, the model regenerates and the build
+fails until the picture and the source agree again.
+</EvidencePin>
+
+The one event with no row is PreToolUse. It is a real platform event, fired before every
+tool call, but this harness publishes no hook for it. There is nothing to draw except its
+absence, so the diagram keeps it as a dashed, hollow station: present in the lifecycle, but
+not wired here.
+
+<Caveat>The event set belongs to the platform, not to this harness. A future Claude Code release could add, rename, or remove an event. The rows pinned here are real as of the pinned commit, and no further.</Caveat>

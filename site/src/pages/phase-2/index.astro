@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { href } from '../../lib/href';
+---
+
+<BaseLayout title="Phase 2: The Teardown — Harness Atlas" phase="2">
+  <main id="main" class="wrap phase">
+    <p class="kicker mono"><a href={href()}>Atlas</a> / Phase 2</p>
+    <h1>The Teardown</h1>
+    <p class="prose intro">
+      One descent through the reference harness, layer by layer, ending on the question
+      that makes autonomy safe: how does it run for hours without you? The descent is being
+      assembled.
+    </p>
+    <a class="back mono" href={href()}>Back to the atlas</a>
+  </main>
+</BaseLayout>
+
+<style>
+  .phase {
+    padding-block: var(--sp-12) var(--sp-16);
+    min-height: 80dvh;
+  }
+  .kicker {
+    color: var(--signal);
+    letter-spacing: 0.12em;
+    font-size: var(--fs-xs);
+  }
+  .intro {
+    color: var(--ink-muted);
+    font-size: var(--fs-lg);
+  }
+  .back {
+    color: var(--ink-faint);
+  }
+</style>

@@ -1,0 +1,110 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { href } from '../lib/href';
+import facts from '../generated/facts.json';
+---
+
+<BaseLayout title="Harness Atlas" phase="1">
+  <main id="main" class="wrap landing">
+    <p class="kicker mono">HARNESS ATLAS</p>
+    <h1 class="hero-line">
+      A guided museum tour of an architecture, not a code bootcamp.
+    </h1>
+    <p class="tagline prose">
+      See the seams. Understand the system. Then tell your agent to build it like this.
+    </p>
+
+    <nav class="phase-nav" aria-label="Phases">
+      <a class="phase-card" href={href('phase-1')}>
+        <span class="phase-tag mono">PHASE 1</span>
+        <span class="phase-title">Foundations</span>
+        <span class="phase-sub prose"
+          >The harness primitives, one room at a time: events, the router, memory,
+          commands, skills, subagents, MCP.</span
+        >
+      </a>
+      <a class="phase-card" href={href('phase-2')}>
+        <span class="phase-tag mono">PHASE 2</span>
+        <span class="phase-title">The Teardown</span>
+        <span class="phase-sub prose"
+          >A scroll-driven teardown of the reference harness, climbing to safe
+          autonomy through a second-LLM approval gate.</span
+        >
+      </a>
+    </nav>
+
+    <p class="provenance mono">
+      Every claim is pinned to the reference harness at
+      <a href={facts.provenance.settings}>{facts.shortSha}</a>. {facts.wiredEventCount} lifecycle
+      events wired, {facts.namedHarms.length} named harms, one router.
+    </p>
+  </main>
+</BaseLayout>
+
+<style>
+  .landing {
+    padding-block: var(--sp-16) var(--sp-12);
+    min-height: 100dvh;
+  }
+  .kicker {
+    color: var(--signal);
+    letter-spacing: 0.18em;
+    font-size: var(--fs-xs);
+    margin: 0 0 var(--sp-4);
+  }
+  .hero-line {
+    font-size: clamp(1.75rem, 5vw, var(--fs-3xl));
+    max-width: 20ch;
+    margin: 0 0 var(--sp-6);
+  }
+  .tagline {
+    color: var(--ink-muted);
+    font-size: var(--fs-lg);
+    margin: 0 0 var(--sp-12);
+  }
+  .phase-nav {
+    display: grid;
+    gap: var(--sp-6);
+    grid-template-columns: 1fr;
+    margin-bottom: var(--sp-12);
+  }
+  @media (min-width: 48rem) {
+    .phase-nav {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .phase-card {
+    display: grid;
+    gap: var(--sp-2);
+    padding: var(--sp-6);
+    background: var(--surface);
+    border: var(--border-hairline);
+    border-radius: var(--radius-panel);
+    color: var(--ink);
+    text-decoration: none;
+    transition: border-color var(--motion-settle) var(--ease-settle);
+  }
+  .phase-card:hover,
+  .phase-card:focus-visible {
+    border-color: var(--signal-dim);
+  }
+  .phase-tag {
+    color: var(--signal);
+    font-size: var(--fs-xs);
+    letter-spacing: 0.12em;
+  }
+  .phase-title {
+    font-family: var(--font-display);
+    font-size: var(--fs-xl);
+  }
+  .phase-sub {
+    color: var(--ink-muted);
+    font-size: var(--fs-sm);
+  }
+  .provenance {
+    color: var(--ink-faint);
+    font-size: var(--fs-xs);
+    border-top: var(--border-hairline);
+    padding-top: var(--sp-4);
+  }
+</style>

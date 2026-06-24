@@ -1,0 +1,59 @@
+---
+// The Hook beat. Commit a prediction, then the key reveals — CSS-only, so the
+// reveal works with no JS. After any commit, the correct option is marked and
+// the answer key opens. The store records the commit only when JS is present
+// (an honest enhancement; the floor still teaches).
+interface Option {
+  id: string;
+  label: string;
+}
+interface Props {
+  id: string;
+  prompt: string;
+  options: Option[];
+  correct: string;
+  answerKey: string;
+}
+const { id, prompt, options, correct, answerKey } = Astro.props;
+const name = `pc-${id}`;
+---
+
+<form class="prediction" data-pc={id}>
+  <fieldset>
+    <legend class="pc-prompt">{prompt}</legend>
+    <div class="pc-options">
+      {
+        options.map((o) => (
+          <div class="pc-option">
+            <input
+              type="radio"
+              class="pc-input"
+              id={`${name}-${o.id}`}
+              name={name}
+              value={o.id}
+              data-correct={o.id === correct ? 'true' : 'false'}
+            />
+            <label for={`${name}-${o.id}`} class="pc-label">
+              {o.label}
+            </label>
+          </div>
+        ))
+      }
+    </div>
+  </fieldset>
+  <div class="pc-reveal" role="status">
+    <p class="pc-key"><span class="pc-key-mark mono">KEY</span> {answerKey}</p>
+  </div>
+</form>
+
+<script>
+  // Enhancement only: persist the commit so the readiness meter can count it.
+  import { store } from '../../lib/store';
+  document.querySelectorAll<HTMLFormElement>('[data-pc]').forEach((form) => {
+    const id = form.dataset.pc!;
+    form.addEventListener('change', (e) => {
+      const t = e.target as HTMLInputElement;
+      if (t?.name?.startsWith('pc-')) store.commitPrediction(id, t.value);
+    });
+  });
+</script>

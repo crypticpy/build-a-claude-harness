@@ -1,0 +1,30 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import ModuleLayout from '../../components/heva/ModuleLayout.astro';
+
+export async function getStaticPaths() {
+  const all = (await getCollection('modules')).sort((a, b) => a.data.order - b.data.order);
+  const phase = all.filter((m) => m.data.phase === 2);
+  const nav = (e: CollectionEntry<'modules'>) => ({
+    slug: e.id,
+    title: e.data.title,
+    phase: e.data.phase,
+  });
+  return phase.map((entry, i) => ({
+    params: { slug: entry.id },
+    props: {
+      entry,
+      prev: i > 0 ? nav(phase[i - 1]) : null,
+      next: i < phase.length - 1 ? nav(phase[i + 1]) : null,
+      total: all.length,
+    },
+  }));
+}
+
+const { entry, prev, next, total } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<ModuleLayout entry={entry} prev={prev} next={next} total={total}>
+  <Content />
+</ModuleLayout>

@@ -1,0 +1,44 @@
+---
+// The Apply beat's JS-off floor: a single ungated check. CSS-only reveal of the
+// correct option and per-option feedback after commit. The QuizEngine island
+// (M10) enhances this same markup; it is never the only path to the answer.
+interface Option {
+  id: string;
+  label: string;
+  feedback?: string;
+}
+interface Props {
+  id: string;
+  question: string;
+  options: Option[];
+  correct: string;
+}
+const { id, question, options, correct } = Astro.props;
+const name = `aq-${id}`;
+---
+
+<form class="apply-quiz" data-aq={id}>
+  <fieldset>
+    <legend class="aq-question">{question}</legend>
+    <div class="aq-options">
+      {
+        options.map((o) => (
+          <div class="aq-option">
+            <input
+              type="radio"
+              class="aq-input"
+              id={`${name}-${o.id}`}
+              name={name}
+              value={o.id}
+              data-correct={o.id === correct ? 'true' : 'false'}
+            />
+            <label for={`${name}-${o.id}`} class="aq-label">
+              {o.label}
+              {o.feedback && <span class="aq-feedback">{o.feedback}</span>}
+            </label>
+          </div>
+        ))
+      }
+    </div>
+  </fieldset>
+</form>

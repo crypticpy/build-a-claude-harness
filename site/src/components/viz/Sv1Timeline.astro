@@ -1,0 +1,142 @@
+---
+// SV-1 Lifecycle Timeline — the hero visualization. ONE StationModel rendered
+// three ways: the animated SVG (token rides the wire, station lights, drawer
+// opens), the data twin (a first-class table, the primary accessible surface),
+// and the static no-JS fallback (the same SVG, frozen at step 0). All from a
+// single build pass over the provenance-gated model.
+import DiagramFrame from '../diagram/DiagramFrame.astro';
+import FlowNode from '../diagram/FlowNode.astro';
+import TypedEdge from '../diagram/TypedEdge.astro';
+import Legend from '../diagram/Legend.astro';
+import Figure from '../diagram/Figure.astro';
+import TracePlayer from '../../islands/TracePlayer';
+import { buildSv1, stations } from '../../lib/sv1';
+
+const { model, steps, wireD } = buildSv1();
+const id = 'sv1';
+const start = steps[0];
+---
+
+<Figure id={id} label="Lifecycle timeline: SVG or data view">
+  <div slot="svg">
+    <TracePlayer client:visible={{ rootMargin: '600px' }} figureId={id} steps={steps} />
+
+    <DiagramFrame width={model.width} height={model.height} label="The session lifecycle as a wire the turn rides through six platform events. Subscribed events fill amber; the unsubscribed event stays a dashed hollow.">
+      <path class="wire" d={wireD}></path>
+      {model.edges.map((edge) => <TypedEdge model={model} edge={edge} />)}
+      {model.nodes.map((node) => <FlowNode node={node} tabbable />)}
+      <ellipse
+        class="token"
+        cx="0"
+        cy="0"
+        rx="9"
+        ry="7"
+        style={`transform: translate(${start.tokenX}px, ${start.tokenY}px)`}
+        aria-hidden="true"
+      ></ellipse>
+    </DiagramFrame>
+
+    <div class="drawers">
+      {
+        stations.map((s, i) => (
+          <div class="drawer" data-drawer={s.id} hidden={i !== 0}>
+            <div class="drawer-head">
+              <span class="drawer-title">{s.id}</span>
+              {s.subscribed ? (
+                <span class="drawer-tag is-fact">subscribed · real at SHA</span>
+              ) : (
+                <span class="drawer-tag is-unsub">no row · platform event</span>
+              )}
+              {s.fanout && <span class="drawer-tag">fan-out · 2 hooks</span>}
+            </div>
+            <div class="drawer-rows">
+              {s.matchers.length === 0 ? (
+                <p class="drawer-note">
+                  This harness publishes no hook here. The absence of a row is the
+                  fact — nothing to pin, nothing fires.
+                </p>
+              ) : (
+                s.matchers.map((m) => (
+                  <dl class="drawer-row">
+                    <dt>matcher</dt>
+                    <dd>
+                      <code>{m.matcher}</code>
+                    </dd>
+                    <dt>runs</dt>
+                    <dd>
+                      <code>{m.arg}</code>
+                    </dd>
+                  </dl>
+                ))
+              )}
+              {s.contract && (
+                <dl class="drawer-row">
+                  <dt>stdin</dt>
+                  <dd>
+                    <code>{s.contract.stdin}</code>
+                  </dd>
+                  <dt>stdout</dt>
+                  <dd>
+                    <code>{s.contract.stdout}</code>
+                  </dd>
+                </dl>
+              )}
+            </div>
+            <p class="drawer-note">{s.note}</p>
+          </div>
+        ))
+      }
+    </div>
+
+    <Legend edges={['event']} nodes={['router']} />
+  </div>
+
+  <table slot="data" class="twin">
+    <caption>
+      The six session lifecycle events, in fire order. Five are subscribed in this
+      harness; PreToolUse is not. Real at SHA {model.sha}.
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Event</th>
+        <th scope="col">Subscribed</th>
+        <th scope="col">Runs</th>
+        <th scope="col">stdin → stdout</th>
+        <th scope="col">Note</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        stations.map((s, i) => (
+          <tr data-step={i}>
+            <td>{i + 1}</td>
+            <td class={s.subscribed ? 'twin-fact' : 'twin-unsub'}>{s.id}</td>
+            <td>{s.subscribed ? (s.fanout ? 'yes · 2 hooks' : 'yes') : 'no'}</td>
+            <td>
+              {s.matchers.length === 0 ? (
+                <span class="twin-unsub">—</span>
+              ) : (
+                s.matchers.map((m) => (
+                  <div>
+                    <code>{m.matcher}</code> → <code>{m.arg}</code>
+                  </div>
+                ))
+              )}
+            </td>
+            <td>
+              {s.contract ? (
+                <code>
+                  {s.contract.stdin} → {s.contract.stdout}
+                </code>
+              ) : (
+                <span class="twin-unsub">—</span>
+              )}
+            </td>
+            <td>{s.note}</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</Figure>

@@ -1,0 +1,124 @@
+---
+// The HEVA chassis. One module renders as Hook / Explain / Visualize / Apply,
+// fully legible JS-off. The Explain beat is the MDX body (default slot); the
+// other beats are structured frontmatter. The route passes prev/next and the
+// module total for the readiness meter.
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import '../../styles/heva.css';
+import Beat from './Beat.astro';
+import ProgressRail from './ProgressRail.astro';
+import PredictionCommit from './PredictionCommit.astro';
+import ApplyQuiz from './ApplyQuiz.astro';
+import ReadinessMeter from './ReadinessMeter.astro';
+import VizSlot from './VizSlot.astro';
+import { href } from '../../lib/href';
+
+interface NavLink {
+  slug: string;
+  title: string;
+  phase: number;
+}
+interface Props {
+  entry: CollectionEntry<'modules'>;
+  prev?: NavLink | null;
+  next?: NavLink | null;
+  total: number;
+}
+const { entry, prev, next, total } = Astro.props;
+const d = entry.data;
+const moduleId = entry.id;
+const beats = [
+  { id: 'hook', label: 'Predict' },
+  { id: 'explain', label: 'Explain' },
+  ...(d.viz ? [{ id: 'visualize', label: 'Visualize' }] : []),
+  ...(d.apply ? [{ id: 'apply', label: 'Apply' }] : []),
+];
+---
+
+<BaseLayout title={`${d.title} · Harness Atlas`} phase={String(d.phase) as '1' | '2'} description={d.thesis}>
+  <main id="main" class="module" data-module={moduleId}>
+    <div class="module-grid">
+      <ProgressRail beats={beats} />
+      <article class="module-body">
+        <header class="module-head">
+          <p class="eyebrow mono">
+            <a href={href(`phase-${d.phase}`)}>Phase {d.phase}</a> · {d.estMinutes} min read
+          </p>
+          <h1>{d.title}</h1>
+          <p class="thesis">{d.thesis}</p>
+        </header>
+
+        <Beat id="hook" kind="hook" title="Make the call">
+          <PredictionCommit
+            id={moduleId}
+            prompt={d.hook.prompt}
+            options={d.hook.options}
+            correct={d.hook.correct}
+            answerKey={d.hook.key}
+          />
+        </Beat>
+
+        <Beat id="explain" kind="explain" title="What's actually happening">
+          <slot />
+        </Beat>
+
+        {
+          d.viz && (
+            <Beat id="visualize" kind="visualize" title="See it move">
+              <VizSlot viz={d.viz} />
+            </Beat>
+          )
+        }
+
+        {
+          d.apply && (
+            <Beat id="apply" kind="apply" title="Check yourself">
+              <ApplyQuiz
+                id={moduleId}
+                question={d.apply.question}
+                options={d.apply.options}
+                correct={d.apply.correct}
+              />
+            </Beat>
+          )
+        }
+
+        <nav class="module-nav" aria-label="Module navigation">
+          {
+            prev ? (
+              <a class="mn-link mn-prev" href={href(`phase-${prev.phase}/${prev.slug}`)}>
+                <span class="mn-dir mono">← prev</span>
+                <span class="mn-title">{prev.title}</span>
+              </a>
+            ) : (
+              <span />
+            )
+          }
+          {
+            next ? (
+              <a class="mn-link mn-next" href={href(`phase-${next.phase}/${next.slug}`)}>
+                <span class="mn-dir mono">next →</span>
+                <span class="mn-title">{next.title}</span>
+              </a>
+            ) : (
+              <span />
+            )
+          }
+        </nav>
+
+        <footer class="module-foot">
+          <ReadinessMeter total={total} />
+        </footer>
+      </article>
+    </div>
+  </main>
+</BaseLayout>
+
+<script>
+  // Enhancement only: record this module as visited for the readiness meter.
+  import { store } from '../../lib/store';
+  const m = document.querySelector('[data-module]');
+  const id = m?.getAttribute('data-module');
+  if (id) store.markVisited(id);
+</script>

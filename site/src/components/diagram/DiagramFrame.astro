@@ -1,0 +1,28 @@
+---
+import '../../styles/diagram.css';
+
+interface Props {
+  width: number;
+  height: number;
+  label: string;
+  class?: string;
+}
+const { width, height, label, class: cls = '' } = Astro.props;
+const cell = 24;
+const vlines = Array.from({ length: Math.floor(width / cell) + 1 }, (_, i) => i * cell);
+const hlines = Array.from({ length: Math.floor(height / cell) + 1 }, (_, i) => i * cell);
+---
+
+<svg
+  class:list={['diagram', cls]}
+  viewBox={`0 0 ${width} ${height}`}
+  role="img"
+  aria-label={label}
+  preserveAspectRatio="xMidYMid meet"
+>
+  <g class="grid" aria-hidden="true">
+    {vlines.map((x) => <line x1={x} y1={0} x2={x} y2={height} />)}
+    {hlines.map((y) => <line x1={0} y1={y} x2={width} y2={y} />)}
+  </g>
+  <slot />
+</svg>

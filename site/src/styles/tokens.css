@@ -1,0 +1,213 @@
+/*
+ * Harness Atlas — design tokens (single source of truth).
+ * Everything is authored on currentColor + shape + dash so forced-colors and
+ * WCAG 2.2 AA are the same act, not a tension. See 04-design-system.md.
+ */
+
+:root {
+  /* ── Surfaces and ink ───────────────────────────────────────────── */
+  --bg: #0e1116;
+  --surface: #161a21;
+  --surface-2: #1d222b;
+  --surface-caveat: #1b1813;
+  --ink: #e8ebf0;
+  --ink-muted: #a6b0be;
+  --ink-faint: #6b7585;
+
+  /* ── Signal and status ──────────────────────────────────────────── */
+  --signal: #ffb454; /* live-flow amber: only on data in motion */
+  --signal-dim: #6e5a33; /* a resting, unlit wire */
+  --allow: #5bd6a6; /* mint; always paired with solid-pill + check */
+  --deny: #f2748b; /* coral-rose; always paired with hexagon-cut + struck rule */
+
+  /* ── Focus ──────────────────────────────────────────────────────── */
+  --focus: #5ce0e6;
+  --focus-ring: 0 0 0 2px var(--surface), 0 0 0 4px var(--focus);
+
+  /* ── Typed edges (hue + dash + glyph) ───────────────────────────── */
+  --edge-event: #ffb454;
+  --edge-stdout: #7fb2e8;
+  --edge-disk: #d8b878;
+  --edge-llm: #b69ce8;
+  --edge-tool: #6fc8c0;
+
+  /* ── Type ───────────────────────────────────────────────────────── */
+  --font-display: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+  --font-body: Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Cascadia Code', monospace;
+
+  --fs-2xs: 0.6875rem; /* 11 */
+  --fs-xs: 0.8125rem; /* 13 */
+  --fs-sm: 0.875rem; /* 14 */
+  --fs-base: 1rem; /* 16 */
+  --fs-lg: 1.1875rem; /* 19 */
+  --fs-xl: 1.4375rem; /* 23 */
+  --fs-2xl: 1.75rem; /* 28 */
+  --fs-3xl: 2.0625rem; /* 33 */
+
+  --leading-body: 1.6;
+  --measure: 64ch;
+
+  /* ── Spacing (8px grid) ─────────────────────────────────────────── */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-12: 48px;
+  --sp-16: 64px;
+
+  /* ── Radius ─────────────────────────────────────────────────────── */
+  --radius-pin: 4px;
+  --radius-panel: 10px;
+  --radius-node-rect: 6px;
+  --radius-full: 999px;
+
+  /* ── Targets ────────────────────────────────────────────────────── */
+  --target-min: 24px;
+  --target-comfortable: 44px;
+
+  /* ── Borders and texture ────────────────────────────────────────── */
+  --border-hairline: 1px solid rgba(232, 235, 240, 0.12);
+  --border-evidence: 1px solid var(--signal-dim);
+  --grid-color: #6b7585;
+  --grid-opacity: 0.06;
+  --grid-cell: 24px;
+  --vellum: #1a1e24;
+  --vellum-rule: #2a3038;
+
+  /* ── Motion ─────────────────────────────────────────────────────── */
+  --motion-instant: 0ms;
+  --motion-tick: 120ms;
+  --motion-transit: 220ms;
+  --motion-settle: 320ms;
+  --motion-walk: 600ms;
+  --ease-transit: cubic-bezier(0.4, 0, 0.6, 1);
+  --ease-settle: cubic-bezier(0.2, 0, 0, 1);
+  --ease-arrest: cubic-bezier(0.3, 0, 0.1, 1);
+  --stagger: 60ms;
+}
+
+/* ── The lamp-brightness lever: phase tone is one attribute on <body> ──
+ * No component is phase-aware in its own code; it reads these. */
+body[data-phase='1'] {
+  --bg: #12161d;
+  --grid-opacity: 0.06;
+}
+body[data-phase='2'] {
+  --bg: #0e1116;
+  --grid-opacity: 0.02;
+}
+
+/* ── Reset / base ───────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--fs-base);
+  line-height: var(--leading-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+@media (min-width: 48rem) {
+  body {
+    font-size: 1.125rem; /* 18px desktop */
+  }
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+code,
+kbd,
+samp,
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+a {
+  color: var(--focus);
+  text-underline-offset: 0.15em;
+}
+
+/* ── The named focus ring: declarative, survives island failure ──── */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-pin);
+}
+
+@media (forced-colors: active) {
+  :focus-visible {
+    outline: 3px solid Highlight;
+    box-shadow: none;
+    forced-color-adjust: none;
+  }
+}
+
+/* ── Skip link: the data-twin / content is the primary accessible path ── */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--surface-2);
+  color: var(--ink);
+  padding: var(--sp-2) var(--sp-4);
+  z-index: 100;
+}
+.skip-link:focus {
+  left: var(--sp-2);
+  top: var(--sp-2);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Shared layout primitives ──────────────────────────────────── */
+.prose {
+  max-width: var(--measure);
+}
+
+.wrap {
+  width: min(72rem, 100% - 2 * var(--sp-6));
+  margin-inline: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

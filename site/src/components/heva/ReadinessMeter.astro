@@ -1,0 +1,43 @@
+---
+// A custom element, not an island: it reads the persistent store and renders an
+// honest aggregate of modules visited. JS-off it shows its static floor (0%);
+// no framework ships. Vanilla web component defined in a bundled module script.
+interface Props {
+  total: number;
+}
+const { total } = Astro.props;
+---
+
+<readiness-meter data-total={total} class="readiness-meter">
+  <span class="rm-label mono">Readiness</span>
+  <span class="rm-track" aria-hidden="true"><span class="rm-fill"></span></span>
+  <span class="rm-value mono" role="status">0%</span>
+</readiness-meter>
+
+<script>
+  import { store, type AtlasState } from '../../lib/store';
+
+  class ReadinessMeter extends HTMLElement {
+    private unsub?: () => void;
+    connectedCallback() {
+      const total = Math.max(1, Number(this.dataset.total || 1));
+      const fill = this.querySelector<HTMLElement>('.rm-fill');
+      const value = this.querySelector<HTMLElement>('.rm-value');
+      const render = (s: AtlasState) => {
+        const visited = Object.keys(s.visited).length;
+        const pct = Math.min(100, Math.round((visited / total) * 100));
+        if (fill) fill.style.width = pct + '%';
+        if (value) value.textContent = pct + '%';
+      };
+      render(store.get());
+      this.unsub = store.subscribe(render);
+    }
+    disconnectedCallback() {
+      this.unsub?.();
+    }
+  }
+
+  if (!customElements.get('readiness-meter')) {
+    customElements.define('readiness-meter', ReadinessMeter);
+  }
+</script>

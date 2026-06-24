@@ -1,0 +1,22 @@
+---
+// The CSS-only SVG/DATA figure host. The data twin is a first-class peer, not a
+// fire exit: the toggle swaps with zero JS via :has(). Default view = SVG; the
+// twin is always reachable and is the primary accessible surface (screen-reader
+// users land on it via the skip semantics in the page).
+interface Props {
+  id: string;
+  label?: string;
+}
+const { id, label = 'Figure view' } = Astro.props;
+---
+
+<div class="twin-host" data-figure={id}>
+  <div class="view-toggle" role="radiogroup" aria-label={label}>
+    <input class="vt-svg" type="radio" name={`vt-${id}`} id={`vt-${id}-svg`} checked />
+    <label for={`vt-${id}-svg`}>SVG</label>
+    <input class="vt-data" type="radio" name={`vt-${id}`} id={`vt-${id}-data`} />
+    <label for={`vt-${id}-data`}>DATA</label>
+  </div>
+  <div class="figure-svg"><slot name="svg" /></div>
+  <div class="figure-data"><slot name="data" /></div>
+</div>

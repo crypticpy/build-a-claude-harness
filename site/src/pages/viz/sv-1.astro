@@ -1,0 +1,69 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Sv1Timeline from '../../components/viz/Sv1Timeline.astro';
+import { href } from '../../lib/href';
+import facts from '../../generated/facts.json';
+---
+
+<BaseLayout
+  title="SV-1 · Lifecycle Timeline · Harness Atlas"
+  phase="1"
+  description="The session lifecycle as a wire the turn rides through six platform events."
+>
+  <main id="main" class="viz-page">
+    <p class="eyebrow"><a href={href('phase-1')}>Phase 1</a> · Signature visualization 1</p>
+    <h1>The lifecycle is a wire</h1>
+    <p class="lede">
+      One session turn is a token riding a wire through six platform events. Five of
+      them this harness subscribes to; one it deliberately leaves alone. Press play,
+      or step through — then flip to DATA to read the same model as a table.
+    </p>
+
+    <Sv1Timeline />
+
+    <p class="provenance mono">
+      Model generated from <code>reference/settings.template.json</code> at
+      <code>{(facts as { shortSha?: string }).shortSha}</code>. The build fails if
+      the source drifts from this render.
+    </p>
+  </main>
+</BaseLayout>
+
+<style>
+  .viz-page {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: var(--sp-8) var(--sp-6) var(--sp-12);
+  }
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--ink-faint);
+    letter-spacing: 0.04em;
+  }
+  .eyebrow a {
+    color: var(--ink-muted);
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-size: var(--fs-3xl);
+    line-height: 1.1;
+    margin: var(--sp-2) 0 var(--sp-4);
+    color: var(--ink);
+  }
+  .lede {
+    font-size: var(--fs-lg);
+    line-height: 1.5;
+    color: var(--ink-muted);
+    max-width: 64ch;
+    margin-bottom: var(--sp-6);
+  }
+  .provenance {
+    margin-top: var(--sp-8);
+    font-size: var(--fs-2xs);
+    color: var(--ink-faint);
+  }
+  .provenance code {
+    color: var(--ink-muted);
+  }
+</style>

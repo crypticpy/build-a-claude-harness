@@ -1,0 +1,19 @@
+---
+// Places the module's signature visualization in the Visualize beat, chosen by
+// frontmatter. Unbuilt set-pieces render an honest placeholder, never a stub
+// pretending to be the real thing.
+import Sv1Timeline from '../viz/Sv1Timeline.astro';
+interface Props {
+  viz: 'sv1' | 'sv2' | 'sv3' | 'sv4' | 'sv5';
+}
+const { viz } = Astro.props;
+---
+
+{viz === 'sv1' && <Sv1Timeline />}
+{
+  viz !== 'sv1' && (
+    <p class="viz-pending mono">
+      {viz.toUpperCase()} — visualization under construction.
+    </p>
+  )
+}

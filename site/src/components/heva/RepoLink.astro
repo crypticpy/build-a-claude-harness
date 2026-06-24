@@ -1,0 +1,15 @@
+---
+// A bare permalink to a repo path at the pinned SHA. Used inline in prose.
+import { permalink, SHORT_SHA } from '../../lib/repo';
+interface Props {
+  path: string;
+  lines?: [number, number?];
+  label?: string;
+}
+const { path, lines, label } = Astro.props;
+const href = permalink(path, lines);
+---
+
+<a class="repo-link" href={href} target="_blank" rel="noopener">
+  <code>{label ?? path}</code><span class="repo-sha mono">@{SHORT_SHA}</span>
+</a>

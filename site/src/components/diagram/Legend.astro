@@ -1,0 +1,35 @@
+---
+import { EDGE_META, NODE_LABEL, type EdgeType, type NodeKind } from '../../lib/diagram';
+
+interface Props {
+  edges?: EdgeType[];
+  nodes?: NodeKind[];
+}
+const { edges = [], nodes = [] } = Astro.props;
+---
+
+<div class="legend">
+  {
+    edges.map((t) => {
+      const m = EDGE_META[t];
+      return (
+        <span class="legend-item">
+          <svg width="28" height="10" aria-hidden="true">
+            <line
+              x1="1"
+              y1="5"
+              x2="20"
+              y2="5"
+              stroke={`var(${m.colorVar})`}
+              stroke-width="1.5"
+              stroke-dasharray={m.dash === '0' ? undefined : m.dash}
+            />
+            <text x="24" y="9" font-size="9" fill={`var(${m.colorVar})`}>{m.glyph}</text>
+          </svg>
+          <span>{m.label}</span>
+        </span>
+      );
+    })
+  }
+  {nodes.map((k) => <span class="legend-item">{NODE_LABEL[k]}</span>)}
+</div>

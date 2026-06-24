@@ -1,0 +1,24 @@
+---
+import { EDGE_META, edgePath, edgeMid, type DiagramModel, type DiagramEdge } from '../../lib/diagram';
+
+interface Props {
+  model: DiagramModel;
+  edge: DiagramEdge;
+  lit?: boolean;
+}
+const { model, edge, lit = false } = Astro.props;
+const meta = EDGE_META[edge.type];
+const d = edgePath(model, edge);
+const [mx, my] = edgeMid(model, edge);
+const style = `--ec: var(${meta.colorVar}); --ed: ${meta.dash};`;
+---
+
+<g
+  class:list={['edge-group', { 'is-lit': lit }]}
+  data-edge-id={edge.id}
+  data-edge-type={edge.type}
+  style={style}
+>
+  <path class="edge" d={d}></path>
+  <text class="edge-glyph" x={mx} y={my}>{meta.glyph}</text>
+</g>

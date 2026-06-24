@@ -1,0 +1,26 @@
+---
+import '../styles/tokens.css';
+import { href } from '../lib/href';
+
+interface Props {
+  title: string;
+  phase?: '1' | '2';
+  description?: string;
+}
+const { title, phase = '1', description = 'See the seams. Understand the system.' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <link rel="icon" href={href('favicon.svg')} />
+    <title>{title}</title>
+  </head>
+  <body data-phase={phase}>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <slot />
+  </body>
+</html>

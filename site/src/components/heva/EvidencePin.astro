@@ -1,0 +1,22 @@
+---
+// The pinned-fact stamp: an assertion bonded to the exact source that proves it.
+// Vellum chrome marks "real at SHA". The slot holds the claim; the footer links
+// to the permalink the provenance gate read.
+import { permalink, SHORT_SHA } from '../../lib/repo';
+interface Props {
+  file: string;
+  lines?: [number, number?];
+  label?: string;
+}
+const { file, lines, label } = Astro.props;
+const href = permalink(file, lines);
+const where = lines ? `${file}:${lines[0]}${lines[1] && lines[1] !== lines[0] ? `-${lines[1]}` : ''}` : file;
+---
+
+<aside class="evidence-pin" role="note">
+  <div class="ep-body"><slot /></div>
+  <a class="ep-source mono" href={href} target="_blank" rel="noopener">
+    <span class="ep-stamp">real at {SHORT_SHA}</span>
+    <span class="ep-where">{label ?? where}</span>
+  </a>
+</aside>

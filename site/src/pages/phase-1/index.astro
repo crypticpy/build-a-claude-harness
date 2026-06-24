@@ -1,0 +1,35 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { href } from '../../lib/href';
+---
+
+<BaseLayout title="Phase 1: Foundations — Harness Atlas" phase="1">
+  <main id="main" class="wrap phase">
+    <p class="kicker mono"><a href={href()}>Atlas</a> / Phase 1</p>
+    <h1>Foundations</h1>
+    <p class="prose intro">
+      Eight rooms, each one primitive of the harness. You commit a prediction, see the
+      mechanism, watch it move, then prove you can read it. The rooms are being assembled.
+    </p>
+    <a class="back mono" href={href()}>Back to the atlas</a>
+  </main>
+</BaseLayout>
+
+<style>
+  .phase {
+    padding-block: var(--sp-12) var(--sp-16);
+    min-height: 80dvh;
+  }
+  .kicker {
+    color: var(--signal);
+    letter-spacing: 0.12em;
+    font-size: var(--fs-xs);
+  }
+  .intro {
+    color: var(--ink-muted);
+    font-size: var(--fs-lg);
+  }
+  .back {
+    color: var(--ink-faint);
+  }
+</style>

@@ -1,0 +1,17 @@
+---
+// One HEVA beat section. The id anchors the ProgressRail; the kind drives the
+// eyebrow label. Beats are plain sections — fully legible with no JS.
+interface Props {
+  id: string;
+  kind: 'hook' | 'explain' | 'visualize' | 'apply';
+  title: string;
+}
+const { id, kind, title } = Astro.props;
+const LABEL = { hook: 'Predict', explain: 'Explain', visualize: 'Visualize', apply: 'Apply' };
+---
+
+<section id={id} class={`beat beat--${kind}`} aria-labelledby={`${id}-h`}>
+  <p class="beat-eyebrow mono">{LABEL[kind]}</p>
+  <h2 id={`${id}-h`} class="beat-title">{title}</h2>
+  <div class="beat-body"><slot /></div>
+</section>
