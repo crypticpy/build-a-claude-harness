@@ -1,0 +1,156 @@
+---
+// SV-3 Ecosystem Data-Flow Map — the capstone. The whole machine as ONE closed
+// loop, rendered three ways from a single model: the animated SVG (the token
+// rides each edge, the disk accretes, the loop closes), the data twin (a
+// first-class table, the primary accessible surface), and the static no-JS
+// fallback (the same SVG, frozen at step 0, the closed track already legible).
+import DiagramFrame from '../diagram/DiagramFrame.astro';
+import FlowNode from '../diagram/FlowNode.astro';
+import TypedEdge from '../diagram/TypedEdge.astro';
+import Legend from '../diagram/Legend.astro';
+import Figure from '../diagram/Figure.astro';
+import TracePlayer from '../../islands/TracePlayer';
+import { EDGE_META, type EdgeType } from '../../lib/diagram';
+import { buildSv3 } from '../../lib/sv3';
+
+const { model, steps, nodes, diskRecords } = buildSv3();
+const id = 'sv3';
+const start = steps[0];
+
+// The disk cylinder's center, so the accretion bars sit inside its body.
+const disk = model.nodes.find((n) => n.id === 'disk')!;
+const barW = 52;
+const barX = disk.x - barW / 2;
+const barYs = [disk.y + 16, disk.y + 4, disk.y - 8]; // bottom-up accretion
+
+// Resolve each step to its lit node + edge, for the data twin rows.
+const byId = new Map(nodes.map((n) => [n.id, n]));
+const edgeType = (id?: string): EdgeType | null =>
+  (model.edges.find((e) => e.id === id)?.type ?? null) as EdgeType | null;
+const rows = steps.map((s, i) => {
+  const node = byId.get(s.litNodes[0]);
+  const et = edgeType(s.litEdges[0]);
+  return { i, node, et };
+});
+---
+
+<Figure id={id} label="Ecosystem data-flow map: SVG or data view">
+  <div slot="svg">
+    <TracePlayer client:visible={{ rootMargin: '600px' }} figureId={id} steps={steps} />
+
+    <DiagramFrame
+      width={model.width}
+      height={model.height}
+      label="The whole harness as one closed loop: a turn rides the forward spine through reason, the tool, the fan-out, and the rolling log into the disk, then PreCompact distills the log to memory and the return wire feeds it into the next prompt. The disk is the only node that grows."
+    >
+      {model.edges.map((edge) => <TypedEdge model={model} edge={edge} />)}
+      {model.nodes.map((node) => <FlowNode node={node} tabbable />)}
+
+      {/* The append-only residue: bars accrete inside the cylinder as the trace runs. */}
+      {
+        diskRecords.map((rec, i) => (
+          <rect
+            class="disk-line"
+            data-disk-line={i}
+            x={barX}
+            y={barYs[i]}
+            width={barW}
+            height="6"
+            rx="2"
+          >
+            <title>{rec}</title>
+          </rect>
+        ))
+      }
+
+      <ellipse
+        class="token"
+        cx="0"
+        cy="0"
+        rx="9"
+        ry="7"
+        style={`transform: translate(${start.tokenX}px, ${start.tokenY}px)`}
+        aria-hidden="true"
+      ></ellipse>
+    </DiagramFrame>
+
+    <div class="drawers">
+      {
+        nodes.map((n, i) => (
+          <div class="drawer" data-drawer={n.id} hidden={i !== 0}>
+            <div class="drawer-head">
+              <span class="drawer-title">{n.title}</span>
+              <span class:list={['drawer-tag', n.id === 'PreToolUse' ? 'is-unsub' : 'is-fact']}>
+                {n.tag}
+              </span>
+            </div>
+            <div class="drawer-rows">
+              <dl class="drawer-row">
+                <dt>payload</dt>
+                <dd>
+                  <code>{n.payload}</code>
+                </dd>
+              </dl>
+            </div>
+            <p class="drawer-note">{n.note}</p>
+          </div>
+        ))
+      }
+      <div class="drawer" data-drawer="return" hidden>
+        <div class="drawer-head">
+          <span class="drawer-title">return wire</span>
+          <span class="drawer-tag is-fact">stdout-context</span>
+        </div>
+        <div class="drawer-rows">
+          <dl class="drawer-row">
+            <dt>carries</dt>
+            <dd><code>&lt;session-memory&gt; … &lt;/session-memory&gt;</code></dd>
+          </dl>
+        </div>
+        <p class="drawer-note">
+          PreCompact's narrative memory is injected at the next UserPromptSubmit. The loop
+          closes, and the only thing that crossed the window boundary is the distilled log.
+        </p>
+      </div>
+    </div>
+
+    <Legend edges={['event', 'llm', 'tool', 'disk', 'stdout']} nodes={['router', 'llm', 'tool', 'module', 'disk']} />
+  </div>
+
+  <table slot="data" class="twin">
+    <caption>
+      One turn through the whole machine, in fire order, then the loop back. Each row is a
+      node the token reaches and the edge it rode in on. Real at SHA {model.sha}.
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Step</th>
+        <th scope="col">Node</th>
+        <th scope="col">Edge in</th>
+        <th scope="col">Payload</th>
+        <th scope="col">Provenance</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        rows.map(({ i, node, et }) => (
+          <tr data-step={i}>
+            <td>{i + 1}</td>
+            <td class={node?.id === 'PreToolUse' ? 'twin-unsub' : 'twin-fact'}>{node?.title}</td>
+            <td>
+              {et ? (
+                <code>{EDGE_META[et].glyph} {EDGE_META[et].label}</code>
+              ) : (
+                <span class="twin-unsub">— entry</span>
+              )}
+            </td>
+            <td>
+              <code>{node?.payload}</code>
+            </td>
+            <td>{node?.tag}</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</Figure>

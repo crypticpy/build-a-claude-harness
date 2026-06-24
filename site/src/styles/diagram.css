@@ -244,6 +244,21 @@
   }
 }
 
+/* ── SV-3 disk accretion: bars hidden at rest, reveal as the log grows ── */
+.diagram .disk-line {
+  fill: var(--signal);
+  fill-opacity: 0;
+  transition: fill-opacity var(--motion-settle) var(--ease-settle);
+}
+.diagram .disk-line.is-shown {
+  fill-opacity: 0.85;
+}
+@media (forced-colors: active) {
+  .diagram .disk-line.is-shown {
+    fill: currentColor;
+  }
+}
+
 /* ── Trace player controls (decorator island chrome) ────────────────── */
 .trace-controls {
   display: flex;

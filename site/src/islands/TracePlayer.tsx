@@ -8,8 +8,13 @@ import { useEffect, useRef, useState } from "preact/hooks";
 export interface StepView {
   litNodes: string[];
   litEdges: string[];
+  // Token motion is one of two modes: a point (translate, SV-1) or a ride along
+  // an edge path (CSS offset-path, SV-3). tokenPath wins when both are present.
   tokenX?: number;
   tokenY?: number;
+  tokenPath?: string;
+  // Cumulative count of accreted disk lines visible at this step (SV-3 memory).
+  diskLines?: number;
   drawer?: string;
   narration: string;
 }
@@ -61,14 +66,38 @@ export default function TracePlayer({ figureId, steps, labels }: Props) {
       r.querySelector(`[data-edge-id="${id}"]`)?.classList.add("is-lit"),
     );
     const token = r.querySelector(".token") as SVGElement | null;
-    if (token && s.tokenX != null) {
-      token.classList.add("is-active");
+    if (token) {
       const el = token as unknown as HTMLElement;
-      // A CSS transition tweens from the current transform and persists the end
-      // value as inline style (WAAPI would revert on finish). Reduced motion
-      // forks to an instant jump from the same one-line setter.
-      el.style.transition = reduced ? "none" : TRANSIT;
-      el.style.transform = `translate(${s.tokenX}px, ${s.tokenY ?? 0}px)`;
+      if (s.tokenPath) {
+        // Ride the edge: pin to the path at 0%, then transition offset-distance
+        // to 100%. A CSS transition persists the end state (WAAPI reverts).
+        // Clear point-mode transform so it does not compose with the motion path.
+        token.classList.add("is-active");
+        el.style.transform = "none";
+        el.style.setProperty("offset-path", `path("${s.tokenPath}")`);
+        el.style.transition = "none";
+        el.style.setProperty("offset-distance", "0%");
+        void el.getBoundingClientRect(); // commit the 0% start before animating
+        el.style.transition = reduced
+          ? "none"
+          : "offset-distance 0.6s cubic-bezier(0.4, 0, 0.6, 1)";
+        requestAnimationFrame(() =>
+          el.style.setProperty("offset-distance", "100%"),
+        );
+      } else if (s.tokenX != null) {
+        // Point mode: clear any motion path so translate positions cleanly.
+        token.classList.add("is-active");
+        el.style.removeProperty("offset-path");
+        el.style.removeProperty("offset-distance");
+        el.style.transition = reduced ? "none" : TRANSIT;
+        el.style.transform = `translate(${s.tokenX}px, ${s.tokenY ?? 0}px)`;
+      }
+    }
+    if (s.diskLines != null) {
+      r.querySelectorAll("[data-disk-line]").forEach((el) => {
+        const idx = Number(el.getAttribute("data-disk-line"));
+        el.classList.toggle("is-shown", idx < (s.diskLines ?? 0));
+      });
     }
     if (s.drawer) {
       const d = r.querySelector(

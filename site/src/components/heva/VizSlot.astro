@@ -3,15 +3,18 @@
 // frontmatter. Unbuilt set-pieces render an honest placeholder, never a stub
 // pretending to be the real thing.
 import Sv1Timeline from '../viz/Sv1Timeline.astro';
+import Sv3Map from '../viz/Sv3Map.astro';
 interface Props {
   viz: 'sv1' | 'sv2' | 'sv3' | 'sv4' | 'sv5';
 }
 const { viz } = Astro.props;
+const built = new Set(['sv1', 'sv3']);
 ---
 
 {viz === 'sv1' && <Sv1Timeline />}
+{viz === 'sv3' && <Sv3Map />}
 {
-  viz !== 'sv1' && (
+  !built.has(viz) && (
     <p class="viz-pending mono">
       {viz.toUpperCase()} — visualization under construction.
     </p>

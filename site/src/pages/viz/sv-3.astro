@@ -1,0 +1,70 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Sv3Map from '../../components/viz/Sv3Map.astro';
+import { href } from '../../lib/href';
+import facts from '../../generated/facts.json';
+---
+
+<BaseLayout
+  title="SV-3 · Ecosystem Data-Flow Map · Harness Atlas"
+  phase="2"
+  description="The whole harness as one closed loop: a turn rides the spine into the disk, compaction distills the log to memory, and the return wire feeds the next prompt."
+>
+  <main id="main" class="viz-page">
+    <p class="eyebrow"><a href={href('phase-2')}>Phase 2</a> · Signature visualization 3</p>
+    <h1>The machine is a loop</h1>
+    <p class="lede">
+      One turn rides the forward spine: a prompt, the model's reasoning, the tool, the
+      fan-out, the rolling log into the disk. Then PreCompact distills the log to memory and
+      the return wire feeds it into the next prompt. The disk is the only node that grows.
+      Press play, or step through, then flip to DATA to read the same loop as a table.
+    </p>
+
+    <Sv3Map />
+
+    <p class="provenance mono">
+      Model generated from <code>reference/settings.template.json</code> and the rolling-log
+      record shape at <code>{(facts as { shortSha?: string }).shortSha}</code>. The build
+      fails if the source drifts from this render.
+    </p>
+  </main>
+</BaseLayout>
+
+<style>
+  .viz-page {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: var(--sp-8) var(--sp-6) var(--sp-12);
+  }
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--ink-faint);
+    letter-spacing: 0.04em;
+  }
+  .eyebrow a {
+    color: var(--ink-muted);
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-size: var(--fs-3xl);
+    line-height: 1.1;
+    margin: var(--sp-2) 0 var(--sp-4);
+    color: var(--ink);
+  }
+  .lede {
+    font-size: var(--fs-lg);
+    line-height: 1.5;
+    color: var(--ink-muted);
+    max-width: 64ch;
+    margin-bottom: var(--sp-6);
+  }
+  .provenance {
+    margin-top: var(--sp-8);
+    font-size: var(--fs-2xs);
+    color: var(--ink-faint);
+  }
+  .provenance code {
+    color: var(--ink-muted);
+  }
+</style>
