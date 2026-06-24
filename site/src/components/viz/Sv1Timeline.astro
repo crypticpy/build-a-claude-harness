@@ -12,14 +12,14 @@ import Figure from '../diagram/Figure.astro';
 import TracePlayer from '../../islands/TracePlayer';
 import { buildSv1, stations } from '../../lib/sv1';
 
-const { model, steps, wireD } = buildSv1();
+const { model, steps, wireD, fanModules } = buildSv1();
 const id = 'sv1';
 const start = steps[0];
 ---
 
 <Figure id={id} label="Lifecycle timeline: SVG or data view">
   <div slot="svg">
-    <TracePlayer client:visible={{ rootMargin: '600px' }} figureId={id} steps={steps} />
+    <TracePlayer client:visible={{ rootMargin: '600px' }} figureId={id} steps={steps} autoplay />
 
     <DiagramFrame width={model.width} height={model.height} label="The session lifecycle as a wire the turn rides through six platform events. Subscribed events fill amber; the unsubscribed event stays a dashed hollow.">
       <path class="wire" d={wireD}></path>
@@ -34,6 +34,11 @@ const start = steps[0];
         style={`transform: translate(${start.tokenX}px, ${start.tokenY}px)`}
         aria-hidden="true"
       ></ellipse>
+      {
+        fanModules.map((_, k) => (
+          <ellipse class="token capsule" data-capsule={k} cx="0" cy="0" rx="7" ry="6" aria-hidden="true" />
+        ))
+      }
     </DiagramFrame>
 
     <div class="drawers">
