@@ -1,0 +1,151 @@
+---
+// SV-2 Orchestrator-to-Subagent Fan-Out, rendered three ways. The Sv2FanOut island
+// mutates this present lane SVG; it never re-renders. Isolation buys parallelism:
+// the three lanes can run at once because their file-sets never touch. The win is a
+// measured wall-clock fact (the sweep line and the 1-pass ghost), never confetti.
+import '../../styles/diagram.css';
+import Figure from '../diagram/Figure.astro';
+import EvidencePin from '../heva/EvidencePin.astro';
+import Sv2FanOut from '../../islands/Sv2FanOut';
+import {
+  subagents, disjoint, overlapClaim, OVERLAP_RULE, WALLCLOCK_PARALLEL, WALLCLOCK_SEQUENTIAL,
+  LANE_Y, HUB_X, START_X, FINISH_X, SEP_Y,
+} from '../../lib/sv2';
+
+const id = 'sv2';
+const laneIds = subagents.map((s) => s.id);
+const allDisjoint = disjoint(subagents);
+---
+
+<Figure id={id} label="Subagent fan-out: SVG or data view">
+  <div slot="svg">
+    <Sv2FanOut
+      client:visible={{ rootMargin: '600px' }}
+      figureId={id}
+      laneIds={laneIds}
+      overlapRule={OVERLAP_RULE}
+      wallParallel={WALLCLOCK_PARALLEL}
+      wallSequential={WALLCLOCK_SEQUENTIAL}
+    />
+
+    <svg class="diagram fanout" viewBox="0 0 1000 360" role="img" preserveAspectRatio="xMidYMid meet"
+      aria-label="One orchestrator fans out to three subagents on disjoint file-sets. A constant-velocity wall-clock line crosses all three finish discs in one pass when parallel, and three passes when sequential.">
+      {/* The 1-pass ghost: a permanent reference at the parallel finish line */}
+      <g class="ghost-tick">
+        <line x1={FINISH_X} y1="56" x2={FINISH_X} y2="298" stroke-dasharray="3 4"></line>
+        <text class="ghost-label mono" x={FINISH_X} y="312">1-pass finish</text>
+      </g>
+
+      {/* Disjoint corridors: locked mint when parallel is permitted */}
+      {SEP_Y.map((y) => <line class="lane-sep" x1={START_X} y1={y} x2={FINISH_X} y2={y}></line>)}
+
+      {/* The three lanes */}
+      {
+        subagents.map((a, i) => (
+          <g class="lane" data-lane={a.id}>
+            <line class="lane-track" x1={START_X} y1={LANE_Y[i]} x2={FINISH_X} y2={LANE_Y[i]}></line>
+            <rect class="lane-hub" x={HUB_X - 28} y={LANE_Y[i] - 16} width="56" height="32" rx="6"></rect>
+            <text class="lane-name mono" x={HUB_X} y={LANE_Y[i] + 5}>{a.name}</text>
+            <text class="lane-objective" x={START_X + 8} y={LANE_Y[i] - 22}>{a.objective}</text>
+            <text class="lane-owns mono" x={START_X + 8} y={LANE_Y[i] + 26}>owns {a.owns[0]}</text>
+            <circle class="lane-disc" data-lane={a.id} cx={FINISH_X} cy={LANE_Y[i]} r="14"></circle>
+            <text class="teardown mono" data-lane={a.id} x={FINISH_X} y={LANE_Y[i] - 22}>context discarded</text>
+            <ellipse class="lane-token" data-lane={a.id} cx="0" cy="0" rx="8" ry="6"
+              style={`transform: translate(${START_X}px, ${LANE_Y[i]}px)`} aria-hidden="true"></ellipse>
+          </g>
+        ))
+      }
+
+      {/* The constant-velocity wall-clock sweep line (time made spatial) */}
+      <line class="sweep" x1="150" y1="56" x2="150" y2="298"></line>
+
+      {/* The overlap guard: the instrument refuses the unsafe move, in front of you */}
+      <g class="overlap-guard" aria-hidden="true">
+        <rect x="120" y="150" width="760" height="60" rx="6"></rect>
+        <text class="guard-text mono" x="500" y="176">overlap on {overlapClaim}</text>
+        <text class="guard-rule mono" x="500" y="196">parallel disabled — sequence instead</text>
+      </g>
+    </svg>
+
+    <p class="fanout-fact mono">
+      One pass is the real work in this repo: <code>format-lint.mjs</code> and
+      <code>rolling-log.mjs</code> formatted and logged in parallel because they never touch.
+    </p>
+    <EvidencePin file="CLAUDE.md">
+      The safety rule is verbatim from this repo's CLAUDE.md: {OVERLAP_RULE} Overlapping
+      file-sets force the sequential fallback; the gate is real, not decorative.
+    </EvidencePin>
+  </div>
+
+  <table slot="data" class="twin">
+    <caption>
+      One orchestrator, three subagents. {WALLCLOCK_PARALLEL} {WALLCLOCK_SEQUENTIAL} They may
+      run at once only because the file-sets are disjoint.
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Subagent</th>
+        <th scope="col">Objective</th>
+        <th scope="col">Owns (exclusively)</th>
+        <th scope="col">Disjoint</th>
+        <th scope="col">Result</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        subagents.map((a) => (
+          <tr data-lane={a.id}>
+            <td class="twin-fact">{a.name}</td>
+            <td>{a.objective}</td>
+            <td><code>{a.owns[0]}</code></td>
+            <td>{allDisjoint ? '✓ pill' : '✕ struck'}</td>
+            <td>done · 1 pass</td>
+          </tr>
+        ))
+      }
+      <tr class="twin-guard">
+        <td colspan="5">
+          Overlap guard: if two agents claimed <code>{overlapClaim}</code>, parallel is
+          refused. {OVERLAP_RULE}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</Figure>
+
+<style>
+  .fanout .lane-track { stroke: var(--signal-dim); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+  .fanout .lane-hub { fill: var(--surface); stroke: var(--ink-muted); stroke-width: 1.5; }
+  .fanout .lane-name { fill: var(--ink); font-size: 12px; text-anchor: middle; }
+  .fanout .lane-objective { fill: var(--ink-muted); font-size: 12px; }
+  .fanout .lane-owns { fill: var(--ink-faint); font-size: 10px; }
+  .fanout .lane-disc { fill: none; stroke: var(--ink-muted); stroke-width: 1.5; transition: fill-opacity var(--motion-settle) var(--ease-settle); fill-opacity: 0; }
+  .fanout .lane-disc.is-filled { fill: var(--signal); fill-opacity: 1; }
+  .fanout .lane-token { fill: var(--signal); stroke: var(--signal); stroke-opacity: 0.3; stroke-width: 5; paint-order: stroke; }
+  .fanout .teardown { fill: var(--ink-faint); font-size: 10px; text-anchor: middle; opacity: 0; }
+  .fanout .teardown.is-shown { opacity: 1; }
+
+  .fanout .lane-sep { stroke: var(--ink-faint); stroke-width: 1; stroke-dasharray: 2 6; opacity: 0.4; transition: stroke var(--motion-settle) var(--ease-settle), opacity var(--motion-settle) var(--ease-settle); }
+  .fanout .lane-sep.is-locked { stroke: var(--allow); stroke-dasharray: none; opacity: 1; }
+
+  .fanout .sweep { stroke: var(--signal-dim); stroke-width: 1; }
+  .fanout .ghost-tick line { stroke: var(--ink-faint); stroke-width: 1; opacity: 0.5; transition: stroke var(--motion-settle) var(--ease-settle), opacity var(--motion-settle) var(--ease-settle); }
+  .fanout .ghost-tick.is-active line { stroke: var(--signal); opacity: 1; }
+  .fanout .ghost-label { fill: var(--ink-faint); font-size: 10px; text-anchor: middle; }
+
+  .fanout .overlap-guard { opacity: 0; transition: opacity var(--motion-settle) var(--ease-settle); }
+  .fanout .overlap-guard.is-active { opacity: 1; }
+  .fanout .overlap-guard rect { fill: var(--surface-caveat, var(--surface-2)); stroke: var(--deny); stroke-width: 1.5; }
+  .fanout .guard-text { fill: var(--deny); font-size: 13px; text-anchor: middle; }
+  .fanout .guard-rule { fill: var(--ink-muted); font-size: 11px; text-anchor: middle; }
+
+  .mode-parallel.is-struck { text-decoration: line-through; opacity: 0.5; }
+  .fanout-fact { margin-top: var(--sp-4); font-size: var(--fs-xs); color: var(--ink-muted); }
+  .fanout-fact code { color: var(--signal); }
+  .twin-guard td { color: var(--ink-muted); font-size: var(--fs-xs); }
+
+  @media (forced-colors: active) {
+    .fanout .lane-disc.is-filled, .fanout .lane-token { fill: currentColor; }
+    .fanout .lane-sep.is-locked, .fanout .ghost-tick.is-active line, .fanout .sweep { stroke: currentColor; }
+  }
+</style>

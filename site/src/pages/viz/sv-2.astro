@@ -1,0 +1,40 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Sv2FanOut from '../../components/viz/Sv2FanOut.astro';
+import { href } from '../../lib/href';
+import facts from '../../generated/facts.json';
+---
+
+<BaseLayout
+  title="SV-2 · Orchestrator-to-Subagent Fan-Out · Harness Atlas"
+  phase="1"
+  description="Three subagents run at once precisely because their file-sets never touch. Isolation is what buys the parallelism."
+>
+  <main id="main" class="viz-page">
+    <p class="eyebrow"><a href={href('phase-1')}>Phase 1</a> · Signature visualization 2</p>
+    <h1>Isolation buys the parallelism</h1>
+    <p class="lede">
+      One orchestrator fans out to three subagents. They run at the same time only because
+      their file-sets are disjoint, the real rule from this repo's CLAUDE.md. Flip to
+      SEQUENTIAL and watch the wall-clock line cross the finish three times instead of once.
+      Set the file-sets to overlapping, and the instrument refuses to run them in parallel.
+    </p>
+
+    <Sv2FanOut />
+
+    <p class="provenance mono">
+      File-sets and the overlap rule are real at <code>{(facts as { shortSha?: string }).shortSha}</code>.
+      The wall-clock counts are illustrative; the disjoint guard is the load-bearing fact.
+    </p>
+  </main>
+</BaseLayout>
+
+<style>
+  .viz-page { max-width: 1040px; margin: 0 auto; padding: var(--sp-8) var(--sp-6) var(--sp-12); }
+  .eyebrow { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-faint); letter-spacing: 0.04em; }
+  .eyebrow a { color: var(--ink-muted); }
+  h1 { font-family: var(--font-display); font-size: var(--fs-3xl); line-height: 1.1; margin: var(--sp-2) 0 var(--sp-4); color: var(--ink); }
+  .lede { font-size: var(--fs-lg); line-height: 1.5; color: var(--ink-muted); max-width: 64ch; margin-bottom: var(--sp-6); }
+  .provenance { margin-top: var(--sp-8); font-size: var(--fs-2xs); color: var(--ink-faint); max-width: 70ch; }
+  .provenance code { color: var(--ink-muted); }
+</style>
