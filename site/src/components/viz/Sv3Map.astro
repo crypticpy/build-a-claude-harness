@@ -36,7 +36,7 @@ const rows = steps.map((s, i) => {
 
 <Figure id={id} label="Ecosystem data-flow map: SVG or data view">
   <div slot="svg">
-    <TracePlayer client:visible={{ rootMargin: '600px' }} figureId={id} steps={steps} />
+    <TracePlayer client:visible={{ rootMargin: '600px' }} figureId={id} steps={steps} autoplay />
 
     <DiagramFrame
       width={model.width}

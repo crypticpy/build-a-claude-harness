@@ -39,7 +39,7 @@ const tierBand = { index: 70, log: 232, query: 392, brain: 488 };
 
 <Figure id={id} label="Memory stack: SVG or tree view">
   <div slot="svg">
-    <TracePlayer client:visible={{ rootMargin: '600px' }} figureId={id} steps={steps} />
+    <TracePlayer client:visible={{ rootMargin: '600px' }} figureId={id} steps={steps} autoplay />
 
     <svg class="diagram memory" viewBox="0 0 900 600" role="img" preserveAspectRatio="xMidYMid meet"
       aria-label="A four-tier memory stack. The static index, the rolling log, and the distilled query are free. Only the cross-session brain, at PreCompact, pays the LLM — about 8000 tokens, once.">

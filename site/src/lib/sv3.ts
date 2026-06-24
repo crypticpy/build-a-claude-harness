@@ -22,6 +22,9 @@ export interface NodeInfo {
 export interface Sv3Step {
   litNodes: string[];
   litEdges: string[];
+  // Nodes the token has already passed: dimly lit behind the live one so the
+  // closed loop reads as accumulating progress, not a single hopping light.
+  visited?: string[];
   tokenPath?: string;
   tokenX?: number;
   tokenY?: number;
@@ -209,11 +212,15 @@ export function buildSv3(): {
     return edgePath(model, e);
   };
 
+  // The trail of nodes already reached at step i (inclusive).
+  const trail = (i: number) => NODES.slice(0, i + 1).map((n) => n.id);
+
   // Ten steps: the nine nodes in order, then the loop-back beat.
   const steps: Sv3Step[] = [
     {
       litNodes: ["SessionStart"],
       litEdges: [],
+      visited: ["SessionStart"],
       tokenX: xAt(0),
       tokenY: SPINE_Y,
       diskLines: 0,
@@ -225,6 +232,7 @@ export function buildSv3(): {
     steps.push({
       litNodes: [NODES[i].id],
       litEdges: [`e${i}`],
+      visited: trail(i),
       tokenPath: path(`e${i}`),
       // The log accretes from the disk node onward: disk → 1, PreCompact → 2.
       diskLines: i < 7 ? 0 : i - 6,
@@ -236,6 +244,8 @@ export function buildSv3(): {
   steps.push({
     litNodes: ["UserPromptSubmit"],
     litEdges: ["eR"],
+    // The whole forward spine stays lit behind the return ride: the loop is closed.
+    visited: NODES.map((n) => n.id),
     tokenPath: path("eR"),
     diskLines: 3,
     drawer: "return",
