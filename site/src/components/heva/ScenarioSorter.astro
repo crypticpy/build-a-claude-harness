@@ -1,0 +1,312 @@
+---
+// Sort requests into Allow / Deny by their discriminating feature. The island
+// gives select-then-place plus drag and a mastery meter; the SSR <form> below
+// is the JS-off floor — a plain matching exercise where each request picks a
+// bin and CSS reveals the verdict and the reason. The island hides this floor
+// only once it mounts (.is-enhanced), so with no JS the floor is the whole
+// lesson. The item bank asserts its discriminating strings at build (lib/sorter).
+import ScenarioSorterIsland from '../../islands/ScenarioSorter';
+import { SORT_ITEMS, BINS } from '../../lib/sorter';
+---
+
+<div class="sorter" data-sorter>
+  <ScenarioSorterIsland client:visible={{ rootMargin: '300px' }} items={SORT_ITEMS} bins={BINS} />
+
+  {/* The JS-off floor: a plain matching exercise. It lives in <noscript> so it
+      never collides with the island when JS is present; the inline style hides
+      the (then-inert) island when JS is absent. */}
+  <noscript>
+    <style is:inline>.sorter .sorter-live { display: none !important; }</style>
+    <form class="sorter-floor">
+      <p class="sorter-floor-help mono">Match each request to a bin. The reason reveals when you choose.</p>
+      {
+        SORT_ITEMS.map((it) => {
+          const name = `sort-${it.id}`;
+          return (
+            <fieldset class="sorter-row">
+              <legend class="sorter-row-q">{it.label}</legend>
+              <div class="sorter-row-opts">
+                {BINS.map((b) => (
+                  <div class="sorter-opt">
+                    <input
+                      type="radio"
+                      id={`${name}-${b.id}`}
+                      name={name}
+                      value={b.id}
+                      data-correct={b.id === it.bin ? 'true' : 'false'}
+                    />
+                    <label for={`${name}-${b.id}`}>{b.label}</label>
+                  </div>
+                ))}
+              </div>
+              <p class="sorter-row-why">{it.feedback}</p>
+            </fieldset>
+          );
+        })
+      }
+    </form>
+  </noscript>
+</div>
+
+<style>
+  .sorter {
+    margin: var(--sp-4) 0;
+    padding: var(--sp-5);
+    border: var(--border-hairline);
+    border-radius: var(--radius-panel);
+    background: var(--surface);
+  }
+
+  /* ── JS-off floor: a matching form with CSS-revealed verdict ───────── */
+  .sorter-floor-help {
+    margin: 0 0 var(--sp-3);
+    font-size: var(--fs-xs);
+    color: var(--ink-faint);
+  }
+  .sorter-row {
+    border: none;
+    border-top: var(--border-hairline);
+    margin: 0;
+    padding: var(--sp-3) 0;
+  }
+  .sorter-row-q {
+    padding: 0;
+    font-size: var(--fs-sm);
+    color: var(--ink);
+  }
+  .sorter-row-opts {
+    display: flex;
+    gap: var(--sp-4);
+    margin-top: var(--sp-2);
+  }
+  .sorter-opt label {
+    margin-left: 4px;
+    font-size: var(--fs-sm);
+    color: var(--ink-muted);
+  }
+  .sorter-row-why {
+    margin: var(--sp-2) 0 0;
+    font-size: var(--fs-2xs);
+    line-height: 1.5;
+    color: var(--ink-faint);
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition:
+      max-height var(--motion-settle) var(--ease-settle),
+      opacity var(--motion-settle) var(--ease-settle);
+  }
+  .sorter-row:has(input:checked) .sorter-row-why {
+    max-height: 6em;
+    opacity: 1;
+  }
+  /* Mark right/wrong with a text marker, never color alone. */
+  .sorter-row:has(input[data-correct='true']:checked) .sorter-row-why::before {
+    content: 'Correct — ';
+    color: var(--allow);
+  }
+  .sorter-row:has(input[data-correct='false']:checked) .sorter-row-why::before {
+    content: 'Not quite — ';
+    color: var(--deny);
+  }
+
+  /* ── Live island ───────────────────────────────────────────────────── */
+  .sorter :global(.sorter-help) {
+    margin: 0 0 var(--sp-3);
+    font-size: var(--fs-sm);
+    color: var(--ink-muted);
+  }
+  .sorter :global(.sorter-board) {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--sp-4);
+  }
+  @media (min-width: 720px) {
+    .sorter :global(.sorter-board) {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    }
+  }
+  .sorter :global(.sorter-tray) {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+    align-content: start;
+  }
+  .sorter :global(.sorter-chip) {
+    text-align: left;
+    padding: var(--sp-2) var(--sp-3);
+    border: var(--border-hairline);
+    border-radius: var(--radius-panel);
+    background: var(--surface-2);
+    color: var(--ink);
+    font: inherit;
+    font-size: var(--fs-sm);
+    cursor: grab;
+    transition:
+      border-color var(--motion-transit) var(--ease-transit),
+      background var(--motion-transit) var(--ease-transit);
+  }
+  .sorter :global(.sorter-chip.is-selected) {
+    border-color: var(--signal);
+    background: color-mix(in srgb, var(--signal) 12%, var(--surface-2));
+  }
+  .sorter :global(.sorter-chip:focus-visible) {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+  .sorter :global(.sorter-empty) {
+    color: var(--ink-faint);
+    font-size: var(--fs-sm);
+  }
+  .sorter :global(.sorter-bins) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp-3);
+  }
+  .sorter :global(.sorter-bin) {
+    border: 1px dashed var(--ink-faint);
+    border-radius: var(--radius-panel);
+    padding: var(--sp-2);
+    min-height: 7em;
+  }
+  .sorter :global(.sorter-bin-head) {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    text-align: left;
+    gap: 2px;
+    padding: var(--sp-2);
+    border: none;
+    border-radius: var(--radius-panel);
+    background: transparent;
+    color: var(--ink);
+    font: inherit;
+    cursor: pointer;
+  }
+  .sorter :global(.sorter-bin-head:focus-visible) {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+  .sorter :global(.sorter-bin-name) {
+    font-family: var(--font-display);
+    font-size: var(--fs-md, var(--fs-sm));
+    color: var(--ink);
+  }
+  .sorter :global(.sorter-bin-hint) {
+    font-size: var(--fs-2xs);
+    color: var(--ink-faint);
+  }
+  .sorter :global(.sorter-bin-items) {
+    list-style: none;
+    margin: var(--sp-2) 0 0;
+    padding: 0;
+    display: grid;
+    gap: var(--sp-2);
+  }
+  .sorter :global(.sorter-placed) {
+    padding: var(--sp-2);
+    border-radius: var(--radius-panel);
+    background: var(--surface);
+    border-left: 2px solid var(--ink-faint);
+    font-size: var(--fs-sm);
+  }
+  .sorter :global(.sorter-placed.is-right) {
+    border-left-color: var(--allow);
+  }
+  .sorter :global(.sorter-placed.is-wrong) {
+    border-left-color: var(--deny);
+  }
+  .sorter :global(.sorter-placed-label) {
+    display: flex;
+    gap: var(--sp-2);
+    align-items: baseline;
+  }
+  .sorter :global(.sorter-verdict) {
+    font-size: var(--fs-sm);
+  }
+  .sorter :global(.sorter-placed.is-right .sorter-verdict) {
+    color: var(--allow);
+  }
+  .sorter :global(.sorter-placed.is-wrong .sorter-verdict) {
+    color: var(--deny);
+  }
+  .sorter :global(.sorter-return) {
+    margin-top: 4px;
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--ink-faint);
+    font-size: var(--fs-2xs);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .sorter :global(.sorter-feedback) {
+    display: block;
+    margin-top: 4px;
+    font-size: var(--fs-2xs);
+    line-height: 1.5;
+    color: var(--ink-muted);
+  }
+  .sorter :global(.sorter-foot) {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-4);
+    margin-top: var(--sp-4);
+    flex-wrap: wrap;
+  }
+  .sorter :global(.sorter-check) {
+    padding: var(--sp-2) var(--sp-4);
+    border: var(--border-hairline);
+    border-radius: var(--radius-panel);
+    background: var(--surface-2);
+    color: var(--ink);
+    font: inherit;
+    font-size: var(--fs-sm);
+    cursor: pointer;
+  }
+  .sorter :global(.sorter-check:disabled) {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .sorter :global(.sorter-check:focus-visible) {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+  .sorter :global(.mastery-meter) {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    font-size: var(--fs-2xs);
+    color: var(--ink-faint);
+  }
+  .sorter :global(.mastery-track) {
+    display: block;
+    width: 160px;
+    height: 6px;
+    background: var(--surface-2);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+  }
+  .sorter :global(.mastery-fill) {
+    display: block;
+    height: 100%;
+    background: var(--signal);
+    transition: width var(--motion-settle) var(--ease-settle);
+  }
+  .sorter :global(.sorter-sr) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sorter :global(.sorter-chip),
+    .sorter :global(.mastery-fill),
+    .sorter-row-why {
+      transition: none;
+    }
+  }
+</style>

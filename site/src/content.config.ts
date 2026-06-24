@@ -36,6 +36,10 @@ const modules = defineCollection({
         question: z.string().min(10),
         options: z.array(optionSchema).min(2).max(4),
         correct: z.string().min(1),
+        // How the QuizEngine frames its verdict; the mechanic is identical.
+        mode: z
+          .enum(["outcome", "assertion-reason", "confidence", "misconception"])
+          .optional(),
       })
       .optional(),
   }),

@@ -1,0 +1,134 @@
+---
+// Wraps the budget slider island with its JS-off floor: a static budget-to-
+// frequency table. The table is the lesson with no JS; the slider lets the
+// reader probe one point on it. Content drops in <Calculator /> in the Apply or
+// Explain beat of P1-M7.
+import CalculatorIsland from '../../islands/Calculator';
+import { BRAIN_COST, FLOOR_ROWS } from '../../lib/calc';
+---
+
+<figure class="calc-figure">
+  <CalculatorIsland client:visible={{ rootMargin: '300px' }} cost={BRAIN_COST} />
+
+  <details class="calc-floor">
+    <summary>The whole curve, {BRAIN_COST.toLocaleString()} tokens per distillation</summary>
+    <table>
+      <caption class="vh">Memory budget mapped to the number of brain distillations it buys.</caption>
+      <thead>
+        <tr>
+          <th scope="col">memory budget</th>
+          <th scope="col">brain runs</th>
+          <th scope="col">left over</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          FLOOR_ROWS.map((r) => (
+            <tr>
+              <td class="mono">{r.budget.toLocaleString()}</td>
+              <td class="mono">{r.runs}</td>
+              <td class="mono">{r.leftover.toLocaleString()}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </details>
+</figure>
+
+<style>
+  .calc-figure {
+    margin: var(--sp-4) 0;
+    padding: var(--sp-5);
+    border: var(--border-hairline);
+    border-radius: var(--radius-panel);
+    background: var(--surface);
+  }
+
+  /* The island */
+  .calc-figure :global(.calc) {
+    display: grid;
+    gap: var(--sp-4);
+  }
+  .calc-figure :global(.calc-label) {
+    display: block;
+    font-size: var(--fs-sm);
+    color: var(--ink-muted);
+    margin-bottom: var(--sp-2);
+  }
+  .calc-figure :global(.calc-slider-row) {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+  }
+  .calc-figure :global(.calc-slider) {
+    flex: 1;
+    accent-color: var(--signal);
+  }
+  .calc-figure :global(.calc-budget-val) {
+    min-width: 6ch;
+    text-align: right;
+    color: var(--ink);
+    font-size: var(--fs-sm);
+  }
+  .calc-figure :global(.calc-out) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--sp-2) var(--sp-3);
+    padding: var(--sp-3) var(--sp-4);
+    border-radius: var(--radius-panel);
+    background: var(--surface-2);
+  }
+  .calc-figure :global(.calc-runs) {
+    font-size: var(--fs-2xl, var(--fs-xl));
+    color: var(--signal);
+    line-height: 1;
+  }
+  .calc-figure :global(.calc-runs-label) {
+    color: var(--ink);
+    font-size: var(--fs-sm);
+  }
+  .calc-figure :global(.calc-rem) {
+    flex-basis: 100%;
+    color: var(--ink-faint);
+    font-size: var(--fs-2xs);
+  }
+
+  /* The floor */
+  .calc-floor {
+    margin-top: var(--sp-4);
+    font-size: var(--fs-sm);
+  }
+  .calc-floor summary {
+    cursor: pointer;
+    color: var(--ink-muted);
+    font-size: var(--fs-xs);
+  }
+  .calc-floor table {
+    width: 100%;
+    margin-top: var(--sp-3);
+    border-collapse: collapse;
+  }
+  .calc-floor th,
+  .calc-floor td {
+    text-align: right;
+    padding: var(--sp-2) var(--sp-3);
+    border-bottom: var(--border-hairline);
+  }
+  .calc-floor th {
+    color: var(--ink-faint);
+    font-weight: 400;
+    font-size: var(--fs-2xs);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .vh {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+</style>

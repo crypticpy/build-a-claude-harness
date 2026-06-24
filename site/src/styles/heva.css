@@ -257,6 +257,56 @@
   margin-right: var(--sp-2);
 }
 
+/* ── QuizEngine (enhances the Apply floor) ──────────────────────────── */
+.qe {
+  margin-top: var(--sp-3);
+}
+.qe-verdict {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: baseline;
+  margin: 0;
+  padding: var(--sp-3) var(--sp-4);
+  border-left: 2px solid var(--ink-faint);
+  background: var(--surface);
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  color: var(--ink-muted);
+}
+/* Correctness carries in the glyph and label, never color alone. */
+.qe-verdict.is-correct {
+  border-left-color: var(--allow);
+}
+.qe-verdict.is-wrong {
+  border-left-color: var(--deny);
+}
+.qe-mark {
+  font-size: var(--fs-md, var(--fs-sm));
+}
+.qe-verdict.is-correct .qe-mark {
+  color: var(--allow);
+}
+.qe-verdict.is-wrong .qe-mark {
+  color: var(--deny);
+}
+.qe-verdict-text strong {
+  color: var(--ink);
+}
+.qe-key {
+  margin-top: var(--sp-2);
+  font-size: var(--fs-sm);
+}
+.qe-key summary {
+  cursor: pointer;
+  color: var(--ink-faint);
+  font-size: var(--fs-xs);
+}
+.qe-key p {
+  margin: var(--sp-2) 0 0;
+  color: var(--ink-muted);
+  line-height: 1.6;
+}
+
 /* ── Fact ───────────────────────────────────────────────────────────── */
 .fact {
   display: flex;

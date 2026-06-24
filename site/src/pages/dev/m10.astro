@@ -1,0 +1,35 @@
+---
+// Temporary M10 verification harness: mounts the stateful islands in isolation
+// so the headless suite can exercise them before they land in real modules.
+// Not linked from anywhere; removed once M11 content hosts these components.
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Calculator from '../../components/heva/Calculator.astro';
+import ScenarioSorter from '../../components/heva/ScenarioSorter.astro';
+import PhaseTransition from '../../components/heva/PhaseTransition.astro';
+import CrossPhaseLink from '../../components/heva/CrossPhaseLink.astro';
+---
+
+<BaseLayout title="M10 dev harness" phase="1">
+  <PhaseTransition question="Where does the money go, and what does the gate stop?" />
+  <main id="main" class="wrap" style="padding: var(--sp-8) var(--sp-6);">
+    <h1>M10 components</h1>
+
+    <section data-pt-step aria-label="Calculator">
+      <h2>Calculator</h2>
+      <Calculator />
+    </section>
+
+    <section data-pt-step aria-label="Scenario sorter">
+      <h2>Scenario sorter</h2>
+      <ScenarioSorter />
+    </section>
+
+    <section data-pt-step aria-label="Cross-phase link">
+      <h2>Cross-phase link</h2>
+      <p>
+        Built: <CrossPhaseLink to="phase-1">the Foundations</CrossPhaseLink>. Unbuilt:{' '}
+        <CrossPhaseLink>the scheduler layer</CrossPhaseLink>.
+      </p>
+    </section>
+  </main>
+</BaseLayout>

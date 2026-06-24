@@ -1,0 +1,81 @@
+---
+// The through-question banner. One question threads a whole phase; this pins it
+// so the reader always sees what they are answering. No island: the question is
+// plain SSR markup, fully legible JS-off. A tiny IntersectionObserver fills a
+// progress hairline by flipping the --pt-progress custom property as the reader
+// passes elements marked [data-pt-step]. JS-off, the hairline simply rests at 0.
+interface Props {
+  question: string;
+  label?: string;
+}
+const { question, label = 'The through-question' } = Astro.props;
+---
+
+<aside class="phase-transition" aria-label={label}>
+  <p class="pt-label mono">{label}</p>
+  <p class="pt-question">{question}</p>
+  <div class="pt-rail" aria-hidden="true"><span class="pt-fill"></span></div>
+</aside>
+
+<script>
+  // Enhancement only: fill the hairline as the reader passes each marked step.
+  const banner = document.querySelector<HTMLElement>('.phase-transition');
+  const steps = Array.from(document.querySelectorAll('[data-pt-step]'));
+  if (banner && steps.length) {
+    const seen = new Set<Element>();
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) if (e.isIntersecting) seen.add(e.target);
+        banner.style.setProperty('--pt-progress', String(seen.size / steps.length));
+      },
+      { rootMargin: '0px 0px -55% 0px' },
+    );
+    steps.forEach((s) => io.observe(s));
+  }
+</script>
+
+<style>
+  .phase-transition {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    padding: var(--sp-3) var(--sp-4);
+    background: color-mix(in srgb, var(--surface) 88%, transparent);
+    backdrop-filter: saturate(1.1);
+    border-bottom: var(--border-hairline);
+    --pt-progress: 0;
+  }
+  .pt-label {
+    margin: 0;
+    font-size: var(--fs-2xs);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--signal);
+  }
+  .pt-question {
+    margin: 2px 0 var(--sp-2);
+    font-family: var(--font-display);
+    font-size: var(--fs-lg);
+    line-height: 1.3;
+    color: var(--ink);
+    max-width: 70ch;
+  }
+  .pt-rail {
+    height: 2px;
+    background: var(--surface-2);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+  }
+  .pt-fill {
+    display: block;
+    height: 100%;
+    width: calc(var(--pt-progress, 0) * 100%);
+    background: var(--signal);
+    transition: width var(--motion-settle) var(--ease-settle);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pt-fill {
+      transition: none;
+    }
+  }
+</style>

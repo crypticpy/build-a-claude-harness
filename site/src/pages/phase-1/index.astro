@@ -1,16 +1,49 @@
 ---
+import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { href } from '../../lib/href';
+
+const mods = (await getCollection('modules'))
+  .filter((m) => m.data.phase === 1)
+  .sort((a, b) => a.data.order - b.data.order);
 ---
 
-<BaseLayout title="Phase 1: Foundations — Harness Atlas" phase="1">
+<BaseLayout
+  title="Phase 1: Foundations — Harness Atlas"
+  phase="1"
+  description="Eight rooms, each one primitive of the harness. Commit a prediction, see the mechanism, watch it move, then prove you can read it."
+>
   <main id="main" class="wrap phase">
     <p class="kicker mono"><a href={href()}>Atlas</a> / Phase 1</p>
     <h1>Foundations</h1>
     <p class="prose intro">
       Eight rooms, each one primitive of the harness. You commit a prediction, see the
-      mechanism, watch it move, then prove you can read it. The rooms are being assembled.
+      mechanism, watch it move, then prove you can read it.
     </p>
+
+    {
+      mods.length === 0 ? (
+        <p class="prose empty">The rooms are being assembled.</p>
+      ) : (
+        <ol class="rooms" aria-label="Phase 1 modules">
+          {mods.map((m) => (
+            <li class="room">
+              <a href={href(`phase-1/${m.id}`)}>
+                <span class="rm-order mono">{String(m.data.order).padStart(2, '0')}</span>
+                <span class="rm-body">
+                  <span class="rm-title">{m.data.title}</span>
+                  <span class="rm-thesis prose">{m.data.thesis}</span>
+                  <span class="rm-meta mono">
+                    {m.data.estMinutes} min{m.data.viz ? ` · ${m.data.viz.toUpperCase()}` : ''}
+                  </span>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      )
+    }
+
     <a class="back mono" href={href()}>Back to the atlas</a>
   </main>
 </BaseLayout>
@@ -28,6 +61,62 @@ import { href } from '../../lib/href';
   .intro {
     color: var(--ink-muted);
     font-size: var(--fs-lg);
+    max-width: 60ch;
+    margin-bottom: var(--sp-8);
+  }
+  .empty {
+    color: var(--ink-faint);
+  }
+  .rooms {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--sp-8);
+    display: grid;
+    gap: var(--sp-3);
+  }
+  .room a {
+    display: flex;
+    gap: var(--sp-4);
+    align-items: baseline;
+    padding: var(--sp-4) var(--sp-5);
+    border: var(--border-hairline);
+    border-radius: var(--radius-panel);
+    background: var(--surface);
+    color: var(--ink);
+    text-decoration: none;
+    transition:
+      border-color var(--motion-settle) var(--ease-settle),
+      background var(--motion-settle) var(--ease-settle);
+  }
+  .room a:hover {
+    border-color: var(--signal-dim);
+    background: var(--surface-2);
+  }
+  .room a:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+  .rm-order {
+    color: var(--ink-faint);
+    font-size: var(--fs-sm);
+  }
+  .rm-body {
+    display: grid;
+    gap: 4px;
+  }
+  .rm-title {
+    font-family: var(--font-display);
+    font-size: var(--fs-lg);
+    color: var(--ink);
+  }
+  .rm-thesis {
+    color: var(--ink-muted);
+    font-size: var(--fs-sm);
+    max-width: 70ch;
+  }
+  .rm-meta {
+    color: var(--ink-faint);
+    font-size: var(--fs-2xs);
   }
   .back {
     color: var(--ink-faint);

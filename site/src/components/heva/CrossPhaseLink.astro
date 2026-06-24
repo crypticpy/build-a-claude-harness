@@ -1,0 +1,64 @@
+---
+// Wayfinding across phases. When the destination exists, this is an ordinary
+// inline link. When it does not yet (a region named in prose but not built), it
+// degrades to a dimmed, non-interactive marker — "territory you will walk later"
+// — so the writing can point forward honestly without dangling into a 404.
+import { href } from '../../lib/href';
+interface Props {
+  to?: string; // slug under the base, e.g. "phase-2/scheduler". Omit when unbuilt.
+  built?: boolean;
+}
+const { to, built = Boolean(to) } = Astro.props;
+---
+
+{
+  built && to ? (
+    <a class="cross-phase is-built" href={href(to)}>
+      <slot />
+      <span class="cpl-arrow" aria-hidden="true">→</span>
+    </a>
+  ) : (
+    <span class="cross-phase is-future" aria-disabled="true">
+      <slot />
+      <span class="cpl-note mono">territory you will walk later</span>
+    </span>
+  )
+}
+
+<style>
+  .cross-phase {
+    display: inline;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+  }
+  .cross-phase.is-built {
+    color: var(--signal);
+    border-bottom-color: var(--signal-dim);
+    transition: border-color var(--motion-settle) var(--ease-settle);
+  }
+  .cross-phase.is-built:hover {
+    border-bottom-color: var(--signal);
+  }
+  .cross-phase.is-built:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+    border-radius: 2px;
+  }
+  .cpl-arrow {
+    margin-left: 0.2em;
+  }
+  .cross-phase.is-future {
+    color: var(--ink-faint);
+    cursor: default;
+  }
+  .cpl-note {
+    margin-left: 0.4em;
+    font-size: var(--fs-2xs);
+    color: var(--ink-faint);
+    opacity: 0.75;
+    font-style: normal;
+  }
+  .cpl-note::before {
+    content: '· ';
+  }
+</style>

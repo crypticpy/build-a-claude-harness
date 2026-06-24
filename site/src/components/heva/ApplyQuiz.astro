@@ -1,7 +1,9 @@
 ---
 // The Apply beat's JS-off floor: a single ungated check. CSS-only reveal of the
 // correct option and per-option feedback after commit. The QuizEngine island
-// (M10) enhances this same markup; it is never the only path to the answer.
+// enhances this same markup (aria-live verdict, first-try recording, answer
+// key); it is never the only path to the answer.
+import QuizEngine from '../../islands/QuizEngine';
 interface Option {
   id: string;
   label: string;
@@ -12,8 +14,9 @@ interface Props {
   question: string;
   options: Option[];
   correct: string;
+  mode?: 'outcome' | 'assertion-reason' | 'confidence' | 'misconception';
 }
-const { id, question, options, correct } = Astro.props;
+const { id, question, options, correct, mode = 'outcome' } = Astro.props;
 const name = `aq-${id}`;
 ---
 
@@ -41,4 +44,5 @@ const name = `aq-${id}`;
       }
     </div>
   </fieldset>
+  <QuizEngine client:visible={{ rootMargin: '300px' }} targetId={id} correct={correct} options={options} mode={mode} />
 </form>
