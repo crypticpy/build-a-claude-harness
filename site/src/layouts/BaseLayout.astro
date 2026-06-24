@@ -7,7 +7,12 @@ interface Props {
   phase?: '1' | '2';
   description?: string;
 }
-const { title, phase = '1', description = 'See the seams. Understand the system.' } = Astro.props;
+const {
+  title,
+  phase = '1',
+  description = 'A visual guide to how a Claude Code agent is wired to run on its own: hooks, memory, subagents, and an approval gate, taken apart one module at a time.',
+} = Astro.props;
+const REPO = 'https://github.com/crypticpy/build-a-claude-harness';
 ---
 
 <!doctype html>
@@ -21,6 +26,86 @@ const { title, phase = '1', description = 'See the seams. Understand the system.
   </head>
   <body data-phase={phase}>
     <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-head">
+      <div class="site-head-in wrap">
+        <a class="brand" href={href()}>Harness&nbsp;Atlas</a>
+        <nav class="site-nav" aria-label="Primary">
+          <a href={href('phase-1')}>Phase 1</a>
+          <a href={href('phase-2')}>Phase 2</a>
+          <a href={REPO} rel="noopener">Source</a>
+        </nav>
+      </div>
+    </header>
+
     <slot />
+
+    <footer class="site-foot">
+      <div class="site-foot-in wrap">
+        <p class="sf-desc">A visual guide to the architecture of one real Claude Code harness.</p>
+        <p class="sf-links mono"><a href={REPO} rel="noopener">Source on GitHub</a></p>
+      </div>
+    </footer>
   </body>
 </html>
+
+<style>
+  /* Static site chrome: scrolls away so it never collides with the sticky
+     module rail or the sticky phase banner. */
+  .site-head {
+    border-bottom: var(--border-hairline);
+  }
+  .site-head-in {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-4);
+    padding-block: var(--sp-3);
+    flex-wrap: wrap;
+  }
+  .brand {
+    font-family: var(--font-display);
+    font-size: var(--fs-lg);
+    color: var(--ink);
+    text-decoration: none;
+    letter-spacing: 0.01em;
+  }
+  .brand:hover {
+    color: var(--signal);
+  }
+  .site-nav {
+    display: flex;
+    gap: var(--sp-5, 20px);
+    align-items: center;
+    font-size: var(--fs-sm);
+  }
+  .site-nav a {
+    color: var(--ink-muted);
+    text-decoration: none;
+  }
+  .site-nav a:hover {
+    color: var(--ink);
+  }
+  .site-foot {
+    border-top: var(--border-hairline);
+    margin-top: var(--sp-16);
+  }
+  .site-foot-in {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--sp-4);
+    padding-block: var(--sp-6);
+    flex-wrap: wrap;
+  }
+  .sf-desc {
+    color: var(--ink-faint);
+    font-size: var(--fs-sm);
+    margin: 0;
+    max-width: 52ch;
+  }
+  .sf-links {
+    margin: 0;
+    font-size: var(--fs-xs);
+  }
+</style>
