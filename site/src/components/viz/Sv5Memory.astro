@@ -1,0 +1,223 @@
+---
+// SV-5 Per-Repo Intelligence & Memory Stack, rendered three ways. The shared
+// TracePlayer decorator mutates this present SVG (one integer cursor). Three tiers
+// are free sand-hum material; only the brain pays the LLM, and it alone carries the
+// amber cost gutter. Where does the money go? One finger, one lit tier.
+import '../../styles/diagram.css';
+import Figure from '../diagram/Figure.astro';
+import TracePlayer from '../../islands/TracePlayer';
+import {
+  buildSv5, tiers, toolCalls, brainSignals, brainOutputs, SHA,
+  PILL_X, PILL_W, PILL_H, pillY, CYL_X, CYL_TOP, CYL_BOT, CYL_RX, BRAIN_X, BRAIN_Y, diskLineY,
+} from '../../lib/sv5';
+
+const id = 'sv5';
+const { steps } = buildSv5();
+
+// Cylinder outline (top ellipse + sides + bottom ellipse).
+const ry = 12;
+const cylD = [
+  `M${CYL_X - CYL_RX},${CYL_TOP}`,
+  `a${CYL_RX},${ry} 0 0 0 ${CYL_RX * 2},0`,
+  `a${CYL_RX},${ry} 0 0 0 ${-CYL_RX * 2},0`,
+  `v${CYL_BOT - CYL_TOP}`,
+  `a${CYL_RX},${ry} 0 0 0 ${CYL_RX * 2},0`,
+  `v${-(CYL_BOT - CYL_TOP)}`,
+].join(' ');
+
+// Brain hexagon (flat-top), centered.
+const hr = 50, hh = 46;
+const hex = Array.from({ length: 6 }, (_, i) => {
+  const a = (Math.PI / 3) * i - Math.PI / 6;
+  return `${(BRAIN_X + Math.cos(a) * hr).toFixed(1)},${(BRAIN_Y + Math.sin(a) * hh).toFixed(1)}`;
+}).join(' L');
+const hexD = `M${hex} Z`;
+
+// Tier band y-centers for labels / cost chips.
+const tierBand = { index: 70, log: 232, query: 392, brain: 488 };
+---
+
+<Figure id={id} label="Memory stack: SVG or tree view">
+  <div slot="svg">
+    <TracePlayer client:visible={{ rootMargin: '600px' }} figureId={id} steps={steps} />
+
+    <svg class="diagram memory" viewBox="0 0 900 600" role="img" preserveAspectRatio="xMidYMid meet"
+      aria-label="A four-tier memory stack. The static index, the rolling log, and the distilled query are free. Only the cross-session brain, at PreCompact, pays the LLM — about 8000 tokens, once.">
+      {/* Tier labels + cost chips */}
+      {
+        tiers.map((t) => {
+          const y = tierBand[t.id as keyof typeof tierBand];
+          return (
+            <g class:list={['tier-meta', t.billed && 'is-billed']}>
+              <text class="tier-name mono" x="24" y={y - 6}>{t.title}</text>
+              <text class="tier-mod mono" x="24" y={y + 12}>{t.module}</text>
+              <g class="cost-chip" transform={`translate(720, ${y - 14})`}>
+                <rect width="135" height="30" rx="6"></rect>
+                <text class="cost-amt mono" x="10" y="13">{t.cost}</text>
+                <text class="cost-when mono" x="10" y="25">{t.when}</text>
+              </g>
+            </g>
+          );
+        })
+      }
+
+      {/* Tier 1 — static index */}
+      <g class="mem-node" data-node-id="index">
+        <rect class="node" x="150" y="48" width="150" height="40" rx="6"></rect>
+      </g>
+
+      {/* Tier 2 — rolling log (hero): seven tool-call pills feeding the cylinder */}
+      {
+        toolCalls.map((t, i) => (
+          <g class="pill" data-node-id={`pill-${i}`}>
+            <rect class="pill-box" x={PILL_X} y={pillY(i)} width={PILL_W} height={PILL_H} rx={PILL_H / 2}></rect>
+            <text class="pill-cmd mono" x={PILL_X + 10} y={pillY(i) + 15}>{t.tool_name} {t.tool_input}</text>
+          </g>
+        ))
+      }
+      <path class="node disk-cyl" d={cylD}></path>
+      {
+        toolCalls.map((_, i) => (
+          <rect class="disk-line" data-disk-line={i} x={CYL_X - 50} y={diskLineY(i)} width="100" height="10" rx="2"></rect>
+        ))
+      }
+
+      {/* Tier 3 — distilled query */}
+      <g class="mem-node" data-node-id="query">
+        <rect class="node" x="150" y="372" width="150" height="40" rx="6"></rect>
+      </g>
+
+      {/* The scanner: cylinder → brain (LLM-call), lit only at the climax */}
+      <g class="edge-group" data-edge-id="scan" style="--ec: var(--edge-llm); --ed: 6 3 2 3;">
+        <path class="edge" d={`M${CYL_X},${CYL_BOT} L${BRAIN_X},${BRAIN_Y - hh}`}></path>
+        <text class="edge-glyph" x={CYL_X + 14} y={(CYL_BOT + BRAIN_Y - hh) / 2}>⬡</text>
+      </g>
+
+      {/* Tier 4 — cross-session brain: the ONLY lit tier, the only cost */}
+      <g class="brain-node" data-node-id="brain">
+        <path class="node brain-hex" d={hexD}></path>
+        <path class="node-fill brain-fill" d={hexD}></path>
+        <g class="brain-outputs">
+          <text class="out-file mono" x="600" y={BRAIN_Y - 6}>{brainOutputs[0]}</text>
+          <text class="out-file mono" x="600" y={BRAIN_Y + 14}>{brainOutputs[1]}</text>
+        </g>
+        <rect class="cost-gutter" x="868" y="430" width="9" height="120"></rect>
+      </g>
+
+      <ellipse class="token" cx="0" cy="0" rx="9" ry="7" style={`transform: translate(${PILL_X + PILL_W}px, ${pillY(0) + PILL_H / 2}px)`} aria-hidden="true"></ellipse>
+    </svg>
+
+    <div class="drawers">
+      {
+        toolCalls.map((t, i) => (
+          <div class="drawer" data-drawer={`pill-${i}`} hidden={i !== 0}>
+            <div class="drawer-head">
+              <span class="drawer-title">{t.tool_name} {t.tool_input}</span>
+              <span class="drawer-tag is-fact">appended · 0 tokens</span>
+            </div>
+            <div class="drawer-rows">
+              <dl class="drawer-row"><dt>output</dt><dd><code>{t.output_summary}</code></dd></dl>
+            </div>
+            <p class="drawer-note">A file append, not an LLM call. The record only becomes intelligence later, when the brain reads the whole log at once.</p>
+          </div>
+        ))
+      }
+      <div class="drawer" data-drawer="brain" hidden>
+        <div class="drawer-head">
+          <span class="drawer-title">cross-session brain</span>
+          <span class="drawer-tag is-cost">~8000 tokens · ONCE on PreCompact</span>
+        </div>
+        <div class="drawer-rows">
+          {brainSignals.map((s) => <dl class="drawer-row"><dt>signal</dt><dd><code>{s}</code></dd></dl>)}
+        </div>
+        <p class="drawer-note">PreCompact reads the entire rolling log once and distills it into {brainOutputs[0]} and {brainOutputs[1]}. This is the only LLM call in the whole stack.</p>
+      </div>
+    </div>
+  </div>
+
+  <ul slot="data" role="tree" aria-label="Memory stack tiers" class="twin twin-tree">
+    <li class="caption-line">The four memory tiers. Three are free; one is billed. Real at SHA {SHA}.</li>
+    {
+      tiers.map((t) => (
+        <li role="treeitem" data-tier={t.id} class:list={['tier-row', t.billed && 'is-billed']}>
+          {t.id === 'log' ? (
+            <details>
+              <summary>
+                <span class={t.billed ? 'twin-cost' : 'twin-free'}>{t.title}</span> ·
+                <code>{t.module}</code> · {t.cost} · {t.when}
+              </summary>
+              <ul>
+                {toolCalls.map((r) => (
+                  <li><code>{r.tool_name} {r.tool_input}</code> → {r.output_summary} <span class="twin-free">· 0 tokens</span></li>
+                ))}
+              </ul>
+            </details>
+          ) : t.id === 'brain' ? (
+            <details>
+              <summary>
+                <span class="twin-cost">{t.title}</span> · <code>{t.module}</code> ·
+                <strong>{t.cost}</strong> · {t.when}
+              </summary>
+              <ul>
+                {brainSignals.map((s) => <li>{s}</li>)}
+                {brainOutputs.map((o) => <li>writes <code>{o}</code></li>)}
+              </ul>
+            </details>
+          ) : (
+            <span>
+              <span class={t.billed ? 'twin-cost' : 'twin-free'}>{t.title}</span> ·
+              <code>{t.module}</code> · {t.cost} · {t.when}
+            </span>
+          )}
+        </li>
+      ))
+    }
+  </ul>
+</Figure>
+
+<style>
+  /* Free tiers are neutral sand-hum; only the brain is amber/violet + cost gutter. */
+  .memory .tier-name { fill: var(--ink); font-size: 13px; }
+  .memory .tier-mod { fill: var(--ink-faint); font-size: 11px; }
+  .memory .mem-node .node, .memory .disk-cyl { fill: none; stroke: var(--ink-muted); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+  .memory .mem-node.is-lit .node { stroke: var(--ink); }
+
+  .memory .pill-box { fill: var(--surface); stroke: var(--ink-faint); stroke-width: 1.5; transition: stroke var(--motion-settle) var(--ease-settle); }
+  .memory .pill.is-lit .pill-box { stroke: var(--ink); }
+  .memory .pill-cmd { fill: var(--ink-muted); font-size: 11px; }
+
+  /* Accreted records are sand-hum (free residue), never the cost amber. */
+  .memory .disk-line { fill: var(--edge-disk); fill-opacity: 0; transition: fill-opacity var(--motion-settle) var(--ease-settle); }
+  .memory .disk-line.is-shown { fill-opacity: 0.7; }
+
+  .memory .token { fill: var(--signal); stroke: var(--signal); stroke-opacity: 0.35; stroke-width: 6; paint-order: stroke; opacity: 0; }
+  .memory .token.is-active { opacity: 1; }
+
+  /* The brain: the only lit tier. Violet hexagon + amber cost gutter. */
+  .memory .brain-hex { stroke: var(--edge-llm); stroke-width: 1.5; }
+  .memory .brain-fill { fill: var(--edge-llm); fill-opacity: 0; transition: fill-opacity var(--motion-settle) var(--ease-settle); }
+  .memory .brain-node.is-lit .brain-fill { fill-opacity: 0.85; }
+  .memory .out-file { fill: var(--ink-faint); font-size: 11px; opacity: 0.5; transition: opacity var(--motion-settle) var(--ease-settle); }
+  .memory .brain-node.is-lit .out-file { opacity: 1; fill: var(--ink); }
+  .memory .cost-gutter { fill: var(--signal); fill-opacity: 0.25; transition: fill-opacity var(--motion-settle) var(--ease-settle); }
+  .memory .brain-node.is-lit .cost-gutter { fill-opacity: 0.9; }
+
+  /* Cost chips: free chips neutral, the billed chip amber-bordered. */
+  .memory .cost-chip rect { fill: var(--surface); stroke: var(--ink-faint); stroke-width: 1; }
+  .memory .tier-meta.is-billed .cost-chip rect { stroke: var(--signal); }
+  .memory .cost-amt { fill: var(--ink-muted); font-size: 11px; }
+  .memory .tier-meta.is-billed .cost-amt { fill: var(--signal); }
+  .memory .cost-when { fill: var(--ink-faint); font-size: 9px; }
+
+  .twin-tree { list-style: none; padding-left: 0; line-height: 1.7; }
+  .twin-tree ul { list-style: none; padding-left: var(--sp-4); }
+  .twin-tree .caption-line { color: var(--ink-muted); font-size: var(--fs-xs); margin-bottom: var(--sp-2); }
+  .twin-tree summary { cursor: pointer; }
+  .twin-free { color: var(--edge-disk); }
+  .twin-cost { color: var(--signal); }
+
+  @media (forced-colors: active) {
+    .memory .disk-line.is-shown, .memory .brain-node.is-lit .brain-fill, .memory .brain-node.is-lit .cost-gutter, .memory .token { fill: currentColor; }
+    .memory .brain-hex, .memory .edge-group.is-lit .edge { stroke: currentColor; }
+  }
+</style>
