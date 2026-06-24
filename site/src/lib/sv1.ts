@@ -22,6 +22,7 @@ export interface Matcher {
 }
 export interface Station {
   id: string;
+  plain: string;
   subscribed: boolean;
   fanout: boolean;
   matchers: Matcher[];

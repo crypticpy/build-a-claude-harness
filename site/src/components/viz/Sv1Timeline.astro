@@ -17,14 +17,26 @@ const id = 'sv1';
 const start = steps[0];
 ---
 
-<Figure id={id} label="Lifecycle timeline: SVG or data view">
+<Figure id={id} label="The six moments in a session: picture or table view">
   <div slot="svg">
     <TracePlayer client:visible={{ rootMargin: '600px' }} figureId={id} steps={steps} autoplay />
 
-    <DiagramFrame width={model.width} height={model.height} label="The session lifecycle as a wire the turn rides through six platform events. Subscribed events fill amber; the unsubscribed event stays a dashed hollow.">
+    <DiagramFrame width={model.width} height={model.height} label="One work session moves along a line, stopping at six moments. At five of them this harness attaches a helper; the moment 'about to use a tool' is left empty, shown as a dashed hollow.">
       <path class="wire" d={wireD}></path>
       {model.edges.map((edge) => <TypedEdge model={model} edge={edge} />)}
       {model.nodes.map((node) => <FlowNode node={node} />)}
+      {
+        stations.map((s, i) => (
+          <text
+            class={`station-gloss${s.subscribed ? '' : ' is-empty'}`}
+            x={model.nodes[i].x}
+            y={model.nodes[i].y - 42}
+            text-anchor="middle"
+          >
+            {s.plain}
+          </text>
+        ))
+      }
       <ellipse
         class="token"
         cx="0"
@@ -46,24 +58,25 @@ const start = steps[0];
         stations.map((s, i) => (
           <div class="drawer" data-drawer={s.id} hidden={i !== 0}>
             <div class="drawer-head">
-              <span class="drawer-title">{s.id}</span>
+              <span class="drawer-title">{s.plain}</span>
+              <code class="drawer-id">{s.id}</code>
               {s.subscribed ? (
-                <span class="drawer-tag is-fact">subscribed · real at SHA</span>
+                <span class="drawer-tag is-fact">helper attached · real at SHA</span>
               ) : (
-                <span class="drawer-tag is-unsub">no row · platform event</span>
+                <span class="drawer-tag is-unsub">nothing attached</span>
               )}
-              {s.fanout && <span class="drawer-tag">fan-out · 2 hooks</span>}
+              {s.fanout && <span class="drawer-tag">two helpers</span>}
             </div>
             <div class="drawer-rows">
               {s.matchers.length === 0 ? (
                 <p class="drawer-note">
-                  This harness publishes no hook here. The absence of a row is the
-                  fact — nothing to pin, nothing fires.
+                  This harness attaches nothing at this moment. The empty spot is
+                  itself the fact: the moment is real, but nothing runs here.
                 </p>
               ) : (
                 s.matchers.map((m) => (
                   <dl class="drawer-row">
-                    <dt>matcher</dt>
+                    <dt>applies to</dt>
                     <dd>
                       <code>{m.matcher}</code>
                     </dd>
@@ -98,14 +111,15 @@ const start = steps[0];
 
   <table slot="data" class="twin">
     <caption>
-      The six session lifecycle events, in fire order. Five are subscribed in this
-      harness; PreToolUse is not. Real at SHA {model.sha}.
+      The six moments in one work session, in order. This harness attaches a helper
+      at five of them; the moment “about to use a tool” stays empty. Real at SHA
+      {model.sha}.
     </caption>
     <thead>
       <tr>
         <th scope="col">#</th>
-        <th scope="col">Event</th>
-        <th scope="col">Subscribed</th>
+        <th scope="col">Moment</th>
+        <th scope="col">Helper?</th>
         <th scope="col">Runs</th>
         <th scope="col">stdin → stdout</th>
         <th scope="col">Note</th>
@@ -116,8 +130,11 @@ const start = steps[0];
         stations.map((s, i) => (
           <tr data-step={i}>
             <td>{i + 1}</td>
-            <td class={s.subscribed ? 'twin-fact' : 'twin-unsub'}>{s.id}</td>
-            <td>{s.subscribed ? (s.fanout ? 'yes · 2 hooks' : 'yes') : 'no'}</td>
+            <td class={s.subscribed ? 'twin-fact' : 'twin-unsub'}>
+              {s.plain}
+              <code class="twin-id">{s.id}</code>
+            </td>
+            <td>{s.subscribed ? (s.fanout ? 'yes · 2 helpers' : 'yes') : 'no'}</td>
             <td>
               {s.matchers.length === 0 ? (
                 <span class="twin-unsub">—</span>
@@ -145,3 +162,36 @@ const start = steps[0];
     </tbody>
   </table>
 </Figure>
+
+<style>
+  /* Plain-English caption floating above each station, so the picture reads
+     without knowing the platform's event names. */
+  .station-gloss {
+    fill: var(--ink-muted);
+    font-size: 13px;
+    font-weight: 650;
+    letter-spacing: 0.005em;
+  }
+  .station-gloss.is-empty {
+    fill: var(--ink-faint);
+    font-style: italic;
+  }
+  @media (forced-colors: active) {
+    .station-gloss {
+      fill: CanvasText;
+    }
+  }
+
+  /* The real event name, kept as a quiet technical chip beside the plain name. */
+  .drawer-id {
+    margin-inline-start: 0.5ch;
+    font-size: 0.78em;
+    color: var(--ink-faint);
+  }
+  .twin-id {
+    display: block;
+    margin-block-start: 2px;
+    font-size: 0.82em;
+    color: var(--ink-faint);
+  }
+</style>

@@ -53,39 +53,46 @@ const EVENT_ORDER = [
 // so the UI renders contracts in the non-pinned treatment).
 const META = {
   SessionStart: {
+    plain: 'It starts up',
     contract: { stdin: '{ session_id, source }', stdout: 'additionalContext block' },
-    note: 'env bootstrap snapshot',
+    note: 'Loads a short summary of your project.',
     narration:
-      'SessionStart fires once. The router runs unified-hook.mjs session-start, which injects a project snapshot into additionalContext.',
+      'The session starts up. This harness runs one helper that loads a short summary of your project, so the AI begins already knowing where it is.',
   },
   UserPromptSubmit: {
+    plain: 'You send a message',
     contract: { stdin: '{ prompt, session_id }', stdout: 'additionalContext block' },
-    note: 'inject the session-memory block',
+    note: 'Adds saved notes from earlier.',
     narration:
-      'UserPromptSubmit fires on every turn. The router injects the prior compaction’s session-memory block to stdout.',
+      'You send a message. One helper adds the notes the harness saved earlier, so the AI remembers what came before.',
   },
   PreToolUse: {
+    plain: 'About to use a tool',
     contract: null,
-    note: 'platform event, this harness subscribes no row',
+    note: 'Nothing is attached here.',
     narration:
-      'PreToolUse fires on every tool call. This harness publishes no hook for it, so there is no row to pin. Absence of a row is the fact.',
+      'The AI is about to use a tool. This harness attaches nothing at this moment, so it stays empty. That empty spot is the lesson.',
   },
   PostToolUse: {
+    plain: 'A tool just finished',
     contract: { stdin: '{ tool_name, tool_input, tool_response }', stdout: 'none (side effects on disk)' },
-    note: 'format the edit, then append the rolling-log line',
+    note: 'Tidy the file that changed, then write a note about it.',
     narration:
-      'PostToolUse fires after a tool runs. Two hooks run in file order: post-edit on Write|Edit, then post-tool on every tool.',
+      'A tool just finished. This is the busy moment: two helpers run in order. First one tidies up the file that changed. Then a second writes a note recording what happened.',
   },
   PreCompact: {
+    plain: 'About to trim the chat',
     contract: { stdin: '{ transcript_path }', stdout: 'none (writes narrative memory)' },
-    note: 'distill the transcript into narrative memory',
+    note: 'Saves the important parts as memory first.',
     narration:
-      'PreCompact fires before the window collapses. The router calls the summarizer once, writing a narrative-memory record.',
+      'The chat is getting long and about to be trimmed. One helper saves the important parts as memory first, so nothing useful is lost.',
   },
   Stop: {
+    plain: 'The turn ends',
     contract: { stdin: '{ session_id }', stdout: 'optional decision block' },
-    note: 'overseer stop-check',
-    narration: 'Stop fires when a turn ends. The router runs the stop-check module.',
+    note: 'A final safety check before stopping.',
+    narration:
+      'The turn ends. One helper runs a final safety check before the AI stops.',
   },
 };
 
@@ -109,6 +116,7 @@ const stations = EVENT_ORDER.map((id) => {
   const m = META[id] ?? {};
   return {
     id,
+    plain: m.plain ?? id,
     subscribed,
     fanout: matchers.length > 1,
     matchers,

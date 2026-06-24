@@ -1,31 +1,31 @@
 ---
-title: The lifecycle is a wire
+title: The six moments in a session
 phase: 1
 order: 1
 estMinutes: 6
 viz: sv1
-thesis: A session turn is a token riding a wire through six platform events. This harness subscribes to five of them and deliberately leaves one alone.
+thesis: A work session passes through six set moments, from start-up to finish. At each one you can have Claude Code pause and run a small helper of your own. This harness uses five of the six.
 primer:
-  title: First, the one idea everything else is built on
+  title: "Start here: what this is"
   body:
-    - "A harness is the rig built around a coding model. The model can read, plan, and write text, but on its own it cannot run a command, save a file, or remember anything once the conversation scrolls away. The harness is the wiring that lets it do those things — and this whole site is a tour of one real harness, the one that powers the author's own Claude Code."
-    - "That wiring hangs off six fixed moments in a session, called lifecycle events: the session opens, you submit a prompt, a tool is about to run, a tool just finished, the context is about to be compacted, and the turn ends. At each moment the platform pauses and runs whatever scripts the harness registered there. One registration is just three things in a settings file — which event, a filter for which tools it applies to, and a command to run."
-    - "That is the entire model, and all of Phase 1 is one question asked six ways: which events did this harness wire, and what runs at each one? In a moment you will see those six events as stations on a wire and watch a single turn ride through them."
-    - "But first, one prediction. You are not expected to know the answer yet — committing a guess is the thing that makes the reveal stick. Five of the six events are simple, running exactly one script. One event is the exception. The question below is about that exception."
+    - "Claude Code is an AI assistant that works inside a real computer. It does more than answer questions. It can open files, run programs, and write and change code, the same way a person typing at a keyboard would."
+    - "On its own, it does all of that in a plain, one-size-fits-all way. So people customize it. They add their own rules and small helper programs so it behaves the way they want, and so it can keep working on its own without someone watching every step. All of those custom pieces, taken together, are what we will call the harness. This whole site takes apart one real harness, the one that runs the author's own Claude Code, a piece at a time."
+    - "The first piece is timing: when do your helpers get a chance to run? A session, meaning one stretch of working with Claude Code, passes through six set moments. It starts up. You send a message. It is about to use a tool. A tool just finished. The chat is getting long and is about to be trimmed. The turn ends. At any of these six, you can have it pause and run a helper of yours."
+    - "That is the whole idea behind this first lesson. Below, you will see those six moments laid out on a line and watch one session travel through them. But first, a quick guess. You are not expected to know the answer yet; guessing is the thing that makes it stick. At five of the six moments, this harness runs exactly one helper. At one moment, it runs more than one. The question below is about that one busy moment."
 hook:
-  prompt: When a tool call finishes, how many hooks does this harness run on the PostToolUse event?
+  prompt: "One of the six moments is 'a tool just finished.' At that moment, how many of its own helper programs does this harness run?"
   options:
-    - { id: a, label: "One: a single catch-all hook" }
-    - { id: b, label: "Two: a Write/Edit formatter, then a catch-all logger" }
-    - { id: c, label: "Zero: PostToolUse is not subscribed" }
+    - { id: a, label: "Just one" }
+    - { id: b, label: "Two, one right after the other" }
+    - { id: c, label: "None. It skips this moment." }
   correct: b
-  key: "PostToolUse is the one event that fans out. Two hooks run in file order: post-edit on the Write|Edit matcher, then post-tool on every tool."
+  key: "Right. This is the one busy moment, and it runs two helpers in order. First a helper tidies up the file that just changed. Then a second helper writes a note recording what happened. The order matters: clean the file first, then record it."
 apply:
-  question: Which lifecycle event does this harness deliberately NOT subscribe to?
+  question: One of the six moments has no helper attached at all. Which one?
   options:
-    - { id: a, label: "PreToolUse", feedback: "Right. There is no row for it, and the absence of a row is the fact." }
-    - { id: b, label: "PreCompact", feedback: "PreCompact is wired. It distills the transcript into narrative memory before the window collapses." }
-    - { id: c, label: "Stop", feedback: "Stop is wired. It runs the overseer stop-check when a turn ends." }
+    - { id: a, label: "Right before it uses a tool", feedback: "Right. This harness attaches nothing here, so the moment stays empty. The empty spot is itself the fact." }
+    - { id: b, label: "Right before the chat gets trimmed", feedback: "This moment does have a helper. It saves the important parts as memory before the chat is trimmed, so nothing useful is lost." }
+    - { id: c, label: "When the turn ends", feedback: "This moment has a helper too. It runs a last safety check before the AI stops." }
   correct: a
 ---
 
@@ -33,31 +33,28 @@ import Fact from '../../components/heva/Fact.astro';
 import EvidencePin from '../../components/heva/EvidencePin.astro';
 import Caveat from '../../components/heva/Caveat.astro';
 
-A Claude Code session is not a loop you write. It is a sequence of **platform events**,
-and the harness gets to subscribe to the ones it cares about. Each subscription is a row
-in a settings file: an event name, a matcher that decides which tool calls it applies to,
-and a command to run. When the event fires, the platform runs the matching commands and
-reads what they print.
+Picture the session as moving along a line, left to right, stopping at six points.
+Claude Code already knows how to pause at each one on its own. What the harness adds
+is what happens there.
 
-So the whole lifecycle reduces to one question you can answer by reading a file: which
-events did this harness wire, and what runs at each one?
+This harness fills five of the six stops. Most filled stops run a single helper. One
+stop is busier than the rest. When a tool just finished, two helpers run, one after the
+other. First a helper tidies up the file that changed. Then a second helper writes a
+short note that the tool ran. Tidy first, record second. The order is on purpose,
+because the note should describe the file in its finished, cleaned-up state.
 
-<Fact>This harness wires five of the six session lifecycle events. PreToolUse is left unsubscribed.</Fact>
-
-Five of the six events carry a single hook. The sixth, PostToolUse, carries **two**, and
-the order matters: the formatter runs first on file edits, then a catch-all logger runs on
-every tool. That ordering is not incidental. The formatter has to touch the file before the
-logger records that the turn happened.
+<Fact>This harness attaches a helper at five of the six moments. The moment right before a tool runs is left empty.</Fact>
 
 <EvidencePin file="reference/settings.template.json">
-Every subscribed event in the visualization below is a real row in the settings file the
-build reads at the pinned commit. If a row changes, the model regenerates and the build
-fails until the picture and the source agree again.
+Everything in the picture below comes straight from this harness's real settings file.
+The site reads that file when it builds this page. If the file changes, the picture is
+rebuilt to match. And if the two ever disagree, the site refuses to build at all, so
+what you are looking at cannot quietly drift out of date.
 </EvidencePin>
 
-The one event with no row is PreToolUse. It is a real platform event, fired before every
-tool call, but this harness publishes no hook for it. There is nothing to draw except its
-absence, so the diagram keeps it as a dashed, hollow station: present in the lifecycle, but
-not wired here.
+The one empty moment is the spot right before a tool runs. It is a real moment, and
+every session passes through it, but this harness chooses to do nothing there. So in the
+picture it stays a hollow, dashed outline. The moment is real, but nothing is attached
+to it.
 
-<Caveat>The event set belongs to the platform, not to this harness. A future Claude Code release could add, rename, or remove an event. The rows pinned here are real as of the pinned commit, and no further.</Caveat>
+<Caveat>These six moments belong to Claude Code itself, not to this harness. A future version of Claude Code could add a moment, rename one, or drop one. What is shown here is true for the version this site was built from, and no further.</Caveat>
