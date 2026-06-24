@@ -18,8 +18,8 @@ apply:
   mode: outcome
   options:
     - { id: a, label: "The one expensive call runs rarely and off the hot path, so memory stays cheap no matter how busy the session gets", feedback: "Right. Cost scales with compactions, not with tool calls." }
-    - { id: b, label: "It means the memory is low quality", feedback: "No. The free tiers do real work; they just do not need a model to do it." }
-    - { id: c, label: "It means the brain is optional", feedback: "The brain is the point. It is just rare, which is exactly why the stack stays affordable." }
+    - { id: b, label: "It means the free tiers are low quality, so the design leans on the one paid call to do the work that matters", feedback: "No. The free tiers do real work; they just do not need a model to do it." }
+    - { id: c, label: "It means the brain is optional, so the design treats the paid call as a feature you can switch off and lose nothing", feedback: "The brain is the point. It is just rare, which is exactly why the stack stays affordable." }
   correct: a
 ---
 

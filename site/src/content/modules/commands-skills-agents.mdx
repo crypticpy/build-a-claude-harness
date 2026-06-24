@@ -5,13 +5,13 @@ order: 6
 estMinutes: 6
 thesis: Slash commands, skills, and subagents are three different triggers. You type a command, the model offers a skill, and a subagent runs in its own context. Which one fired tells you who decided to run it.
 hook:
-  prompt: You want a skill to activate on certain prompts, so you add a rule to the skill-rules.json at the repo root. Does it fire?
+  prompt: You want a skill to fire on certain prompts, so you add a rule to the skill-rules.json in your project's .claude/skills/ folder. Does it fire?
   options:
-    - { id: a, label: "Yes, that is the canonical location" }
-    - { id: b, label: "No; the root file is a decoy, and the real rules live in hooks/unified/skill-rules.json" }
+    - { id: a, label: "Yes, that is the canonical location for skill rules" }
+    - { id: b, label: "No; the file that ships there is a redirect stub the loader skips, and the real rules live in hooks/unified/skill-rules.json" }
     - { id: c, label: "Only after you restart Claude Code" }
   correct: b
-  key: "No. The activation module loads its rules from hooks/unified/skill-rules.json. The root-level file is a redirect stub left to catch the wrong guess. Edit it and nothing happens, with no error to tell you why."
+  key: "No. The activation module loads its canonical rules from hooks/unified/skill-rules.json, and it skips the project-level .claude/skills/skill-rules.json when that file is a redirect stub, which is exactly what ships there to catch the wrong guess. Edit the stub and nothing happens, with no error to tell you why."
 apply:
   question: What actually distinguishes a skill from a slash command?
   mode: outcome
@@ -36,14 +36,16 @@ bounded job and report back, so its work never crowds your main thread.
 
 <Fact>Commands are invoked by you. Skills are suggested by the model. Subagents run in a context of their own.</Fact>
 
-The skills part has a trap. There are two files named `skill-rules.json`, and only one is
-real. The activation module reads the copy under `hooks/unified/`, and the root-level file
-is a stub that redirects you there. Edit the decoy and your rule never fires, silently,
-because a fail-silent harness will not tell you that you edited the wrong file.
+The skills part has a trap. There are two files named `skill-rules.json`. The activation module
+reads its canonical copy under `hooks/unified/`. The other one, in your project's
+`.claude/skills/` folder, ships as a redirect stub, and the loader skips a stub instead of
+honoring it. Add your rule to that file and it never fires, silently, because a fail-silent
+harness will not tell you that you edited the wrong one.
 
 <EvidencePin file="reference/hooks/unified/modules/skill-activation.mjs">
-The activation module names its canonical rules path explicitly. The root-level file is not
-the one it loads, which is exactly the kind of thing fail-silent will never warn you about.
+The activation module names its canonical rules path explicitly, and skips a project-level
+redirect stub rather than loading it, which is exactly the kind of thing fail-silent will
+never warn you about.
 </EvidencePin>
 
 Subagents are the most interesting of the three, because running several at once has a rule

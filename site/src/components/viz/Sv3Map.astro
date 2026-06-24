@@ -44,7 +44,7 @@ const rows = steps.map((s, i) => {
       label="The whole harness as one closed loop: a turn rides the forward spine through reason, the tool, the fan-out, and the rolling log into the disk, then PreCompact distills the log to memory and the return wire feeds it into the next prompt. The disk is the only node that grows."
     >
       {model.edges.map((edge) => <TypedEdge model={model} edge={edge} />)}
-      {model.nodes.map((node) => <FlowNode node={node} tabbable />)}
+      {model.nodes.map((node) => <FlowNode node={node} />)}
 
       {/* The append-only residue: bars accrete inside the cylinder as the trace runs. */}
       {

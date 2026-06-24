@@ -38,9 +38,9 @@ work assignment. Give each agent a set of files no other agent will touch, and t
 run is safe by construction. When the task cannot be carved up that cleanly, the honest move
 is to run the steps in order and accept the slower clock.
 
-<EvidencePin file="CLAUDE.md">
-The sub-agents rule is explicit: assign each agent its own files, and never put overlapping
-files in two parallel agents. If files would overlap, sequence the work.
+<EvidencePin file="reference/commands/plan.md" lines={[52]}>
+The plan command states the rule directly: assign each parallel sub-agent a file set it owns
+exclusively, and if the steps share any file, run them sequentially instead of fanning out.
 </EvidencePin>
 
 Watch the visualization with the overlap toggle on. The moment two lanes claim the same

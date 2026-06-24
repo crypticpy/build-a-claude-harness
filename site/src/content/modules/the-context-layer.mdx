@@ -3,15 +3,15 @@ title: A server that refuses to die
 phase: 2
 order: 14
 estMinutes: 6
-thesis: The code-intelligence server is a hand-rolled JSON-RPC loop with three tools and no SDK. A bad message becomes an error reply, never a crash, because a dead loop would take every tool down for the rest of the session.
+thesis: The code-intelligence server is a hand-rolled JSON-RPC loop with four tools and no SDK. A bad message becomes an error reply, never a crash, because a dead loop would take every tool down for the rest of the session.
 hook:
   prompt: A malformed message arrives on the MCP server's stdin. What happens to the server?
   options:
-    - { id: a, label: "It crashes, and all three tools go with it" }
+    - { id: a, label: "It crashes, and all four tools go with it" }
     - { id: b, label: "It replies with a JSON-RPC error and keeps reading" }
     - { id: c, label: "It restarts itself from scratch" }
   correct: b
-  key: "It replies with an error and keeps reading. The loop wraps each message so a parse failure or an unknown method becomes a reply, not a fatal. A crashed loop would cut off semantic lookup, impact check, and brain search for the rest of the session, so the loop is built so a single bad message can never kill it."
+  key: "It replies with an error and keeps reading. The loop wraps each message so a parse failure or an unknown method becomes a reply, not a fatal. A crashed loop would cut off all four tools, semantic lookup, impact check, and the two brain tools, for the rest of the session, so the loop is built so a single bad message can never kill it."
 apply:
   question: Why is fail-silent even more important in the MCP loop than in a one-shot hook?
   mode: assertion-reason
@@ -27,10 +27,10 @@ import EvidencePin from '../../components/heva/EvidencePin.astro';
 
 The hooks are one half of the harness. The other half is a separate program: a small server
 that answers questions about your code. It speaks JSON-RPC over stdin and stdout, it is
-written by hand with no SDK, and it offers three tools: a file summary, a consumer lookup,
-and a search over saved lessons.
+written by hand with no SDK, and it offers four tools: a file summary, a consumer lookup,
+a search over saved lessons, and a way to write a new lesson back.
 
-<Fact>Three tools, one hand-rolled JSON-RPC loop, and a strict rule: a single bad message must never kill it.</Fact>
+<Fact>Four tools, one hand-rolled JSON-RPC loop, and a strict rule: a single bad message must never kill it.</Fact>
 
 The loop reads a message, runs the requested tool, and writes a reply, forever. The danger
 is obvious: this process lives for the whole session, so if one malformed message could

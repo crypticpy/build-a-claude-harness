@@ -43,6 +43,7 @@ Walk me through each wiring decision and why it is made that way.`;
     <button type="button" class="exit-copy" data-exit-copy>
       <span class="exit-copy-label">Copy the prompt</span>
     </button>
+    <p class="exit-copy-status visually-hidden" role="status" aria-live="polite" data-exit-status></p>
   </figure>
 </section>
 
@@ -52,12 +53,14 @@ Walk me through each wiring decision and why it is made that way.`;
   const btn = document.querySelector<HTMLButtonElement>('[data-exit-copy]');
   const pre = document.querySelector<HTMLElement>('[data-exit-prompt]');
   const label = btn?.querySelector<HTMLElement>('.exit-copy-label');
+  const status = document.querySelector<HTMLElement>('[data-exit-status]');
   if (btn && pre && label) {
     btn.addEventListener('click', async () => {
       try {
         await navigator.clipboard.writeText(pre.textContent ?? '');
         label.textContent = 'Copied';
         btn.classList.add('is-copied');
+        if (status) status.textContent = 'Prompt copied to clipboard.';
         setTimeout(() => {
           label.textContent = 'Copy the prompt';
           btn.classList.remove('is-copied');
@@ -70,6 +73,7 @@ Walk me through each wiring decision and why it is made that way.`;
         sel?.removeAllRanges();
         sel?.addRange(r);
         label.textContent = 'Selected, press copy';
+        if (status) status.textContent = 'Prompt selected; press copy to finish.';
       }
     });
   }

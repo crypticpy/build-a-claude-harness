@@ -18,8 +18,8 @@ apply:
   mode: outcome
   options:
     - { id: a, label: "Memory written before compaction is read back after it, so the next turn resumes with the prior turn's context", feedback: "Right. The write-then-read pair is the join that turns a sequence into a loop." }
-    - { id: b, label: "The session never ends", feedback: "Sessions end. The loop is about context surviving the end, not the session running forever." }
-    - { id: c, label: "Every event runs twice", feedback: "Events fire once each. What returns is the memory, read on the next turn's way in." }
+    - { id: b, label: "The session runs without end, so the same context is simply always held in memory and never has to be rebuilt", feedback: "Sessions end. The loop is about context surviving the end, not the session running forever." }
+    - { id: c, label: "Every event fires twice, once on the way out and once on the way back, which bends the straight line into a ring", feedback: "Events fire once each. What returns is the memory, read on the next turn's way in." }
   correct: a
 ---
 

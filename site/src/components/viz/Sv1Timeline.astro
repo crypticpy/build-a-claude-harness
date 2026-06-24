@@ -24,7 +24,7 @@ const start = steps[0];
     <DiagramFrame width={model.width} height={model.height} label="The session lifecycle as a wire the turn rides through six platform events. Subscribed events fill amber; the unsubscribed event stays a dashed hollow.">
       <path class="wire" d={wireD}></path>
       {model.edges.map((edge) => <TypedEdge model={model} edge={edge} />)}
-      {model.nodes.map((node) => <FlowNode node={node} tabbable />)}
+      {model.nodes.map((node) => <FlowNode node={node} />)}
       <ellipse
         class="token"
         cx="0"

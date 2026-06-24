@@ -14,8 +14,12 @@ interface Props {
   correct: string;
   answerKey: string;
 }
+import { seededShuffle } from '../../lib/shuffle';
 const { id, prompt, options, correct, answerKey } = Astro.props;
 const name = `pc-${id}`;
+// Permute render order per question so the correct answer is not always in the
+// same slot. Grading keys off option id, so position is all that changes.
+const ordered = seededShuffle(options, name);
 ---
 
 <form class="prediction" data-pc={id}>
@@ -23,7 +27,7 @@ const name = `pc-${id}`;
     <legend class="pc-prompt">{prompt}</legend>
     <div class="pc-options">
       {
-        options.map((o) => (
+        ordered.map((o) => (
           <div class="pc-option">
             <input
               type="radio"

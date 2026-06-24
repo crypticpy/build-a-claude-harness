@@ -176,6 +176,10 @@ export default function ApprovalGate({
       }
     };
     chips.forEach((c) => {
+      // Promote to an operable control only now that JS can drive it. SSR leaves
+      // the chip a plain <g>, so JS-off readers never tab into an inert button.
+      c.setAttribute("tabindex", "0");
+      c.setAttribute("role", "button");
       c.addEventListener("click", onClick);
       c.addEventListener("keydown", onKey as EventListener);
     });
@@ -183,6 +187,8 @@ export default function ApprovalGate({
     r.setAttribute("data-gate-ready", "");
     return () => {
       chips.forEach((c) => {
+        c.removeAttribute("tabindex");
+        c.removeAttribute("role");
         c.removeEventListener("click", onClick);
         c.removeEventListener("keydown", onKey as EventListener);
       });

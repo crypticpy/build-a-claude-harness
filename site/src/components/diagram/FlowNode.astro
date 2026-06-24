@@ -4,9 +4,8 @@ import { nodePath, nodeRect, type DiagramNode } from '../../lib/diagram';
 interface Props {
   node: DiagramNode;
   lit?: boolean;
-  tabbable?: boolean;
 }
-const { node, lit = false, tabbable = false } = Astro.props;
+const { node, lit = false } = Astro.props;
 const shape = nodePath(node);
 const r = nodeRect(node);
 const unsub = node.trust === 'unpinnable';
@@ -17,9 +16,6 @@ const labelY = r.y + r.h + 16;
   class:list={['node-group', { 'is-lit': lit }]}
   data-node-id={node.id}
   data-node-kind={node.kind}
-  tabindex={tabbable ? 0 : undefined}
-  role={tabbable ? 'button' : undefined}
-  aria-label={tabbable ? node.label : undefined}
 >
   <rect class="focus-rect" x={r.x - 6} y={r.y - 6} width={r.w + 12} height={r.h + 12}></rect>
   {

@@ -17,8 +17,8 @@ apply:
   mode: outcome
   options:
     - { id: a, label: "The note is needed as the next turn starts, and UserPromptSubmit is the event that fires there, after a mid-session compaction as well as at boot", feedback: "Right. Compaction can happen mid-session, so the read has to ride the prompt, not just startup." }
-    - { id: b, label: "SessionStart runs too late to matter", feedback: "SessionStart runs early, not late. The issue is that it runs only once, and compaction can recur." }
-    - { id: c, label: "UserPromptSubmit is a cheaper event to hook", feedback: "Cost is not the reason. Timing is: the note must return whenever the next turn begins." }
+    - { id: b, label: "SessionStart fires too late in the turn to place the note where the model will actually read it that turn", feedback: "SessionStart runs early, not late. The issue is that it runs only once, and compaction can recur." }
+    - { id: c, label: "UserPromptSubmit is the cheaper event to hook, so the read is put there to spend less on each turn", feedback: "Cost is not the reason. Timing is: the note must return whenever the next turn begins." }
   correct: a
 ---
 

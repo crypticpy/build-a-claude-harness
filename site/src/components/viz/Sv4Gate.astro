@@ -88,8 +88,6 @@ const hourLabels = ['11pm', '1am', '3am', '5am', '7am'];
           <g
             class:list={['gate-chip', c.shape === 'harm' ? 'is-harm' : 'is-safe']}
             data-chip={c.id}
-            tabindex="0"
-            role="button"
             aria-label={`Place ${c.command} on the gate`}
           >
             <rect class="chip-box" x={CHIP_X} y={chipY(c)} width={CHIP_W} height={CHIP_H} rx="6" />

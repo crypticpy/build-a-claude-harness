@@ -1,47 +1,57 @@
 ---
-title: The log only ever grows
+title: Two records, two guarantees
 phase: 1
 order: 4
 estMinutes: 5
-thesis: The rolling log is append-only. It never reads its own file and writes it back, because two hook processes can run at once, and the only operation safe under that race is appending a line.
+thesis: The rolling log keeps two kinds of record and protects them differently. The per-operation log it must never lose is append-only. The per-file edit counter is advisory, so it takes a cheap read-modify-write and accepts that a rare increment can be lost.
 hook:
-  prompt: To bump a per-file edit counter, the rolling log reads the count, adds one, and writes it back. True or false?
+  prompt: On every file edit the harness bumps a counter in file-edits.json. Given two PostToolUse hooks can run at once, how is that counter written?
   options:
-    - { id: a, label: "True, that is the only way to keep an accurate count" }
-    - { id: b, label: "False; it only appends, and a derived count is not guaranteed exact" }
-    - { id: c, label: "False; it locks the file first, then updates in place" }
+    - { id: a, label: "Append-only, like the operation log; the count is recomputed by re-reading every appended line" }
+    - { id: b, label: "Read-modify-write, accepting that two racing hooks can lose an increment, because the counter is only advisory" }
+    - { id: c, label: "The file is locked for the whole update so the two hooks cannot interleave" }
   correct: b
-  key: "False. Two PostToolUse hooks can fire at the same time, and a read-modify-write would let one overwrite the other. Appending a line is the only race-safe move, so the log appends and accepts that a counter derived from it may undercount. The record itself is never lost."
+  key: "Read-modify-write. The harness reads file-edits.json, increments the stored count, and writes the whole file back, with no lock to hold the file still in between. Two hooks racing through that can lose one increment, last writer wins, and the harness accepts it because the counter is advisory. The record it refuses to lose, one line per operation, goes to an append-only log instead, which racing writes cannot clobber."
 apply:
-  question: Append-only trades away one guarantee to protect another. Which pair is it?
+  question: The harness writes one record append-only and another with a lossy read-modify-write. What decides which gets which?
   mode: assertion-reason
   options:
-    - { id: a, label: "It gives up exact derived counts to never lose or corrupt a record under concurrency", feedback: "Right. The line is sacred; the tally computed from it is best-effort." }
-    - { id: b, label: "It gives up durability, since appends can be dropped", feedback: "No. Appends are the durable part. It is the derived aggregate that is approximate." }
-    - { id: c, label: "It gives up record ordering", feedback: "No. Appends preserve arrival order. The soft guarantee is the count, not the sequence." }
+    - { id: a, label: "How much it costs to lose the value: the per-operation record must survive, so it is appended; the edit counter is advisory, so a cheap rewrite that can drop a rare increment is fine", feedback: "Right. The durability guarantee is matched to the consequence of losing the value, not applied uniformly." }
+    - { id: b, label: "Write speed: the append is the faster path, so the hot writes use it and the rare ones use the rewrite", feedback: "Both writes are cheap. The deciding factor is the cost of a lost value, not latency." }
+    - { id: c, label: "File size: the small counter fits in one rewrite while the larger log has to be appended", feedback: "Size is not the reason. A tiny advisory value can be rewritten lossily; a record you must keep is appended however small it is." }
   correct: a
 ---
 
 import Fact from '../../components/heva/Fact.astro';
 import EvidencePin from '../../components/heva/EvidencePin.astro';
 
-The rolling log records every tool call: a line per operation, written by the PostToolUse
-hook. The tempting design is a small database that keeps running totals. The harness refuses
-it, for one reason that decides everything else.
+The rolling log records every tool call: the PostToolUse hook writes one line per operation to
+a per-session file. Beside it the harness keeps a second structure, a per-file edit counter in
+file-edits.json, and the two are written in deliberately different ways.
 
-<Fact>Two PostToolUse hooks can run concurrently. The only write that is safe under that race is an append.</Fact>
+<Fact>Two PostToolUse hooks can run at once. The harness picks a durability guarantee for each record by how much it would cost to lose it.</Fact>
 
-A read-modify-write needs the file to hold still between the read and the write. Under two
-racing processes it will not, and one update silently clobbers the other. An append has no
-such window: each process opens, writes its line, and closes. Nothing is read, so nothing
-can go stale. The cost is that any number you compute later, like how many times a file was
-touched, is a floor, not a guarantee. For advisory memory, a slightly low count is fine; a
-corrupted log is not.
+The operation record is the one you cannot lose, so it is appended. Each process opens the
+session log, writes its line, and closes. Nothing is read first, so two racing hooks cannot
+clobber each other, and no line is ever lost.
+
+The per-file counter is different. To bump it, the harness reads file-edits.json, increments
+the stored count, and writes the whole file back. That is a read-modify-write, the very pattern
+an append avoids, and nothing locks the file to hold it still in between. So two hooks can read
+the same count and both write back, and one increment is lost, last writer wins. The harness
+accepts that on purpose, because the counter is advisory. A tally that is occasionally one low
+costs nothing; a lost operation record would.
+
+The same instinct shows up once more. The optional background summary of each edit is appended
+to its own sidecar file, precisely so a slow write can never race the counter it would otherwise
+share.
 
 <EvidencePin file="reference/hooks/unified/modules/rolling-log.mjs">
-The log appends one record per operation and never rewrites the file. Counters derived from
-it are explicitly treated as approximate, which is the price of being safe under concurrency.
+Two records, two write paths. The per-operation log is appended one line per tool call, which
+racing processes cannot clobber. The per-file counter is read, incremented, and written back with
+no lock in between, so two concurrent hooks can lose an increment, last writer wins.
 </EvidencePin>
 
-This is the first and cheapest tier of memory. The next room shows the other three, and
-which one actually costs you anything.
+This is the first and cheapest tier of memory, and it already carries the whole principle: protect
+a value as hard as it costs to lose it, and no harder. The next room shows the other three tiers,
+and which one actually costs you anything.

@@ -18,7 +18,7 @@ apply:
   options:
     - { id: a, label: "Because interrupting the user's turn is never an acceptable cost for a convenience layer", feedback: "Right. The harness is a helper. A helper that can halt your work is worse than no helper." }
     - { id: b, label: "Because the operating system ignores exit codes", feedback: "It does not. The exit code is chosen deliberately; the platform is what treats a hook's failure as a non-event." }
-    - { id: c, label: "To hide bugs from the developer", feedback: "Errors still go to stderr for debugging. What is suppressed is the blast radius, not the evidence." }
+    - { id: c, label: "To hide bugs from the developer", feedback: "Not to hide them. Set DEBUG and the modules log to stderr; what is suppressed is the blast radius, not the evidence." }
   correct: a
 ---
 

@@ -4,6 +4,7 @@
 // enhances this same markup (aria-live verdict, first-try recording, answer
 // key); it is never the only path to the answer.
 import QuizEngine from '../../islands/QuizEngine';
+import { seededShuffle } from '../../lib/shuffle';
 interface Option {
   id: string;
   label: string;
@@ -18,6 +19,10 @@ interface Props {
 }
 const { id, question, options, correct, mode = 'outcome' } = Astro.props;
 const name = `aq-${id}`;
+// Permute render order per question so the correct answer is not always option
+// `a`. The same ordering feeds the SSR floor and the island, so the radios and
+// the answer key agree; grading keys off option id, not position.
+const ordered = seededShuffle(options, name);
 ---
 
 <form class="apply-quiz" data-aq={id}>
@@ -25,7 +30,7 @@ const name = `aq-${id}`;
     <legend class="aq-question">{question}</legend>
     <div class="aq-options">
       {
-        options.map((o) => (
+        ordered.map((o) => (
           <div class="aq-option">
             <input
               type="radio"
@@ -44,5 +49,5 @@ const name = `aq-${id}`;
       }
     </div>
   </fieldset>
-  <QuizEngine client:visible={{ rootMargin: '300px' }} targetId={id} correct={correct} options={options} mode={mode} />
+  <QuizEngine client:visible={{ rootMargin: '300px' }} targetId={id} correct={correct} options={ordered} mode={mode} />
 </form>
