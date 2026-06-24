@@ -29,6 +29,7 @@ const { entry, prev, next, total } = Astro.props;
 const d = entry.data;
 const moduleId = entry.id;
 const beats = [
+  ...(d.primer ? [{ id: 'primer', label: 'Start' }] : []),
   { id: 'hook', label: 'Predict' },
   { id: 'explain', label: 'Explain' },
   ...(d.viz ? [{ id: 'visualize', label: 'Visualize' }] : []),
@@ -48,6 +49,16 @@ const beats = [
           <h1>{d.title}</h1>
           <p class="thesis">{d.thesis}</p>
         </header>
+
+        {
+          d.primer && (
+            <Beat id="primer" kind="primer" title={d.primer.title}>
+              {d.primer.body.map((p) => (
+                <p>{p}</p>
+              ))}
+            </Beat>
+          )
+        }
 
         <Beat id="hook" kind="hook" title="Make the call">
           <PredictionCommit

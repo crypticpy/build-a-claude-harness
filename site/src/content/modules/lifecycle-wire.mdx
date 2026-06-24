@@ -5,6 +5,13 @@ order: 1
 estMinutes: 6
 viz: sv1
 thesis: A session turn is a token riding a wire through six platform events. This harness subscribes to five of them and deliberately leaves one alone.
+primer:
+  title: First, the one idea everything else is built on
+  body:
+    - "A harness is the rig built around a coding model. The model can read, plan, and write text, but on its own it cannot run a command, save a file, or remember anything once the conversation scrolls away. The harness is the wiring that lets it do those things — and this whole site is a tour of one real harness, the one that powers the author's own Claude Code."
+    - "That wiring hangs off six fixed moments in a session, called lifecycle events: the session opens, you submit a prompt, a tool is about to run, a tool just finished, the context is about to be compacted, and the turn ends. At each moment the platform pauses and runs whatever scripts the harness registered there. One registration is just three things in a settings file — which event, a filter for which tools it applies to, and a command to run."
+    - "That is the entire model, and all of Phase 1 is one question asked six ways: which events did this harness wire, and what runs at each one? In a moment you will see those six events as stations on a wire and watch a single turn ride through them."
+    - "But first, one prediction. You are not expected to know the answer yet — committing a guess is the thing that makes the reveal stick. Five of the six events are simple, running exactly one script. One event is the exception. The question below is about that exception."
 hook:
   prompt: When a tool call finishes, how many hooks does this harness run on the PostToolUse event?
   options:

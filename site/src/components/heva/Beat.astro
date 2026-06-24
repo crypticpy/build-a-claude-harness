@@ -3,11 +3,17 @@
 // eyebrow label. Beats are plain sections — fully legible with no JS.
 interface Props {
   id: string;
-  kind: 'hook' | 'explain' | 'visualize' | 'apply';
+  kind: 'primer' | 'hook' | 'explain' | 'visualize' | 'apply';
   title: string;
 }
 const { id, kind, title } = Astro.props;
-const LABEL = { hook: 'Predict', explain: 'Explain', visualize: 'Visualize', apply: 'Apply' };
+const LABEL = {
+  primer: 'Start here',
+  hook: 'Predict',
+  explain: 'Explain',
+  visualize: 'Visualize',
+  apply: 'Apply',
+};
 ---
 
 <section id={id} class={`beat beat--${kind}`} aria-labelledby={`${id}-h`}>

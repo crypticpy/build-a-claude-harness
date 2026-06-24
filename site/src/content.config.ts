@@ -21,6 +21,15 @@ const modules = defineCollection({
     // The one claim the module asserts, stated before any prose.
     thesis: z.string().min(10),
     estMinutes: z.number().int().positive().default(6),
+    // An optional orientation beat shown BEFORE the Hook. Used on the first
+    // module a newcomer meets, so the cold prediction lands on a mental model
+    // instead of nothing. Plain paragraphs, fully legible JS-off.
+    primer: z
+      .object({
+        title: z.string().min(3),
+        body: z.array(z.string().min(10)).min(1),
+      })
+      .optional(),
     // The Visualize beat: which signature visualization this module hosts.
     viz: z.enum(["sv1", "sv2", "sv3", "sv4", "sv5"]).optional(),
     // The Hook beat: commit a prediction before the reveal.

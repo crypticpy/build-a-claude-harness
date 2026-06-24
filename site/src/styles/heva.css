@@ -118,6 +118,29 @@
   margin: 0 0 var(--sp-4);
 }
 
+/* ── Primer: the calm orientation card a newcomer meets before predicting ── */
+.beat--primer {
+  margin-top: var(--sp-6);
+  padding: var(--sp-6) var(--sp-6) var(--sp-5);
+  border: var(--border-hairline);
+  border-left: 3px solid var(--signal);
+  border-radius: var(--radius-panel);
+  background: var(--surface);
+}
+.beat--primer .beat-title {
+  font-size: var(--fs-xl);
+}
+.beat--primer .beat-body {
+  color: var(--ink-muted);
+}
+.beat--primer .beat-body p:first-child {
+  font-size: var(--fs-lg);
+  color: var(--ink);
+}
+.beat--primer .beat-body p:last-child {
+  margin-bottom: 0;
+}
+
 /* ── Prose (the Explain body) ───────────────────────────────────────── */
 .beat-body {
   font-size: var(--fs-base);
