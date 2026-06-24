@@ -2,7 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PhaseTransition from '../../components/heva/PhaseTransition.astro';
-import { href } from '../../lib/href';
+import ModuleMenu from '../../components/ModuleMenu.astro';
 
 const mods = (await getCollection('modules'))
   .filter((m) => m.data.phase === 2)
@@ -16,37 +16,13 @@ const mods = (await getCollection('modules'))
 >
   <PhaseTransition question="How does it run for hours without you?" label="Phase 2 question" />
   <main id="main" class="wrap phase">
-    <p class="kicker mono"><a href={href()}>Atlas</a> / Phase 2</p>
-    <h1>The Teardown</h1>
-    <p class="prose intro">
-      One descent through the reference harness, layer by layer, ending on the question
-      that makes autonomy safe: how does it run for hours without you?
-    </p>
-
-    {
-      mods.length === 0 ? (
-        <p class="prose empty">The descent is being assembled.</p>
-      ) : (
-        <ol class="layers" aria-label="Phase 2 layers">
-          {mods.map((m, i) => (
-            <li class="layer">
-              <a href={href(`phase-2/${m.id}`)}>
-                <span class="ly-depth mono">L{i + 1}</span>
-                <span class="ly-body">
-                  <span class="ly-title">{m.data.title}</span>
-                  <span class="ly-thesis prose">{m.data.thesis}</span>
-                  <span class="ly-meta mono">
-                    {m.data.estMinutes} min{m.data.viz ? ` · ${m.data.viz.toUpperCase()}` : ''}
-                  </span>
-                </span>
-              </a>
-            </li>
-          ))}
-        </ol>
-      )
-    }
-
-    <a class="back mono" href={href()}>Back to the atlas</a>
+    <ModuleMenu
+      phase={2}
+      name="The Teardown"
+      question="How does it run for hours without you?"
+      intro="One descent through the reference harness, layer by layer. Each module lights one region of the whole-loop map you built in Phase 1, ending on the second-model gate that makes a long, unattended run safe."
+      modules={mods}
+    />
   </main>
 </BaseLayout>
 
@@ -54,75 +30,5 @@ const mods = (await getCollection('modules'))
   .phase {
     padding-block: var(--sp-12) var(--sp-16);
     min-height: 80dvh;
-  }
-  .kicker {
-    color: var(--signal);
-    letter-spacing: 0.12em;
-    font-size: var(--fs-xs);
-  }
-  .intro {
-    color: var(--ink-muted);
-    font-size: var(--fs-lg);
-    max-width: 60ch;
-    margin-bottom: var(--sp-8);
-  }
-  .empty {
-    color: var(--ink-faint);
-  }
-  /* The descent reads top-to-bottom as one connected spine. */
-  .layers {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 var(--sp-8);
-    display: grid;
-    gap: 0;
-    border-left: 2px solid var(--surface-3, var(--surface-2));
-    margin-left: var(--sp-3);
-  }
-  .layer a {
-    display: flex;
-    gap: var(--sp-4);
-    align-items: baseline;
-    padding: var(--sp-4) var(--sp-5);
-    margin-left: -2px;
-    border-left: 2px solid transparent;
-    color: var(--ink);
-    text-decoration: none;
-    transition:
-      border-color var(--motion-settle) var(--ease-settle),
-      background var(--motion-settle) var(--ease-settle);
-  }
-  .layer a:hover {
-    border-left-color: var(--signal);
-    background: var(--surface-2);
-  }
-  .layer a:focus-visible {
-    outline: none;
-    box-shadow: var(--focus-ring);
-  }
-  .ly-depth {
-    color: var(--signal-dim);
-    font-size: var(--fs-sm);
-  }
-  .ly-body {
-    display: grid;
-    gap: 4px;
-  }
-  .ly-title {
-    font-family: var(--font-display);
-    font-size: var(--fs-lg);
-    color: var(--ink);
-  }
-  .ly-thesis {
-    color: var(--ink-muted);
-    font-size: var(--fs-sm);
-    max-width: 70ch;
-  }
-  .ly-meta {
-    color: var(--ink-faint);
-    font-size: var(--fs-2xs);
-  }
-  .back {
-    color: var(--ink-faint);
   }
 </style>

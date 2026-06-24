@@ -1,0 +1,270 @@
+---
+// The phase index as a designed module map, not a flat list. Each module is a
+// numbered station card: the order numeral sits in a station ring (echoing the
+// node grammar of the diagrams), the title and thesis read as a peer, and the
+// visualization it hosts is badged. Used by both phase index pages so they stay
+// identical in craft. Fully legible JS-off; every card is one large link.
+import type { CollectionEntry } from 'astro:content';
+import { href } from '../lib/href';
+
+interface Props {
+  phase: 1 | 2;
+  name: string; // "Foundations" / "The Teardown"
+  question: string; // the through-question this phase answers
+  intro: string;
+  modules: CollectionEntry<'modules'>[];
+}
+const { phase, name, question, intro, modules } = Astro.props;
+
+const totalMin = modules.reduce((s, m) => s + m.data.estMinutes, 0);
+const first = modules[0];
+
+// Short, honest label for the visualization a module hosts.
+const VIZ_LABEL: Record<string, string> = {
+  sv1: 'Lifecycle timeline',
+  sv2: 'Fan-out race',
+  sv3: 'Whole-loop map',
+  sv4: 'Approval gate',
+  sv5: 'Memory stack',
+};
+---
+
+<header class="pm-hero">
+  <p class="pm-kicker mono">Phase {phase}</p>
+  <h1 class="pm-name">{name}</h1>
+  <p class="pm-question">{question}</p>
+  <p class="pm-intro prose">{intro}</p>
+  <p class="pm-meta mono">
+    {modules.length} modules · about {totalMin} min · readable without JavaScript
+  </p>
+</header>
+
+{
+  modules.length === 0 ? (
+    <p class="pm-empty prose">This phase is being assembled.</p>
+  ) : (
+    <ol class="pm-grid" aria-label={`Phase ${phase} modules`}>
+      {modules.map((m, i) => {
+        const vizLabel = m.data.viz ? VIZ_LABEL[m.data.viz] : null;
+        return (
+          <li class="pm-card">
+            <a href={href(`phase-${phase}/${m.id}`)}>
+              <span class="pm-station mono" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <span class="pm-card-body">
+                <span class="pm-card-head">
+                  <span class="pm-title">{m.data.title}</span>
+                  {vizLabel && <span class="pm-viz mono">{vizLabel}</span>}
+                </span>
+                <span class="pm-thesis prose">{m.data.thesis}</span>
+                <span class="pm-foot mono">
+                  <span class="pm-min">{m.data.estMinutes} min</span>
+                  <span class="pm-go" aria-hidden="true">Open →</span>
+                </span>
+              </span>
+            </a>
+          </li>
+        );
+      })}
+    </ol>
+  )
+}
+
+<div class="pm-actions">
+  {
+    first && (
+      <a class="pm-start" href={href(`phase-${phase}/${first.id}`)}>
+        Start with module {modules[0] ? String(1).padStart(2, '0') : '01'} · {first.data.title} →
+      </a>
+    )
+  }
+  <a class="pm-back mono" href={href()}>← Back to the atlas</a>
+</div>
+
+<style>
+  /* ── Hero: name, then the question this whole phase answers ──────────── */
+  .pm-hero {
+    max-width: 64ch;
+    margin-bottom: var(--sp-12);
+  }
+  .pm-kicker {
+    color: var(--signal);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-size: var(--fs-xs);
+    margin: 0 0 var(--sp-3);
+  }
+  .pm-name {
+    font-family: var(--font-display);
+    font-size: var(--fs-3xl);
+    line-height: 1.05;
+    color: var(--ink);
+    margin: 0 0 var(--sp-4);
+  }
+  .pm-question {
+    font-family: var(--font-display);
+    font-size: var(--fs-xl);
+    line-height: 1.3;
+    color: var(--ink-muted);
+    margin: 0 0 var(--sp-5);
+    padding-left: var(--sp-4);
+    border-left: 3px solid var(--signal);
+  }
+  .pm-intro {
+    color: var(--ink-muted);
+    font-size: var(--fs-base);
+    margin: 0 0 var(--sp-5);
+  }
+  .pm-meta {
+    color: var(--ink-faint);
+    font-size: var(--fs-xs);
+    margin: 0;
+  }
+
+  /* ── The map: numbered station cards ────────────────────────────────── */
+  .pm-grid {
+    list-style: none;
+    margin: 0 0 var(--sp-12);
+    padding: 0;
+    display: grid;
+    gap: var(--sp-4);
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 52rem) {
+    .pm-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .pm-card a {
+    display: flex;
+    gap: var(--sp-4);
+    height: 100%;
+    padding: var(--sp-5) var(--sp-5) var(--sp-4);
+    border: var(--border-hairline);
+    border-radius: var(--radius-panel);
+    background: var(--surface);
+    color: var(--ink);
+    text-decoration: none;
+    transition:
+      border-color var(--motion-settle) var(--ease-settle),
+      background var(--motion-settle) var(--ease-settle),
+      transform var(--motion-settle) var(--ease-settle);
+  }
+  .pm-card a:hover {
+    border-color: var(--signal);
+    background: var(--surface-2);
+    transform: translateY(-2px);
+  }
+  .pm-card a:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+
+  /* The station ring: the order numeral as a node on the wire. */
+  .pm-station {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--signal-dim);
+    border-radius: var(--radius-full);
+    color: var(--ink-muted);
+    font-size: var(--fs-sm);
+    font-variant-numeric: tabular-nums;
+    transition:
+      color var(--motion-settle) var(--ease-settle),
+      border-color var(--motion-settle) var(--ease-settle),
+      background var(--motion-settle) var(--ease-settle);
+  }
+  .pm-card a:hover .pm-station {
+    color: #1a1206;
+    background: var(--signal);
+    border-color: var(--signal);
+  }
+
+  .pm-card-body {
+    display: grid;
+    gap: var(--sp-2);
+    align-content: start;
+  }
+  .pm-card-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--sp-2) var(--sp-3);
+  }
+  .pm-title {
+    font-family: var(--font-display);
+    font-size: var(--fs-lg);
+    line-height: 1.2;
+    color: var(--ink);
+  }
+  .pm-viz {
+    flex: none;
+    font-size: var(--fs-2xs);
+    letter-spacing: 0.04em;
+    color: var(--signal);
+    border: 1px solid var(--signal-dim);
+    border-radius: var(--radius-pin);
+    padding: 2px 7px;
+  }
+  .pm-thesis {
+    color: var(--ink-muted);
+    font-size: var(--fs-sm);
+    line-height: 1.55;
+  }
+  .pm-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: var(--sp-2);
+    font-size: var(--fs-2xs);
+    color: var(--ink-faint);
+  }
+  .pm-go {
+    color: var(--signal-dim);
+    transition: color var(--motion-settle) var(--ease-settle);
+  }
+  .pm-card a:hover .pm-go {
+    color: var(--signal);
+  }
+
+  /* ── Actions ────────────────────────────────────────────────────────── */
+  .pm-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-4) var(--sp-6);
+  }
+  .pm-start {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target-comfortable);
+    padding: 0 var(--sp-6);
+    border-radius: var(--radius-panel);
+    background: var(--signal);
+    color: #1a1206;
+    font-weight: 600;
+    font-size: var(--fs-base);
+    text-decoration: none;
+    transition: background var(--motion-settle) var(--ease-settle);
+  }
+  .pm-start:hover {
+    background: #ffc473;
+  }
+  .pm-start:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+  .pm-back {
+    color: var(--ink-faint);
+  }
+  .pm-back:hover {
+    color: var(--ink-muted);
+  }
+  .pm-empty {
+    color: var(--ink-faint);
+  }
+</style>
