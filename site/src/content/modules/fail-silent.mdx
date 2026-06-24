@@ -1,0 +1,45 @@
+---
+title: A hook can fail without you noticing
+phase: 1
+order: 3
+estMinutes: 5
+thesis: A hook never blocks the turn. It exits zero no matter what, wraps its work in try/catch, and treats every dependency as optional, so a broken hook degrades quietly instead of breaking your session.
+hook:
+  prompt: A PostToolUse hook throws an uncaught exception in the middle of your turn. What happens to the session?
+  options:
+    - { id: a, label: "The turn aborts and you see the stack trace" }
+    - { id: b, label: "Nothing visible; the turn continues" }
+    - { id: c, label: "Claude Code retries the hook three times, then stops" }
+  correct: b
+  key: "Nothing visible. The dispatcher catches everything and exits zero regardless, and Claude Code reads a hook's stdout, not its exit status. A hook that dies simply produces no output, and the turn moves on."
+apply:
+  question: Why does the dispatcher exit zero even when a module throws?
+  mode: misconception
+  options:
+    - { id: a, label: "Because interrupting the user's turn is never an acceptable cost for a convenience layer", feedback: "Right. The harness is a helper. A helper that can halt your work is worse than no helper." }
+    - { id: b, label: "Because the operating system ignores exit codes", feedback: "It does not. The exit code is chosen deliberately; the platform is what treats a hook's failure as a non-event." }
+    - { id: c, label: "To hide bugs from the developer", feedback: "Errors still go to stderr for debugging. What is suppressed is the blast radius, not the evidence." }
+  correct: a
+---
+
+import Fact from '../../components/heva/Fact.astro';
+import EvidencePin from '../../components/heva/EvidencePin.astro';
+import Caveat from '../../components/heva/Caveat.astro';
+
+A hook runs inside your session, on the platform's clock. If a hook could throw and take
+the turn down with it, every module would be a liability. So the harness makes one promise
+and keeps it everywhere: the hook is invisible when it works and invisible when it fails.
+
+<Fact>The dispatcher wraps every module in try/catch and exits zero no matter what happens inside.</Fact>
+
+Three habits hold the promise together. The outer catch swallows any exception. The final
+line is always a clean exit. And every dependency the harness might want, an API key, a
+formatter, a git binary, is checked before use and skipped when absent. A missing tool
+turns a feature off; it does not turn into a crash.
+
+<EvidencePin file="reference/hooks/unified/unified-hook.mjs">
+The dispatcher's outer try/catch and unconditional zero exit are the whole safety net. A
+module is free to throw, because the boundary above it refuses to propagate the failure.
+</EvidencePin>
+
+<Caveat>Fail-silent is a reliability stance, not a correctness one. A hook that quietly does nothing is invisible by design, so when a feature seems dead, check stderr and the logs rather than expecting an error to surface on its own.</Caveat>

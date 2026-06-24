@@ -1,0 +1,47 @@
+---
+title: The log only ever grows
+phase: 1
+order: 4
+estMinutes: 5
+thesis: The rolling log is append-only. It never reads its own file and writes it back, because two hook processes can run at once, and the only operation safe under that race is appending a line.
+hook:
+  prompt: To bump a per-file edit counter, the rolling log reads the count, adds one, and writes it back. True or false?
+  options:
+    - { id: a, label: "True, that is the only way to keep an accurate count" }
+    - { id: b, label: "False; it only appends, and a derived count is not guaranteed exact" }
+    - { id: c, label: "False; it locks the file first, then updates in place" }
+  correct: b
+  key: "False. Two PostToolUse hooks can fire at the same time, and a read-modify-write would let one overwrite the other. Appending a line is the only race-safe move, so the log appends and accepts that a counter derived from it may undercount. The record itself is never lost."
+apply:
+  question: Append-only trades away one guarantee to protect another. Which pair is it?
+  mode: assertion-reason
+  options:
+    - { id: a, label: "It gives up exact derived counts to never lose or corrupt a record under concurrency", feedback: "Right. The line is sacred; the tally computed from it is best-effort." }
+    - { id: b, label: "It gives up durability, since appends can be dropped", feedback: "No. Appends are the durable part. It is the derived aggregate that is approximate." }
+    - { id: c, label: "It gives up record ordering", feedback: "No. Appends preserve arrival order. The soft guarantee is the count, not the sequence." }
+  correct: a
+---
+
+import Fact from '../../components/heva/Fact.astro';
+import EvidencePin from '../../components/heva/EvidencePin.astro';
+
+The rolling log records every tool call: a line per operation, written by the PostToolUse
+hook. The tempting design is a small database that keeps running totals. The harness refuses
+it, for one reason that decides everything else.
+
+<Fact>Two PostToolUse hooks can run concurrently. The only write that is safe under that race is an append.</Fact>
+
+A read-modify-write needs the file to hold still between the read and the write. Under two
+racing processes it will not, and one update silently clobbers the other. An append has no
+such window: each process opens, writes its line, and closes. Nothing is read, so nothing
+can go stale. The cost is that any number you compute later, like how many times a file was
+touched, is a floor, not a guarantee. For advisory memory, a slightly low count is fine; a
+corrupted log is not.
+
+<EvidencePin file="reference/hooks/unified/modules/rolling-log.mjs">
+The log appends one record per operation and never rewrites the file. Counters derived from
+it are explicitly treated as approximate, which is the price of being safe under concurrency.
+</EvidencePin>
+
+This is the first and cheapest tier of memory. The next room shows the other three, and
+which one actually costs you anything.

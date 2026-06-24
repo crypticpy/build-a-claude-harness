@@ -1,0 +1,47 @@
+---
+title: Parallel only when the files are disjoint
+phase: 1
+order: 7
+estMinutes: 6
+viz: sv2
+thesis: Subagents buy wall-clock by running in parallel, but only when their files never overlap. Two agents editing one file race; the rule is disjoint corridors, or sequence the work.
+hook:
+  prompt: Two subagents would finish faster if they both edited the same config file at once. Good plan?
+  options:
+    - { id: a, label: "Yes, parallel is always faster" }
+    - { id: b, label: "No; overlapping files race, so give them disjoint files or sequence them" }
+    - { id: c, label: "Yes, the harness locks the file so they take turns automatically" }
+  correct: b
+  key: "No. Parallel subagents that touch the same file can clobber each other's edits, and nothing locks the file for them. The standing rule is one disjoint set of files per agent. If the work cannot be split cleanly, you sequence it instead of fanning out."
+apply:
+  question: When is fanning out to parallel subagents the wrong call?
+  mode: outcome
+  options:
+    - { id: a, label: "When the work cannot be split into non-overlapping files", feedback: "Right. Parallelism is a property of the file layout, not a free speed setting." }
+    - { id: b, label: "When there are more than three agents", feedback: "Count is not the constraint. Two agents on one file is already wrong; ten on ten files is fine." }
+    - { id: c, label: "When the task is simple", feedback: "Simple tasks just do not need it. The hard rule that forbids it is file overlap." }
+  correct: a
+---
+
+import Fact from '../../components/heva/Fact.astro';
+import EvidencePin from '../../components/heva/EvidencePin.astro';
+
+Fanning out to several subagents at once is how you turn a long serial job into a short
+parallel one. The speed-up is real, but it has a precondition that is easy to skip past in
+the rush to go faster.
+
+<Fact>Parallel agents must own disjoint files. If two would touch the same file, you sequence them instead.</Fact>
+
+Nothing in the harness locks a file while one agent edits it. So two agents writing the same
+file are simply racing, and the loser's work disappears. The fix is not a lock; it is the
+work assignment. Give each agent a set of files no other agent will touch, and the parallel
+run is safe by construction. When the task cannot be carved up that cleanly, the honest move
+is to run the steps in order and accept the slower clock.
+
+<EvidencePin file="CLAUDE.md">
+The sub-agents rule is explicit: assign each agent its own files, and never put overlapping
+files in two parallel agents. If files would overlap, sequence the work.
+</EvidencePin>
+
+Watch the visualization with the overlap toggle on. The moment two lanes claim the same
+file, the parallel option is struck out, and the only legal path left is one lane at a time.

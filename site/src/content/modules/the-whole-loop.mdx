@@ -1,0 +1,50 @@
+---
+title: The whole loop, one map
+phase: 1
+order: 8
+estMinutes: 7
+viz: sv3
+thesis: Everything in Phase 1 is one closed loop. A turn enters, events fire in order, memory accretes, and the next turn resumes from where the last one left off. The capstone map is that lifecycle as a single racetrack.
+hook:
+  prompt: On the session map, the rolling log fills on every tool call, but the brain lights only once. At which event does the brain run?
+  options:
+    - { id: a, label: "PostToolUse, after each edit" }
+    - { id: b, label: "PreCompact, just before the window would collapse" }
+    - { id: c, label: "Stop, when the turn ends" }
+  correct: b
+  key: "PreCompact. The log accretes on every PostToolUse for free. The one billed distillation runs at PreCompact, right before compaction would otherwise discard the detail the brain needs to read."
+apply:
+  question: Reading the map, what makes the loop closed rather than a straight line?
+  mode: outcome
+  options:
+    - { id: a, label: "Memory written before compaction is read back after it, so the next turn resumes with the prior turn's context", feedback: "Right. The write-then-read pair is the join that turns a sequence into a loop." }
+    - { id: b, label: "The session never ends", feedback: "Sessions end. The loop is about context surviving the end, not the session running forever." }
+    - { id: c, label: "Every event runs twice", feedback: "Events fire once each. What returns is the memory, read on the next turn's way in." }
+  correct: a
+---
+
+import Fact from '../../components/heva/Fact.astro';
+import EvidencePin from '../../components/heva/EvidencePin.astro';
+
+Each room so far was one primitive in isolation. The capstone puts them on one track and runs
+a token around it, so you can see how they connect. A turn enters at SessionStart, moves
+through the prompt, fires tools that the log records, and approaches the edge of the context
+window.
+
+<Fact>The session is a closed loop. What is written before compaction is read back on the next turn in.</Fact>
+
+The loop closes at the compaction boundary. PreCompact distills the turn into memory just
+before the window collapses, and the next turn's UserPromptSubmit reads that memory back as
+it begins. Without that pair, the line would be straight: a session would end and take its
+context with it. With it, the track bends back on itself, and work resumes instead of
+restarting.
+
+<EvidencePin file="reference/settings.template.json">
+Every station on the map is a real subscription in the settings file. The forward path and
+the return path are both wired there, which is what lets the diagram draw a closed loop
+rather than a dead end.
+</EvidencePin>
+
+That is the whole foundation. Phase 2 stops touring the primitives and starts taking the
+reference harness apart, layer by layer, to answer the one question the loop was built for:
+how does it run for hours without you?

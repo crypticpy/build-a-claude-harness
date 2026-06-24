@@ -1,0 +1,52 @@
+---
+title: Where the money goes
+phase: 1
+order: 5
+estMinutes: 7
+viz: sv5
+thesis: Per-repo memory is four tiers, and only one of them ever calls the LLM. Three tiers are string ops and file appends that cost nothing; the brain, at compaction, is the single billed line.
+hook:
+  prompt: Per-repo intelligence keeps the agent oriented across sessions. How often does maintaining it call the LLM?
+  options:
+    - { id: a, label: "On every tool call, to keep memory current" }
+    - { id: b, label: "Once per compaction, and only then" }
+    - { id: c, label: "Never; it is pure string matching" }
+  correct: b
+  key: "Once per compaction. The static index, the rolling log, and the distilled query are free. Only the brain, on PreCompact, makes an LLM call, around 8000 tokens as taught here, and it is the only billed line in the whole stack."
+apply:
+  question: Three of the four memory tiers are free. Why does that shape the design?
+  mode: outcome
+  options:
+    - { id: a, label: "The one expensive call runs rarely and off the hot path, so memory stays cheap no matter how busy the session gets", feedback: "Right. Cost scales with compactions, not with tool calls." }
+    - { id: b, label: "It means the memory is low quality", feedback: "No. The free tiers do real work; they just do not need a model to do it." }
+    - { id: c, label: "It means the brain is optional", feedback: "The brain is the point. It is just rare, which is exactly why the stack stays affordable." }
+  correct: a
+---
+
+import Fact from '../../components/heva/Fact.astro';
+import EvidencePin from '../../components/heva/EvidencePin.astro';
+import Caveat from '../../components/heva/Caveat.astro';
+import Calculator from '../../components/heva/Calculator.astro';
+
+Memory sounds expensive. If the agent has to stay oriented across sessions, surely it is
+calling a model constantly. It is not. Three of the four tiers never touch the LLM at all.
+
+<Fact>The index, the rolling log, and the distilled query are free. Only the brain, at PreCompact, pays.</Fact>
+
+The static index is built once at session start. The rolling log appends a line per tool
+call. The distilled query is plain string truncation on read. None of that is billed. The
+fourth tier, the brain, reads the whole log at compaction and distills it into a
+cross-session note. That single call is the only place the money goes.
+
+<EvidencePin file="reference/hooks/unified/modules/precompact-llm.mjs">
+The PreCompact module makes one LLM call to write narrative memory and a lessons file. It is
+the sole billed operation in the memory stack; every other tier is string work.
+</EvidencePin>
+
+Because the cost lives in one rare call, you can budget it directly. If you decide how many
+tokens a session may spend on memory, that divided by the per-distillation cost is how many
+times the brain may run.
+
+<Calculator />
+
+<Caveat>The 8000-token figure is illustrative, chosen to make the arithmetic legible. The fact that survives is the topology: one billed call, run once per compaction, never on the hot path.</Caveat>

@@ -1,0 +1,45 @@
+---
+title: One router, every event
+phase: 1
+order: 2
+estMinutes: 5
+thesis: Every wired event runs the same script. The harness installs one dispatcher, not one hook per event, and the event name is just an argument.
+hook:
+  prompt: This harness wires five lifecycle events. How many separate hook scripts does it install to handle them?
+  options:
+    - { id: a, label: "Five, one script per event" }
+    - { id: b, label: "One, a single dispatcher that switches on the event name" }
+    - { id: c, label: "Fifteen, one per module" }
+  correct: b
+  key: "One. The settings file points every event at the same unified-hook.mjs and passes the event as an argument: session-start, prompt, post-edit, post-tool, precompact, stop. The dispatcher reads that argument and lazy-loads only the module that event needs."
+apply:
+  question: Why route every event through one dispatcher instead of one script per event?
+  mode: outcome
+  options:
+    - { id: a, label: "So one fail-silent wrapper and one set of helpers cover every event", feedback: "Right. The boundary is written once, and every event inherits it." }
+    - { id: b, label: "Because Claude Code only permits a single hook script", feedback: "No. You can register many commands; routing through one is a design choice, not a limit." }
+    - { id: c, label: "To keep the settings file short", feedback: "The file is barely shorter. The real win is one shared boundary, not fewer lines." }
+  correct: a
+---
+
+import Fact from '../../components/heva/Fact.astro';
+import EvidencePin from '../../components/heva/EvidencePin.astro';
+
+Five lifecycle events are wired, but they do not run five different programs. Each
+subscription in the settings file invokes the same entry point and hands it one word:
+the event it is reacting to. The reaction lives inside that one script.
+
+<Fact>One dispatcher serves every wired event. The event name arrives as a command-line argument and selects the branch.</Fact>
+
+So the dispatcher is a switch. It reads the argument, and for `post-edit` it loads the
+formatter and the logger; for `precompact` it loads the summarizer; for `session-start`
+it builds the snapshot. Nothing else loads. A module is imported only on the event that
+needs it, which keeps the common path cheap and keeps each module ignorant of the others.
+
+<EvidencePin file="reference/hooks/unified/unified-hook.mjs">
+The dispatcher branches on the event argument and lazy-loads the matching module. Add a
+new behavior by adding a branch, not by registering a new script in the settings file.
+</EvidencePin>
+
+The payoff is in the next room. Because everything funnels through one script, the harness
+can wrap that single funnel in one safety net, and every event is covered by it at once.

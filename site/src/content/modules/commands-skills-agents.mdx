@@ -1,0 +1,50 @@
+---
+title: Three ways to start work
+phase: 1
+order: 6
+estMinutes: 6
+thesis: Slash commands, skills, and subagents are three different triggers. You type a command, the model offers a skill, and a subagent runs in its own context. Which one fired tells you who decided to run it.
+hook:
+  prompt: You want a skill to activate on certain prompts, so you add a rule to the skill-rules.json at the repo root. Does it fire?
+  options:
+    - { id: a, label: "Yes, that is the canonical location" }
+    - { id: b, label: "No; the root file is a decoy, and the real rules live in hooks/unified/skill-rules.json" }
+    - { id: c, label: "Only after you restart Claude Code" }
+  correct: b
+  key: "No. The activation module loads its rules from hooks/unified/skill-rules.json. The root-level file is a redirect stub left to catch the wrong guess. Edit it and nothing happens, with no error to tell you why."
+apply:
+  question: What actually distinguishes a skill from a slash command?
+  mode: outcome
+  options:
+    - { id: a, label: "A slash command fires because you typed it; a skill is offered by the model when a prompt matches a rule", feedback: "Right. The divide is who decided: you, or the model reading your prompt." }
+    - { id: b, label: "Skills run faster than commands", feedback: "Speed is not the difference. The difference is the trigger: explicit versus suggested." }
+    - { id: c, label: "Slash commands need an LLM call and skills do not", feedback: "Both end up in the model's lap. What differs is who initiated the work." }
+  correct: a
+---
+
+import Fact from '../../components/heva/Fact.astro';
+import EvidencePin from '../../components/heva/EvidencePin.astro';
+import CrossPhaseLink from '../../components/heva/CrossPhaseLink.astro';
+
+Three things in the harness look similar from the outside, because all three end up as work
+the model does. What separates them is who pulled the trigger.
+
+A slash command is yours. You type `/evolve`, and it runs. A skill is the model's call: a
+prompt comes in, the activation hook checks it against a rule set, and if it matches, the
+skill is offered. A subagent is neither, exactly; it is a fresh context spun up to do one
+bounded job and report back, so its work never crowds your main thread.
+
+<Fact>Commands are invoked by you. Skills are suggested by the model. Subagents run in a context of their own.</Fact>
+
+The skills part has a trap. There are two files named `skill-rules.json`, and only one is
+real. The activation module reads the copy under `hooks/unified/`, and the root-level file
+is a stub that redirects you there. Edit the decoy and your rule never fires, silently,
+because a fail-silent harness will not tell you that you edited the wrong file.
+
+<EvidencePin file="reference/hooks/unified/modules/skill-activation.mjs">
+The activation module names its canonical rules path explicitly. The root-level file is not
+the one it loads, which is exactly the kind of thing fail-silent will never warn you about.
+</EvidencePin>
+
+Subagents are the most interesting of the three, because running several at once has a rule
+of its own. That is <CrossPhaseLink to="phase-1/subagents-fan-out">the next room</CrossPhaseLink>.
