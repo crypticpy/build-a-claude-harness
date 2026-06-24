@@ -1,0 +1,305 @@
+---
+// SV-4 Safe-Autonomy Approval Gate — the Phase-2 climax, rendered three ways from
+// one provenance-gated model. The ApprovalGate island mutates this present SVG; it
+// never re-renders. The honesty bands, the twin table, and the verbatim caveats are
+// static markup outside the island (0KB). The asymmetry is in the layout, not just
+// the motion: ALLOW gets no lane and never lights the diamond; all visual mass is DENY.
+import '../../styles/diagram.css'; // toggle (.twin-host:has), .twin, .token base, view-toggle
+import Figure from '../diagram/Figure.astro';
+import ApprovalGate from '../../islands/ApprovalGate';
+import {
+  chips,
+  ruleRows,
+  costByMode,
+  CAVEAT_TOP,
+  CAVEAT_BOTTOM,
+  RATIO_STAMP,
+  NIGHT_CALM,
+  NIGHT_FLOOD,
+  GY,
+  GATE_X,
+  BOUNDARY_X,
+  ALLOW_END_X,
+  DOCK_OUT_X,
+  nightPings,
+} from '../../lib/sv4';
+
+const id = 'sv4';
+const sha = (await import('../../generated/facts.json')).default.shortSha as string;
+
+// Dock layout: safe chips dominate the field; harms are grouped under the stamp.
+const safe = chips.filter((c) => c.shape === 'safe');
+const harm = chips.filter((c) => c.shape === 'harm');
+const CHIP_X = 34;
+const CHIP_W = 200;
+const CHIP_H = 26;
+const safeY = (i: number) => 64 + i * 32;
+const harmY = (i: number) => 178 + i * 32;
+const chipY = (c: (typeof chips)[number]) =>
+  c.shape === 'safe' ? safeY(safe.indexOf(c)) : harmY(harm.indexOf(c));
+
+// Gate diamond around the wire height.
+const dTop = GY - 64, dBot = GY + 64, dL = GATE_X - 70, dR = GATE_X + 70;
+const diamondD = `M${GATE_X},${dTop} L${dR},${GY} L${GATE_X},${dBot} L${dL},${GY} Z`;
+
+// Named-harm rule rows (dim until one lights). default-allow is the quiet last row.
+const ROW_Y0 = 300, ROW_STEP = 23;
+const rowY = (i: number) => ROW_Y0 + i * ROW_STEP;
+
+// Stolen-night timeline: calm shows a few pings, flood maps 247 onto the same hours.
+const NX0 = 64, NX1 = 940, NYP = 64;
+const calmPings = nightPings(costByMode['default-allow'].humanPrompts, NX0, NX1);
+const floodPings = nightPings(costByMode['deny-by-default'].humanPrompts, NX0, NX1);
+const hourLabels = ['11pm', '1am', '3am', '5am', '7am'];
+---
+
+<Figure id={id} label="Approval gate: SVG or data view">
+  <div slot="svg">
+    <ApprovalGate
+      client:visible={{ rootMargin: '600px' }}
+      figureId={id}
+      cases={chips.map((c) => ({ id: c.id, command: c.command, verdict: c.verdict, matchedRule: c.matchedRule, why: c.why }))}
+      nightCalm={NIGHT_CALM}
+      nightFlood={NIGHT_FLOOD}
+    />
+
+    <svg class="diagram gate" viewBox="0 0 1000 472" role="img" preserveAspectRatio="xMidYMid meet"
+      aria-label="A request is placed on a gate that default-allows everything except five named harms. Safe requests pass silently; harmful requests stop at the boundary, light their matched rule, and are handed to the human.">
+      <defs>
+        <pattern id="sv4-hatch" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)">
+          <line x1="0" y1="0" x2="0" y2="7" stroke="var(--ink-faint)" stroke-width="1" stroke-opacity="0.5"></line>
+        </pattern>
+        <symbol id="sv4-human" viewBox="0 0 10 12">
+          <circle cx="5" cy="3" r="2.4"></circle>
+          <path d="M1.2,12 v-2.2 a3.8,3.8 0 0 1 7.6,0 V12 Z"></path>
+        </symbol>
+      </defs>
+
+      {/* Honesty band — top: a friction tool, not a security boundary */}
+      <g class="hatch-band" aria-hidden="true">
+        <rect x="0" y="6" width="1000" height="30" fill="url(#sv4-hatch)"></rect>
+        <rect x="0" y="6" width="1000" height="30" class="hatch-veil"></rect>
+      </g>
+      <text class="hatch-caption" x="500" y="25">{CAVEAT_TOP}</text>
+
+      {/* Dock — safe requests dominate; three harms shown for legibility */}
+      {
+        chips.map((c) => (
+          <g
+            class:list={['gate-chip', c.shape === 'harm' ? 'is-harm' : 'is-safe']}
+            data-chip={c.id}
+            tabindex="0"
+            role="button"
+            aria-label={`Place ${c.command} on the gate`}
+          >
+            <rect class="chip-box" x={CHIP_X} y={chipY(c)} width={CHIP_W} height={CHIP_H} rx="6" />
+            <text class="chip-cmd mono" x={CHIP_X + 12} y={chipY(c) + 17}>{c.command}</text>
+          </g>
+        ))
+      }
+      <text class="ratio-stamp mono" x={CHIP_X} y="166">{RATIO_STAMP}</text>
+
+      {/* The handed-to-human marker: lights on the first DENY, persists for the session */}
+      <use class="gate-human" href="#sv4-human" x="244" y="200" width="14" height="17"></use>
+      <text class="human-label mono" x="262" y="213">→ human</text>
+
+      {/* The single amber event-payload wire: dock → diamond → boundary */}
+      <path class="gate-wire" d={`M${DOCK_OUT_X},${GY} L${GATE_X},${GY} L${ALLOW_END_X},${GY}`}></path>
+
+      {/* The boundary: near-invisible. ALLOW glides past it; DENY dies on it. */}
+      <line class="gate-boundary" x1={BOUNDARY_X} y1="128" x2={BOUNDARY_X} y2="216"></line>
+      <text class="boundary-label mono" x={BOUNDARY_X} y="124">boundary</text>
+
+      {/* The gate diamond — router grammar, unlit at rest, lights only on arm/deny */}
+      <path class="gate-diamond node" d={diamondD}></path>
+      <text class="gate-caption" x={GATE_X} y={dTop - 8}>the gate</text>
+
+      {/* The why-hero: the one sentence the instrument was built to say (DENY only) */}
+      {
+        harm.map((c) => (
+          <g class="why-hero" data-why={c.id}>
+            <text class="why-rule mono" x={GATE_X} y="254">{c.matchedRule}</text>
+            <text class="why-text mono" x={GATE_X} y="274">{c.why}</text>
+          </g>
+        ))
+      }
+
+      {/* The named-harm rule rows: dim until one lights with its real reason */}
+      {
+        ruleRows.map((rr, i) => (
+          <g class:list={['rule-row', rr.id === 'default-allow' && 'is-fallthrough']} data-rule={rr.id}>
+            <text class="rule-id mono" x="40" y={rowY(i)}>
+              {rr.id === 'default-allow' ? '▷ default-allow (fallthrough)' : `■ ${rr.id}`}
+            </text>
+            <text class="rule-why mono" x="360" y={rowY(i)}>{rr.why}</text>
+          </g>
+        ))
+      }
+
+      {/* Honesty band — bottom: deterministic stand-in, course-taught, not wired */}
+      <g class="hatch-band" aria-hidden="true">
+        <rect x="0" y="436" width="1000" height="30" fill="url(#sv4-hatch)"></rect>
+        <rect x="0" y="436" width="1000" height="30" class="hatch-veil"></rect>
+      </g>
+      <text class="hatch-caption" x="500" y="455">{CAVEAT_BOTTOM}</text>
+
+      {/* The token */}
+      <ellipse class="token" cx="0" cy="0" rx="9" ry="7" style={`transform: translate(${DOCK_OUT_X}px, ${GY}px)`} aria-hidden="true"></ellipse>
+    </svg>
+
+    {/* The detonation: a stolen night. Default-allow lets you sleep; deny-by-default wakes you 247 times. */}
+    <svg class="diagram night" viewBox="0 0 1000 110" role="img" preserveAspectRatio="xMidYMid meet"
+      aria-label="The same overnight run under two modes. Default-allow interrupts the human a few times across eight hours. Deny-by-default interrupts 247 times, one every 1.9 minutes.">
+      <line class="night-axis" x1={NX0} y1={NYP} x2={NX1} y2={NYP}></line>
+      {
+        hourLabels.map((h, i) => {
+          const x = NX0 + ((NX1 - NX0) * i) / (hourLabels.length - 1);
+          return (
+            <g class="night-hour">
+              <line x1={x} y1={NYP - 4} x2={x} y2={NYP + 4}></line>
+              <text class="night-tick mono" x={x} y={NYP + 20}>{h}</text>
+            </g>
+          );
+        })
+      }
+      <g class="night-calm">
+        {calmPings.map((x) => <circle cx={x} cy={NYP} r="4"></circle>)}
+      </g>
+      <g class="night-flood" aria-hidden="true">
+        {
+          floodPings.map((x, i) => (
+            <use href="#sv4-human" x={x - 3} y={NYP - 9} width="7" height="9" style={`transition-delay:${i * 4}ms`}></use>
+          ))
+        }
+      </g>
+      <text class="night-counter night-counter-calm mono" x={NX0} y="20">{NIGHT_CALM}</text>
+      <text class="night-counter night-counter-flood mono" x={NX0} y="20">{NIGHT_FLOOD}</text>
+    </svg>
+  </div>
+
+  <table slot="data" class="twin">
+    <caption>
+      The gate's verdicts, generated at build by the real evaluate-policy rules. Verbatim:
+      {' '}{CAVEAT_TOP}; {CAVEAT_BOTTOM}. Real at SHA {sha}.
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Request</th>
+        <th scope="col">Matched rule</th>
+        <th scope="col">Verdict</th>
+        <th scope="col">Why</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        chips.map((c) => (
+          <tr data-case={c.id}>
+            <td><code>{c.command}</code></td>
+            <td><code>{c.matchedRule}</code></td>
+            <td class={c.verdict === 'ALLOW' ? 'twin-allow' : 'twin-deny'}>
+              {c.verdict === 'ALLOW' ? '▷ ALLOW' : '■ DENY'}
+            </td>
+            <td>{c.why}</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+
+  <table slot="data" class="twin twin-detonation">
+    <caption>
+      The same long run under each mode. Prompt counts are illustrative, not repo-pinned.
+    </caption>
+    <thead>
+      <tr><th scope="col">Run mode</th><th scope="col">Human prompts overnight</th><th scope="col">Note</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>default-allow</code></td><td>{costByMode['default-allow'].humanPrompts}</td><td>{NIGHT_CALM}</td></tr>
+      <tr><td><code>deny-by-default</code></td><td>{costByMode['deny-by-default'].humanPrompts}</td><td>{NIGHT_FLOOD}</td></tr>
+    </tbody>
+  </table>
+</Figure>
+
+<style>
+  /* ── Honesty bands: permanent diagonal-hatch, captions at verdict type-size ── */
+  .gate .hatch-veil { fill: var(--surface-caveat, var(--surface-2)); fill-opacity: 0.5; }
+  .gate .hatch-caption {
+    fill: var(--ink-muted);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    text-anchor: middle;
+  }
+
+  /* ── Dock chips: safe dominates; select-then-place; ≥24px targets ─────────── */
+  .gate .gate-chip { cursor: pointer; }
+  .gate .chip-box {
+    fill: var(--surface);
+    stroke: var(--ink-faint);
+    stroke-width: 1.5;
+    transition: transform var(--motion-settle) var(--ease-settle), stroke var(--motion-settle) var(--ease-settle);
+  }
+  .gate .gate-chip.is-harm .chip-box { stroke-dasharray: 3 2; }
+  .gate .chip-cmd { fill: var(--ink); font-size: 13px; }
+  .gate .gate-chip:focus-visible { outline: none; }
+  .gate .gate-chip:focus-visible .chip-box { stroke: var(--focus); stroke-width: 2.5; }
+  .gate .gate-chip.is-staged .chip-box { stroke: var(--signal); transform: translateY(-2px); }
+  .gate .ratio-stamp { fill: var(--ink-faint); font-size: 11px; }
+
+  /* ── The wire, boundary, diamond ──────────────────────────────────────────── */
+  .gate .gate-wire { fill: none; stroke: var(--signal-dim); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+  .gate .gate-boundary { stroke: var(--ink-faint); stroke-width: 1; stroke-dasharray: 2 3; }
+  .gate .boundary-label { fill: var(--ink-faint); font-size: 10px; text-anchor: middle; }
+  .gate .gate-diamond {
+    fill: none; stroke: currentColor; stroke-width: 1.5; vector-effect: non-scaling-stroke;
+    transition: stroke var(--motion-settle) var(--ease-settle);
+  }
+  .gate .gate-diamond.is-armed { stroke: var(--signal); }
+  .gate .gate-diamond.is-deny { stroke: var(--deny, #e8806f); stroke-width: 2; }
+  .gate .gate-caption { fill: var(--ink-muted); font-family: var(--font-display); font-size: 15px; text-anchor: middle; }
+
+  /* ── The why-hero: hidden until its DENY fires ────────────────────────────── */
+  .gate .why-hero { opacity: 0; transition: opacity var(--motion-settle) var(--ease-settle); }
+  .gate .why-hero.is-shown { opacity: 1; }
+  .gate .why-rule { fill: var(--deny, #e8806f); font-size: 13px; text-anchor: middle; }
+  .gate .why-text { fill: var(--ink); font-size: 13px; text-anchor: middle; }
+
+  /* ── Rule rows: dim until matched ─────────────────────────────────────────── */
+  .gate .rule-id, .gate .rule-why { fill: var(--ink-faint); font-size: 12px; transition: fill var(--motion-settle) var(--ease-settle); }
+  .gate .rule-row.is-lit .rule-id { fill: var(--deny, #e8806f); }
+  .gate .rule-row.is-lit .rule-why { fill: var(--ink); }
+  .gate .rule-row.is-allow .rule-id, .gate .rule-row.is-allow .rule-why { fill: var(--allow, #7fc8a0); }
+
+  /* ── The token + the human-glyph (persists once lit) ──────────────────────── */
+  .gate .token { fill: var(--signal); stroke: var(--signal); stroke-opacity: 0.35; stroke-width: 6; paint-order: stroke; opacity: 0; }
+  .gate .token.is-active { opacity: 1; }
+  .gate .token.is-dimmed { opacity: 0.35; transition: opacity var(--motion-settle) var(--ease-settle); }
+  .gate .gate-human { fill: var(--ink-faint); opacity: 0; transition: opacity var(--motion-settle) var(--ease-settle); }
+  .gate .gate-human.is-lit { opacity: 1; fill: var(--deny, #e8806f); }
+  .gate .human-label { fill: var(--ink-faint); font-size: 10px; opacity: 0; }
+  .gate .gate-human.is-lit ~ .human-label { opacity: 1; }
+
+  /* ── The stolen night ─────────────────────────────────────────────────────── */
+  .night { margin-top: var(--sp-4); }
+  .night .night-axis, .night .night-hour line { stroke: var(--ink-faint); stroke-width: 1; }
+  .night .night-tick { fill: var(--ink-faint); font-size: 10px; text-anchor: middle; }
+  .night .night-calm circle { fill: var(--signal); fill-opacity: 0.7; }
+  .night .night-flood use { fill: var(--deny, #e8806f); opacity: 0; transition: opacity 180ms var(--ease-settle); }
+  .night.is-flooded .night-flood use { opacity: 0.85; }
+  .night.is-flooded .night-calm { opacity: 0; }
+  .night .night-counter { font-size: 13px; }
+  .night .night-counter-calm { fill: var(--ink-muted); }
+  .night .night-counter-flood { fill: var(--deny, #e8806f); opacity: 0; }
+  .night.is-flooded .night-counter-calm { opacity: 0; }
+  .night.is-flooded .night-counter-flood { opacity: 1; }
+
+  .twin-detonation { margin-top: var(--sp-5); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .night .night-flood use { transition: none !important; }
+  }
+  @media (forced-colors: active) {
+    .gate .gate-diamond.is-deny, .gate .rule-row.is-lit .rule-id, .gate .gate-human.is-lit { stroke: currentColor; fill: currentColor; }
+    .gate .token { fill: currentColor; stroke: none; }
+    .night .night-calm circle, .night.is-flooded .night-flood use { fill: currentColor; }
+  }
+</style>

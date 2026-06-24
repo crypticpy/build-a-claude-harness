@@ -1,0 +1,42 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Sv4Gate from '../../components/viz/Sv4Gate.astro';
+import { href } from '../../lib/href';
+import facts from '../../generated/facts.json';
+---
+
+<BaseLayout
+  title="SV-4 · Safe-Autonomy Approval Gate · Harness Atlas"
+  phase="2"
+  description="A second cheap gate that default-allows everything except five named harms is what lets an agent run for hours unattended. Deny-by-default does not make it safer, it makes it unusable."
+>
+  <main id="main" class="viz-page">
+    <p class="eyebrow"><a href={href('phase-2')}>Phase 2</a> · Signature visualization 4</p>
+    <h1>How it runs long, autonomous tasks safely</h1>
+    <p class="lede">
+      A second, cheap model gates every tool call. It default-allows everything except five
+      named harms. That is what lets an agent run for hours while you sleep. Place a request
+      on the gate: safe ones pass silently, harmful ones stop at the boundary and are handed
+      to you. Then flip the run mode, and watch deny-by-default steal the night.
+    </p>
+
+    <Sv4Gate />
+
+    <p class="provenance mono">
+      Verdicts generated from the real <code>evaluate-policy.mjs</code> rules at
+      <code>{(facts as { shortSha?: string }).shortSha}</code>. The gate is a course-taught
+      pattern and a deterministic stand-in for the real LLM gate, not a wired harness layer.
+      Prompt counts are illustrative.
+    </p>
+  </main>
+</BaseLayout>
+
+<style>
+  .viz-page { max-width: 1040px; margin: 0 auto; padding: var(--sp-8) var(--sp-6) var(--sp-12); }
+  .eyebrow { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-faint); letter-spacing: 0.04em; }
+  .eyebrow a { color: var(--ink-muted); }
+  h1 { font-family: var(--font-display); font-size: var(--fs-3xl); line-height: 1.1; margin: var(--sp-2) 0 var(--sp-4); color: var(--ink); }
+  .lede { font-size: var(--fs-lg); line-height: 1.5; color: var(--ink-muted); max-width: 64ch; margin-bottom: var(--sp-6); }
+  .provenance { margin-top: var(--sp-8); font-size: var(--fs-2xs); color: var(--ink-faint); max-width: 70ch; }
+  .provenance code { color: var(--ink-muted); }
+</style>
