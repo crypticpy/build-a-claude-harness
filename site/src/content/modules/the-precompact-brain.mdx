@@ -1,0 +1,46 @@
+---
+title: The brain skips short sessions
+phase: 2
+order: 12
+estMinutes: 6
+thesis: The one billed call has a floor. A session with fewer than five tool calls is too thin to be worth summarizing, so PreCompact returns without ever calling the model.
+hook:
+  prompt: Every compaction triggers the PreCompact LLM summary. True or false?
+  options:
+    - { id: a, label: "True; summarizing before compaction is the whole job" }
+    - { id: b, label: "False; sessions under five tool calls skip the LLM entirely" }
+    - { id: c, label: "False; it only runs once per day" }
+  correct: b
+  key: "False. PreCompact checks a floor first: fewer than five tool calls and it returns before making any LLM call. A two-message session has nothing worth distilling, so the harness declines to pay for distilling it."
+apply:
+  question: What does the five-tool-call floor actually protect?
+  mode: misconception
+  options:
+    - { id: a, label: "It avoids paying for a summary of a session too short to contain anything worth remembering", feedback: "Right. The floor is a spend gate: no call when there is nothing to learn." }
+    - { id: b, label: "It limits how often you are allowed to compact", feedback: "Compaction is the platform's call, not the harness's. The floor only gates the summary." }
+    - { id: c, label: "It caps the token cost of each call", feedback: "It gates whether the call happens at all, not how large it is." }
+  correct: a
+---
+
+import Fact from '../../components/heva/Fact.astro';
+import EvidencePin from '../../components/heva/EvidencePin.astro';
+
+You met the brain in Phase 1 as the one tier that pays. Here is the part the diagram left
+out: it does not always pay. Before it spends a token, PreCompact checks whether the session
+was substantial enough to be worth summarizing.
+
+<Fact>PreCompact returns without an LLM call when the session has fewer than five tool calls.</Fact>
+
+The threshold is a constant, five, and the logic is plain: a session where almost nothing
+happened has almost nothing to distill, and a summary of nothing is not worth the call. So
+the brain is gated twice over. It runs only on PreCompact, which is already rare, and even
+then only when the session crossed the floor. That is how a feature that calls a model stays
+genuinely cheap across a long day of work.
+
+<EvidencePin file="reference/hooks/unified/modules/precompact-llm.mjs">
+A constant sets the minimum tool calls, and the module returns early when the session falls
+below it. The one billed operation in the whole harness will not fire for a trivial session.
+</EvidencePin>
+
+The brain writes a note. The next layer shows what reads that note back, and why the read
+lives where it does.

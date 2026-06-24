@@ -1,0 +1,47 @@
+---
+title: One door, fifteen rooms
+phase: 2
+order: 10
+estMinutes: 6
+thesis: The single dispatcher fans out to fifteen modules, and it loads each one lazily. The common path stays cheap because an event only ever pays to import the modules it actually uses.
+hook:
+  prompt: When a PostToolUse edit fires, how many of the fifteen hook modules does the dispatcher load?
+  options:
+    - { id: a, label: "All fifteen, then the right ones run" }
+    - { id: b, label: "Only the few that branch needs" }
+    - { id: c, label: "Exactly one, always" }
+  correct: b
+  key: "Only the few that branch needs. The post-edit branch loads format-lint, rolling-log, and impact-hint, and nothing else is imported. Lazy loading means every event pays only for the modules it touches."
+apply:
+  question: What does lazy module loading buy the harness?
+  mode: outcome
+  options:
+    - { id: a, label: "Each event imports only the modules it uses, so the common path stays cheap as the module count grows", feedback: "Right. Fifteen modules cost nothing until an event reaches for one." }
+    - { id: b, label: "It hides modules from the user", feedback: "Visibility is unchanged. The benefit is cost, not concealment." }
+    - { id: c, label: "It lets modules import one another freely", feedback: "The opposite. Each module stays independent, loaded only on demand." }
+  correct: a
+---
+
+import Fact from '../../components/heva/Fact.astro';
+import EvidencePin from '../../components/heva/EvidencePin.astro';
+
+Pull the dispatcher off the map and open it. Behind one entry point sit fifteen modules,
+each a small file with a single job: format a file, append a log line, build the snapshot,
+write the brain note. The dispatcher's whole role is to pick the right ones and stay out of
+the way.
+
+<Fact>Fifteen modules live behind one dispatcher, and each event imports only the ones its branch names.</Fact>
+
+It does this lazily. The post-edit branch reaches for format-lint, rolling-log, and
+impact-hint at the moment it runs, not before. A SessionStart event never imports the
+formatter; a Stop event never imports the brain. So the cost of having fifteen modules is
+close to zero until an event actually calls one, which is what lets the harness keep growing
+modules without making any single event slower.
+
+<EvidencePin file="reference/hooks/unified/unified-hook.mjs">
+Each branch loads its modules on demand inside the switch. The fifteen modules impose no
+shared startup cost, because importing them is deferred to the exact event that needs them.
+</EvidencePin>
+
+Next, follow one of those branches all the way down: the three modules that run, in order,
+every time you edit a file.

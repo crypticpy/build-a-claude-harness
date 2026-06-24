@@ -1,0 +1,46 @@
+---
+title: Write before the wipe, read after it
+phase: 2
+order: 13
+estMinutes: 6
+thesis: Memory survives compaction because of a pair. PreCompact writes a note just before the window collapses, and the next UserPromptSubmit reads it back. Either half alone does nothing.
+hook:
+  prompt: PreCompact writes a memory note before the context window collapses. What reads it back in?
+  options:
+    - { id: a, label: "PreCompact itself, on the way out" }
+    - { id: b, label: "UserPromptSubmit, as the next turn begins" }
+    - { id: c, label: "SessionStart, once at boot" }
+  correct: b
+  key: "UserPromptSubmit. The write happens on PreCompact; the read happens on the next prompt, when the session-memory module injects the saved note back into context. The two events are a matched pair, which is the Memento pattern the whole memory design is built on."
+apply:
+  question: Why does the read live on UserPromptSubmit rather than only on SessionStart?
+  mode: outcome
+  options:
+    - { id: a, label: "The note is needed as the next turn starts, and UserPromptSubmit is the event that fires there, after a mid-session compaction as well as at boot", feedback: "Right. Compaction can happen mid-session, so the read has to ride the prompt, not just startup." }
+    - { id: b, label: "SessionStart runs too late to matter", feedback: "SessionStart runs early, not late. The issue is that it runs only once, and compaction can recur." }
+    - { id: c, label: "UserPromptSubmit is a cheaper event to hook", feedback: "Cost is not the reason. Timing is: the note must return whenever the next turn begins." }
+  correct: a
+---
+
+import Fact from '../../components/heva/Fact.astro';
+import EvidencePin from '../../components/heva/EvidencePin.astro';
+
+A note written and never read is just a file. What makes memory work is the second half: the
+moment the saved note comes back into context. That moment is the next prompt.
+
+<Fact>PreCompact writes the note; the next UserPromptSubmit reads it back. The pair is the Memento pattern.</Fact>
+
+The write side, on PreCompact, distills the session before compaction would discard it. The
+read side, on UserPromptSubmit, injects that note as the next turn begins. The read lives on
+the prompt rather than only at startup for a precise reason: compaction can strike in the
+middle of a long session, not just between sessions. Tie the read to startup alone and a
+mid-session wipe would lose everything until the next launch. Tie it to the prompt and the
+note returns on the very next turn, every time.
+
+<EvidencePin file="reference/hooks/unified/modules/session-memory.mjs">
+The read side injects the saved memory on UserPromptSubmit. Pairing it with the PreCompact
+write is what carries context across a compaction the user never sees.
+</EvidencePin>
+
+That is the last of the memory machinery. The next layer steps outside the hook system into
+the second program the harness ships: the code-intelligence server.

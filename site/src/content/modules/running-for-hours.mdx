@@ -1,0 +1,49 @@
+---
+title: How it runs for hours without you
+phase: 2
+order: 16
+estMinutes: 7
+thesis: Put the pieces together and the answer appears. Fail-silent keeps it alive, memory keeps it oriented, the gate keeps it bounded, and verification keeps it honest. None of it asks you to watch.
+hook:
+  prompt: Which property is what actually lets the harness run unattended for hours?
+  options:
+    - { id: a, label: "Speed; it does the work faster than you could" }
+    - { id: b, label: "Boundedness; its failure modes are contained, so nothing it does needs you watching" }
+    - { id: c, label: "Memory alone; it never forgets" }
+  correct: b
+  key: "Boundedness. A fast agent you must babysit is not autonomous. Unattended hours come from the combination: hooks that never crash the turn, memory that survives compaction, a gate that stops the dangerous moves, and a verification nudge that catches unfinished work. Together they remove the need for a human in the loop."
+apply:
+  question: Autonomy here turns out to be less about capability and more about ___?
+  mode: outcome
+  options:
+    - { id: a, label: "Containment: knowing the failure modes are bounded, so leaving it running is a safe thing to do", feedback: "Right. You walk away because the bad outcomes are fenced, not because the agent is clever." }
+    - { id: b, label: "Raw speed of execution", feedback: "A faster agent you cannot trust is just a faster way to get into trouble." }
+    - { id: c, label: "The size of the underlying model", feedback: "A bigger model unattended without these guardrails is more dangerous, not less." }
+  correct: a
+---
+
+import Fact from '../../components/heva/Fact.astro';
+import EvidencePin from '../../components/heva/EvidencePin.astro';
+import ExitTerminal from '../../components/heva/ExitTerminal.astro';
+
+You have taken the whole harness apart. Now assemble the answer to the question the descent
+was built around: how does it run for hours without you watching?
+
+<Fact>Autonomy is containment, not speed. Each layer removes one reason you would have to stay in the loop.</Fact>
+
+Look back at what each layer bought. Fail-silent means a broken hook degrades quietly instead
+of halting your turn, so it can run unattended without stranding you. Memory means a
+compaction in the third hour does not erase the first two, so it stays oriented. The gate
+means the few genuinely dangerous actions are stopped, so a long run cannot quietly do
+something irreversible. Verification means a turn that made several edits gets nudged to check
+its own work before calling it done. None of these makes the agent smarter. Each one removes
+a reason you would otherwise have to sit and watch.
+
+<EvidencePin file="reference/settings.template.json">
+The wired event set is the whole apparatus: SessionStart, UserPromptSubmit, PostToolUse,
+PreCompact, Stop. Each one carries the modules that make unattended operation safe.
+</EvidencePin>
+
+That is the architecture, end to end. You do not have to write it by hand.
+
+<ExitTerminal />

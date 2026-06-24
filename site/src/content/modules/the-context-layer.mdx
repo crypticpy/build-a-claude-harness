@@ -1,0 +1,48 @@
+---
+title: A server that refuses to die
+phase: 2
+order: 14
+estMinutes: 6
+thesis: The code-intelligence server is a hand-rolled JSON-RPC loop with three tools and no SDK. A bad message becomes an error reply, never a crash, because a dead loop would take every tool down for the rest of the session.
+hook:
+  prompt: A malformed message arrives on the MCP server's stdin. What happens to the server?
+  options:
+    - { id: a, label: "It crashes, and all three tools go with it" }
+    - { id: b, label: "It replies with a JSON-RPC error and keeps reading" }
+    - { id: c, label: "It restarts itself from scratch" }
+  correct: b
+  key: "It replies with an error and keeps reading. The loop wraps each message so a parse failure or an unknown method becomes a reply, not a fatal. A crashed loop would cut off semantic lookup, impact check, and brain search for the rest of the session, so the loop is built so a single bad message can never kill it."
+apply:
+  question: Why is fail-silent even more important in the MCP loop than in a one-shot hook?
+  mode: assertion-reason
+  options:
+    - { id: a, label: "The loop is long-lived, so one crash disables every tool for the rest of the session, while a hook only loses a single event", feedback: "Right. A persistent process pays for a crash far longer than a one-shot does." }
+    - { id: b, label: "Because MCP messages are larger than hook payloads", feedback: "Size is irrelevant. Lifetime is the point: the loop has to survive to keep serving." }
+    - { id: c, label: "Because the loop has no error handling, unlike hooks", feedback: "It has plenty. That handling is exactly what lets it survive a bad message." }
+  correct: a
+---
+
+import Fact from '../../components/heva/Fact.astro';
+import EvidencePin from '../../components/heva/EvidencePin.astro';
+
+The hooks are one half of the harness. The other half is a separate program: a small server
+that answers questions about your code. It speaks JSON-RPC over stdin and stdout, it is
+written by hand with no SDK, and it offers three tools: a file summary, a consumer lookup,
+and a search over saved lessons.
+
+<Fact>Three tools, one hand-rolled JSON-RPC loop, and a strict rule: a single bad message must never kill it.</Fact>
+
+The loop reads a message, runs the requested tool, and writes a reply, forever. The danger
+is obvious: this process lives for the whole session, so if one malformed message could
+crash it, every tool would vanish until you restarted. So the loop wraps each message. A
+parse error becomes an error reply. An unknown method becomes an error reply. The loop reads
+the next message either way. Fail-silent here is not politeness; it is survival, because the
+cost of dying is measured in the whole rest of the session.
+
+<EvidencePin file="reference/plugins/context-layer/src/mcp-server.ts">
+The loop turns parse failures and unknown methods into JSON-RPC error replies and keeps
+reading. The comment says it plainly: a single bad message must never kill the loop.
+</EvidencePin>
+
+You have now seen every system the harness runs. One question is left, and it is the one
+that makes all of it worth building: when is it safe to walk away?

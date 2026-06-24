@@ -1,0 +1,53 @@
+---
+title: The gate that says no
+phase: 2
+order: 15
+estMinutes: 8
+viz: sv4
+thesis: The approval gate is a deterministic stand-in for a second-LLM check. It reads a proposed action and either lets it through or arrests it. It is a friction tool, not a security boundary, and that distinction is the whole lesson.
+hook:
+  prompt: A request would send a credentials file to an external URL. At the gate, what happens to it?
+  options:
+    - { id: a, label: "It passes; the gate only watches file writes" }
+    - { id: b, label: "It is arrested, and the matching deny rule lights up" }
+    - { id: c, label: "It pauses and waits for your approval" }
+  correct: b
+  key: "Arrested. Credential exfiltration is one of the named harms the gate denies. The action stops at the diamond, the matching rule lights, and a human glyph marks where you would step in. The safe requests glide past untouched; only the harmful ones are stopped."
+apply:
+  question: The gate is called a friction tool, not a security boundary. Why does that wording carry the weight?
+  mode: misconception
+  options:
+    - { id: a, label: "It stops the obvious and the accidental, but a determined actor can route around it, so it must never be trusted as the last line of defense", feedback: "Right. It raises the cost of a mistake; it does not make harm impossible." }
+    - { id: b, label: "It means the gate is optional and can be removed", feedback: "It is load-bearing for accidents. Optional is not the claim; not-a-guarantee is." }
+    - { id: c, label: "It means the gate is too slow to run in production", feedback: "Speed is not the issue. The issue is what it can and cannot promise." }
+  correct: a
+---
+
+import Fact from '../../components/heva/Fact.astro';
+import EvidencePin from '../../components/heva/EvidencePin.astro';
+import Caveat from '../../components/heva/Caveat.astro';
+import ScenarioSorter from '../../components/heva/ScenarioSorter.astro';
+
+This is the climax of the descent, and the one place autonomy gets dangerous. If an agent can
+act without you, something has to decide which actions are fine to take and which are not.
+The gate is that decision, made deterministic so you can watch it work.
+
+<Fact>The gate lets safe actions glide through and arrests the named harms. Allow is friction-free; Deny is where it stops.</Fact>
+
+Read the action, check it against a short list of named harms, and either pass it or stop it
+at the diamond. Editing a file in the project: pass. Running the tests: pass. Posting a
+credentials file to the network, deleting outside the working directory, force-pushing a
+protected branch: each one trips a named rule and is arrested, with a human glyph marking the
+point where you would be asked to intervene.
+
+<EvidencePin file="course/07-level-up/7.2-cf-approve/solution/evaluate-policy.mjs">
+The policy evaluates a proposed action against the named harms and returns allow or deny.
+The deny set is explicit and small, which is what makes the gate's judgement legible.
+</EvidencePin>
+
+Try the judgement yourself. Sort each request into the bin the gate would choose, then check
+your reasoning against the discriminating feature for each one.
+
+<ScenarioSorter />
+
+<Caveat>This gate is a friction tool, not a security boundary. It is a deterministic stand-in for the real second-LLM check, course-taught rather than a wired harness layer. It catches the obvious and the accidental; it is not a guarantee against a determined actor, and must never be trusted as the last line of defense.</Caveat>

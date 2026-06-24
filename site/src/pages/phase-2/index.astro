@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import PhaseTransition from '../../components/heva/PhaseTransition.astro';
 import { href } from '../../lib/href';
 
 const mods = (await getCollection('modules'))
@@ -13,6 +14,7 @@ const mods = (await getCollection('modules'))
   phase="2"
   description="One descent through the reference harness, layer by layer, ending on the question that makes autonomy safe: how does it run for hours without you?"
 >
+  <PhaseTransition question="How does it run for hours without you?" label="Phase 2 question" />
   <main id="main" class="wrap phase">
     <p class="kicker mono"><a href={href()}>Atlas</a> / Phase 2</p>
     <h1>The Teardown</h1>

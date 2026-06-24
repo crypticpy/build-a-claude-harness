@@ -1,0 +1,47 @@
+---
+title: The spine is a settings file
+phase: 2
+order: 9
+estMinutes: 6
+viz: sv3
+thesis: The whole harness hangs off one JSON file of event subscriptions. It carries a literal $HOME, never an expanded path, so the same file works on any machine the moment it is copied.
+hook:
+  prompt: To make the settings file portable across machines, the installer expands $HOME to your real home path. True or false?
+  options:
+    - { id: a, label: "True; hard-coding the path is what makes it portable" }
+    - { id: b, label: "False; it leaves $HOME literal, and Claude Code expands it at hook time" }
+    - { id: c, label: "False; it rewrites every path to be relative" }
+  correct: b
+  key: "False. The installer copies the file verbatim, $HOME and all. Claude Code expands $HOME when it runs each hook, so the literal token is what travels between machines. Bake in one machine's absolute home path and the file stops being portable."
+apply:
+  question: Why is a literal $HOME more portable than a resolved absolute path?
+  mode: outcome
+  options:
+    - { id: a, label: "It is resolved per machine at run time, so one file fits every home directory", feedback: "Right. The token travels; each machine fills it in." }
+    - { id: b, label: "Absolute paths are longer and slower to read", feedback: "Length is irrelevant. The point is who resolves the path, and when." }
+    - { id: c, label: "Relative paths would break the hooks", feedback: "True but beside the point. The win is per-machine resolution of a literal token." }
+  correct: a
+---
+
+import Fact from '../../components/heva/Fact.astro';
+import EvidencePin from '../../components/heva/EvidencePin.astro';
+
+Phase 1 toured the primitives. Phase 2 takes the reference harness apart, and the first
+thing you find when you pry it open is that there is no spine to speak of, just a settings
+file. Every behavior you watched is one subscription in it: an event, a matcher, a command.
+
+<Fact>The settings file uses a literal $HOME everywhere. The installer copies it verbatim and never expands the path.</Fact>
+
+That literal token is the portability trick. A path like `$HOME/.claude/hooks/unified-hook.mjs`
+means nothing until Claude Code runs the hook and expands `$HOME` against the current
+machine. Copy the file to a new laptop and it just works, because the token resolves to that
+laptop's home. Expand it at install time and you have frozen one person's directory into a
+file meant to travel.
+
+<EvidencePin file="reference/settings.template.json">
+Every path in the template is written with a literal $HOME. This is the file the installer
+copies without substitution, which is what lets one settings file serve every machine.
+</EvidencePin>
+
+The map you see here is the territory for the whole descent. Keep it in view: each layer
+below pulls one station off it and shows you the real code underneath.

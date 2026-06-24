@@ -1,0 +1,150 @@
+---
+// The exit terminal: the plain-language outcome plus the one action the whole
+// site builds toward. Copy a prompt that points your own agent at the reference
+// harness, pinned to the exact commit this course was built against. The prompt
+// is visible in a <pre> so it is selectable with no JS; the button is an
+// enhancement that copies it in one click.
+import facts from '../../generated/facts.json';
+
+const f = facts as {
+  sha: string;
+  shortSha: string;
+  provenance: { settings: string };
+};
+const repo = f.provenance.settings.split('/blob/')[0];
+const treeUrl = `${repo}/tree/${f.sha}`;
+
+const PROMPT = `Read the reference Claude Code harness at ${repo} (commit ${f.shortSha}) and build me one like it. I want the same architecture, explained as you wire each piece:
+
+- one unified hook dispatcher that switches on the lifecycle event name
+- fail-silent modules: exit zero always, optional dependencies, never block a turn
+- memory as cheap tiers (an append-only rolling log) plus one PreCompact LLM call that distills the session
+- a small JSON-RPC code-intelligence server with semantic lookup and impact checking
+- an approval gate that denies the obvious harms, treated as friction, not a security boundary
+
+Walk me through each wiring decision and why it is made that way.`;
+---
+
+<section class="exit-terminal" aria-labelledby="exit-h">
+  <p class="exit-eyebrow mono">The point of all this</p>
+  <h2 id="exit-h" class="exit-title">Now tell your agent to build it like this.</h2>
+  <p class="exit-lede prose">
+    You have seen the seams: the dispatcher, the fail-silent contract, the memory
+    tiers, the gate. You do not have to type any of it. Hand the architecture to
+    your own agent and have it build the harness for you, pinned to the exact
+    commit every claim here was checked against.
+  </p>
+
+  <figure class="exit-prompt">
+    <figcaption class="exit-prompt-cap mono">
+      The prompt, pinned to <a href={treeUrl}>{f.shortSha}</a>
+    </figcaption>
+    <pre class="exit-prompt-body" data-exit-prompt>{PROMPT}</pre>
+    <button type="button" class="exit-copy" data-exit-copy>
+      <span class="exit-copy-label">Copy the prompt</span>
+    </button>
+  </figure>
+</section>
+
+<script>
+  // Enhancement only: the prompt is already selectable in the <pre>. This just
+  // copies it in one click and confirms in place.
+  const btn = document.querySelector<HTMLButtonElement>('[data-exit-copy]');
+  const pre = document.querySelector<HTMLElement>('[data-exit-prompt]');
+  const label = btn?.querySelector<HTMLElement>('.exit-copy-label');
+  if (btn && pre && label) {
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(pre.textContent ?? '');
+        label.textContent = 'Copied';
+        btn.classList.add('is-copied');
+        setTimeout(() => {
+          label.textContent = 'Copy the prompt';
+          btn.classList.remove('is-copied');
+        }, 2000);
+      } catch {
+        // Clipboard blocked: fall back to selecting the text for manual copy.
+        const r = document.createRange();
+        r.selectNodeContents(pre);
+        const sel = getSelection();
+        sel?.removeAllRanges();
+        sel?.addRange(r);
+        label.textContent = 'Selected, press copy';
+      }
+    });
+  }
+</script>
+
+<style>
+  .exit-terminal {
+    margin: var(--sp-8) 0 var(--sp-4);
+    padding: var(--sp-6);
+    border: var(--border-hairline);
+    border-radius: var(--radius-panel);
+    background: var(--surface);
+  }
+  .exit-eyebrow {
+    margin: 0;
+    color: var(--signal);
+    font-size: var(--fs-2xs);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .exit-title {
+    margin: var(--sp-2) 0 var(--sp-3);
+    font-family: var(--font-display);
+    font-size: var(--fs-xl);
+    line-height: 1.15;
+    color: var(--ink);
+  }
+  .exit-lede {
+    margin: 0 0 var(--sp-5);
+    color: var(--ink-muted);
+    font-size: var(--fs-md, var(--fs-sm));
+    line-height: 1.6;
+    max-width: 64ch;
+  }
+  .exit-prompt {
+    margin: 0;
+  }
+  .exit-prompt-cap {
+    font-size: var(--fs-2xs);
+    color: var(--ink-faint);
+    margin-bottom: var(--sp-2);
+  }
+  .exit-prompt-body {
+    margin: 0 0 var(--sp-3);
+    padding: var(--sp-4);
+    border-radius: var(--radius-panel);
+    background: var(--surface-2);
+    border-left: 2px solid var(--signal-dim);
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    line-height: 1.6;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .exit-copy {
+    padding: var(--sp-2) var(--sp-5);
+    border: var(--border-hairline);
+    border-radius: var(--radius-panel);
+    background: var(--signal);
+    color: var(--surface-caveat, #1b1813);
+    font: inherit;
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity var(--motion-transit) var(--ease-transit);
+  }
+  .exit-copy:hover {
+    opacity: 0.9;
+  }
+  .exit-copy:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+  .exit-copy.is-copied {
+    background: var(--allow);
+  }
+</style>

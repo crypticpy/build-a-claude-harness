@@ -1,0 +1,46 @@
+---
+title: Format first, then log
+phase: 2
+order: 11
+estMinutes: 6
+thesis: On a file edit, three modules run in a fixed order. The formatter reshapes the file, the logger records the operation, and a best-effort impact hint runs last. The order is not incidental.
+hook:
+  prompt: On a Write or Edit, the formatter and the logger both run. Which goes first?
+  options:
+    - { id: a, label: "The logger, so the edit is recorded before anything else changes the file" }
+    - { id: b, label: "The formatter, so the file is in its final shape before the turn is logged" }
+    - { id: c, label: "They run at the same instant" }
+  correct: b
+  key: "The formatter first. It reshapes the file, then the logger records that the operation happened against the file's settled state. The impact hint runs last and is wrapped in its own catch, so its failure cannot disturb either of the two steps before it."
+apply:
+  question: Why is the impact hint last and wrapped in its own try/catch?
+  mode: assertion-reason
+  options:
+    - { id: a, label: "It is the most failure-prone and least essential step, so it must never disturb the format-then-log sequence", feedback: "Right. Order by importance, then isolate the weakest link." }
+    - { id: b, label: "Because it is the slowest of the three", feedback: "Speed is not the reason. Blast radius is: it is wrapped because it is the one most likely to throw." }
+    - { id: c, label: "Because it needs an LLM call the others do not", feedback: "It does not. The hint is a cheap grep for import sites, no model involved." }
+  correct: a
+---
+
+import Fact from '../../components/heva/Fact.astro';
+import EvidencePin from '../../components/heva/EvidencePin.astro';
+
+Follow the post-edit branch down and you find three modules in a row. They are loaded
+together but they run in sequence, and the sequence is deliberate: format, then log, then
+hint.
+
+<Fact>On every Write or Edit: format-lint runs first, rolling-log second, impact-hint last and best-effort.</Fact>
+
+The formatter goes first so the file is in its final shape before anything records that the
+edit happened. The logger goes second, stamping the operation against the settled file. The
+impact hint goes last, because it is the riskiest and least essential of the three: a cheap
+grep that warns you when you just edited a file other code imports. It is wrapped in its own
+catch so that if it throws, the format and the log that already succeeded are untouched.
+
+<EvidencePin file="reference/hooks/unified/unified-hook.mjs" lines={[112, 128]}>
+The post-edit branch runs format, then log, then a hint guarded by its own try/catch. The
+ordering and the isolation are both written here, on purpose.
+</EvidencePin>
+
+This is fail-silent at the level of a single branch: do the important work first, and fence
+off the part most likely to break so it can only ever fail alone.
