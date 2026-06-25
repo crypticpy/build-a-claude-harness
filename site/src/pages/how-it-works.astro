@@ -1,0 +1,416 @@
+---
+import { href } from "../lib/href";
+import { SCENES } from "../lib/harnessFlow";
+import models from "../generated/models.json";
+
+const REPO = "https://github.com/crypticpy/build-a-claude-harness";
+const sha = (models as { shortSha?: string }).shortSha ?? "";
+
+const LEG = [
+  { cls: "router", label: "Router & session" },
+  { cls: "action", label: "Helpers" },
+  { cls: "verified", label: "Saved / done" },
+  { cls: "empty", label: "Nothing wired" },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="An explorable of the real harness: six lifecycle moments, one router every wired moment passes through, and a memory loop that carries what matters into the next turn."
+    />
+    <link rel="icon" href={href("favicon.svg")} />
+    <title>How This Harness Works · Harness Atlas</title>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="topbar-back" href={href()}>← Harness Atlas</a>
+      <span class="topbar-tag">Explorable · preview</span>
+    </header>
+
+    <main id="main">
+      <section class="hero">
+        <p class="eyebrow">The real machine</p>
+        <h1>How this harness<br />is actually wired.</h1>
+        <p class="lede">
+          You just saw the loop as an idea. This is the <em>real machine</em> that runs it: the setup
+          behind the author’s own Claude Code, read straight from one real settings file. One router,
+          six moments, and a memory that survives the gaps between sessions.
+        </p>
+        <p class="scroll-hint">Scroll to begin ↓</p>
+      </section>
+
+      <section class="hf-scrolly">
+        <div class="hf-narrative">
+          {
+            SCENES.map((s) => (
+              <article class="hf-step" data-scene={s.id}>
+                <p class="hf-eyebrow">{s.eyebrow}</p>
+                <h2>{s.title}</h2>
+                <p>{s.body}</p>
+                {s.id === "play" && (
+                  <div class="hf-controls">
+                    <button id="hf-run-plain" class="hf-btn hf-btn--plain" aria-pressed="false" type="button">
+                      Show plain Claude Code
+                    </button>
+                    <button id="hf-run-harness" class="hf-btn hf-btn--harness" aria-pressed="false" type="button">
+                      Show this harness
+                    </button>
+                  </div>
+                )}
+              </article>
+            ))
+          }
+        </div>
+
+        <div class="hf-visual">
+          <div class="hf-visual-inner">
+            <canvas
+              id="hf-canvas"
+              role="img"
+              aria-label="Six lifecycle moments across the top, one router in the middle that every wired moment connects to, the active moment's helpers below, and a memory store on the right whose saved notes arc back to the second moment."
+            ></canvas>
+            <ul class="hf-legend" aria-hidden="true">
+              {
+                LEG.map((l) => (
+                  <li class={`leg leg--${l.cls}`}>
+                    <span class="leg-dot" /> {l.label}
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="outro">
+        <p class="eyebrow">The architecture</p>
+        <h2>One router, six moments, one memory.</h2>
+        <p>
+          Five moments wired, one left empty on purpose, a single router tying them together, and a
+          memory loop that carries what matters into the next turn. That is the machine this whole site
+          takes apart, piece by piece.
+        </p>
+        {sha && <p class="prov">Drawn from the real settings file, as of commit <code>{sha}</code>.</p>}
+        <p class="outro-links">
+          <a href={href("agent-loop")}>← Back to the agent loop</a>
+          <a href={href("phase-1")}>Take it apart, piece by piece →</a>
+          <a href={REPO} rel="noopener">Source on GitHub</a>
+        </p>
+      </section>
+    </main>
+
+    <script>
+      import { initHarnessFlow } from "../scripts/harnessFlowCanvas";
+      initHarnessFlow();
+    </script>
+
+    <style is:global>
+      :root {
+        --paper: #fbfaf6;
+        --paper-2: #ffffff;
+        --ink: #221f1a;
+        --ink-soft: #5c554b;
+        --ink-faint: #968d7d;
+        --hair: #e6e0d4;
+        --hair-strong: #d6cdbb;
+        --router: #6a4fb0;
+        --action: #c9740a;
+        --verified: #1f9a63;
+        --risk: #d6453f;
+        --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, ui-serif,
+          serif;
+        --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial,
+          sans-serif;
+        --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: var(--sans);
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+      }
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 18px clamp(20px, 5vw, 56px);
+        border-bottom: 1px solid var(--hair);
+        position: sticky;
+        top: 0;
+        background: color-mix(in srgb, var(--paper) 92%, transparent);
+        z-index: 20;
+      }
+      .topbar-back {
+        color: var(--ink);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 15px;
+      }
+      .topbar-back:hover {
+        color: var(--router);
+      }
+      .topbar-tag {
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--ink-faint);
+      }
+      main {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 0 clamp(20px, 5vw, 56px);
+      }
+      .eyebrow,
+      .hf-eyebrow {
+        font-family: var(--mono);
+        font-size: 12.5px;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+        color: var(--router);
+        margin: 0 0 14px;
+      }
+      .hero {
+        padding: clamp(56px, 11vh, 128px) 0 clamp(40px, 8vh, 80px);
+        max-width: min(72ch, 100%);
+      }
+      .hero h1 {
+        font-family: var(--serif);
+        font-weight: 600;
+        font-size: clamp(34px, 6vw, 62px);
+        line-height: 1.06;
+        letter-spacing: -0.015em;
+        margin: 0 0 28px;
+      }
+      .lede {
+        font-size: clamp(18px, 2.2vw, 22px);
+        line-height: 1.55;
+        color: var(--ink-soft);
+        max-width: 56ch;
+        margin: 0 0 36px;
+      }
+      .lede em {
+        font-style: normal;
+        color: var(--ink);
+        border-bottom: 2px solid color-mix(in srgb, var(--router) 55%, transparent);
+        padding-bottom: 1px;
+      }
+      .scroll-hint {
+        font-family: var(--mono);
+        font-size: 13px;
+        color: var(--ink-faint);
+        letter-spacing: 0.04em;
+        margin: 0;
+      }
+      .hf-scrolly {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: clamp(24px, 5vw, 72px);
+        align-items: start;
+      }
+      .hf-narrative {
+        padding-block: 6vh 10vh;
+      }
+      .hf-step {
+        min-height: 84vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        max-width: 44ch;
+      }
+      .hf-step h2 {
+        font-family: var(--serif);
+        font-weight: 600;
+        font-size: clamp(25px, 3.4vw, 36px);
+        line-height: 1.12;
+        letter-spacing: -0.01em;
+        margin: 0 0 18px;
+      }
+      .hf-step p {
+        font-size: clamp(17px, 1.9vw, 20px);
+        line-height: 1.62;
+        color: var(--ink-soft);
+        margin: 0;
+      }
+      .hf-visual {
+        position: sticky;
+        top: 11vh;
+        align-self: start;
+        height: min(78vh, 600px);
+      }
+      .hf-visual-inner {
+        background: var(--paper-2);
+        border: 1px solid var(--hair);
+        border-radius: 18px;
+        box-shadow:
+          0 1px 2px rgba(40, 38, 32, 0.04),
+          0 18px 40px -24px rgba(40, 38, 32, 0.22);
+        height: 100%;
+        padding: 18px 18px 14px;
+        display: flex;
+        flex-direction: column;
+      }
+      #hf-canvas {
+        width: 100%;
+        flex: 1;
+        display: block;
+      }
+      .hf-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 18px;
+        list-style: none;
+        margin: 8px 0 0;
+        padding: 12px 4px 2px;
+        border-top: 1px solid var(--hair);
+      }
+      .leg {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 12.5px;
+        color: var(--ink-soft);
+        font-weight: 500;
+      }
+      .leg-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+      .leg--router .leg-dot {
+        background: var(--router);
+      }
+      .leg--action .leg-dot {
+        background: var(--action);
+      }
+      .leg--verified .leg-dot {
+        background: var(--verified);
+      }
+      .leg--empty .leg-dot {
+        background: transparent;
+        border: 1.5px dashed var(--ink-faint);
+      }
+      .hf-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 28px;
+      }
+      .hf-btn {
+        font-family: var(--sans);
+        font-size: 15px;
+        font-weight: 600;
+        padding: 12px 18px;
+        border-radius: 11px;
+        border: 1.5px solid var(--hair-strong);
+        background: var(--paper-2);
+        color: var(--ink);
+        cursor: pointer;
+        transition:
+          border-color 0.16s ease,
+          background 0.16s ease,
+          transform 0.1s ease;
+      }
+      .hf-btn:hover {
+        transform: translateY(-1px);
+      }
+      .hf-btn--harness:hover,
+      .hf-btn--harness[aria-pressed="true"] {
+        border-color: var(--router);
+        background: color-mix(in srgb, var(--router) 10%, var(--paper-2));
+        color: color-mix(in srgb, var(--router) 72%, var(--ink));
+      }
+      .hf-btn--plain:hover,
+      .hf-btn--plain[aria-pressed="true"] {
+        border-color: var(--ink-faint);
+        background: color-mix(in srgb, var(--ink-faint) 14%, var(--paper-2));
+        color: var(--ink-soft);
+      }
+      .hf-btn:focus-visible {
+        outline: 2px solid var(--router);
+        outline-offset: 2px;
+      }
+      .outro {
+        max-width: 62ch;
+        padding: clamp(48px, 10vh, 120px) 0 clamp(72px, 14vh, 140px);
+      }
+      .outro h2 {
+        font-family: var(--serif);
+        font-weight: 600;
+        font-size: clamp(26px, 3.6vw, 40px);
+        line-height: 1.1;
+        margin: 0 0 18px;
+        letter-spacing: -0.012em;
+      }
+      .outro p {
+        font-size: clamp(17px, 2vw, 20px);
+        line-height: 1.6;
+        color: var(--ink-soft);
+        margin: 0 0 24px;
+      }
+      .prov {
+        font-size: 15px !important;
+        color: var(--ink-faint) !important;
+      }
+      .prov code {
+        font-family: var(--mono);
+        background: color-mix(in srgb, var(--router) 9%, var(--paper-2));
+        padding: 1px 7px;
+        border-radius: 6px;
+        color: var(--router);
+      }
+      .outro-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px 28px;
+      }
+      .outro-links a {
+        color: var(--router);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 16px;
+      }
+      .outro-links a:hover {
+        text-decoration: underline;
+      }
+      @media (max-width: 820px) {
+        .hf-scrolly {
+          grid-template-columns: 1fr;
+        }
+        .hf-visual {
+          position: sticky;
+          top: 64px;
+          height: 46vh;
+          order: -1;
+          margin-bottom: 8px;
+        }
+        .hf-step {
+          min-height: 70vh;
+          max-width: none;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+        .hf-btn {
+          transition: none;
+        }
+      }
+    </style>
+  </body>
+</html>
