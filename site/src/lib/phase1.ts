@@ -68,7 +68,7 @@ export const TOPICS: Topic[] = [
     blurb:
       "Separate agents for isolated or parallel work, each with its own context.",
     path: "phase-1/subagents",
-    built: false,
+    built: true,
   },
   {
     n: 8,

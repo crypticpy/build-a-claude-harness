@@ -1,0 +1,92 @@
+---
+import Explorable from "../../layouts/Explorable.astro";
+import { href } from "../../lib/href";
+import { neighbors } from "../../lib/phase1";
+
+const { prev, next } = neighbors("phase-1/subagents");
+
+const scenes = [
+  {
+    id: "intro",
+    eyebrow: "Subagents",
+    title: "One agent has one train of thought.",
+    body: "A single agent works through everything in one context window. Give it a big job, with lots of files to read, and that window fills up fast. The more it holds, the harder it is to keep straight.",
+  },
+  {
+    id: "isolate",
+    eyebrow: "Step 1",
+    title: "Hand a chunk to a helper.",
+    body: "Claude Code can start a separate agent, a subagent, for one piece of the work. The subagent gets its own fresh context window. It can read forty files without touching the main agent's window at all.",
+  },
+  {
+    id: "return",
+    eyebrow: "Step 2",
+    title: "It returns the answer, not the clutter.",
+    body: "When the subagent finishes, it sends back just its result, a short summary. All the files it read stay in its window, not yours. The main agent gets the answer and stays clean.",
+  },
+  {
+    id: "parallel",
+    eyebrow: "Step 3",
+    title: "Independent parts run at the same time.",
+    body: "If a job splits into pieces that don't depend on each other, each can go to its own subagent, all at once. Three helpers work in parallel and report back, so the whole job finishes sooner.",
+  },
+  {
+    id: "try",
+    eyebrow: "Your turn",
+    title: "Do it all, or delegate.",
+    body: "Watch the main agent's context. Do the whole job in one agent and it fills up. Delegate to subagents and it stays clear, because the reading happens in their windows, not its own.",
+  },
+];
+---
+
+<Explorable
+  title="Subagents · Phase 1 · Harness Atlas"
+  description="A subagent is a separate agent with its own fresh context window. The main agent hands off a big or independent chunk of work, the subagent does it and returns just the result, and independent pieces can run in parallel."
+  backHref={href("phase-1")}
+  backLabel="Phase 1"
+  tag="Part 07 · Subagents"
+  eyebrow="Subagents"
+  h1="Hand off the heavy lifting."
+  lede="Some work is too big or too separate to keep in one train of thought. A subagent is a helper agent with its own fresh context: it takes a chunk of the job, does it on its own, and returns just the answer. The main agent stays focused, and independent pieces can run side by side."
+  canvasId="sa-canvas"
+  canvasAria="A main agent box on the left with a context gauge, linked to subagent boxes on the right. Work flows out to a subagent and a short result flows back; the main agent's gauge stays low while a subagent's fills."
+  legend={[
+    { accent: "action", label: "Work sent to a helper" },
+    { accent: "verified", label: "Result sent back" },
+    { accent: "risk", label: "A nearly full window" },
+  ]}
+  outroEyebrow="The takeaway"
+  outroTitle="Helpers keep the main window clear."
+  outroBody="A subagent takes a heavy or separate piece of work into its own context and returns just the result, so the main agent's window stays usable, and independent pieces finish in parallel. Next, the last stock part: connecting Claude Code to tools and data outside itself."
+  prev={prev}
+  next={next}
+  fallbackHref="phase-1"
+  fallbackLabel="Back to Phase 1"
+>
+  {
+    scenes.map((s) => (
+      <article class="scene" data-scene={s.id}>
+        <p class="scene-eyebrow">{s.eyebrow}</p>
+        <h2>{s.title}</h2>
+        <p>{s.body}</p>
+        {s.id === "try" && (
+          <div class="controls">
+            <button class="ctl" data-mode="solo" type="button">
+              One agent
+            </button>
+            <button class="ctl" data-mode="isolate" type="button">
+              Delegate one
+            </button>
+            <button class="ctl" data-mode="parallel" type="button">
+              Three in parallel
+            </button>
+          </div>
+        )}
+      </article>
+    ))
+  }
+</Explorable>
+<script>
+  import { initSubagents } from "../../scripts/subagents";
+  initSubagents();
+</script>
