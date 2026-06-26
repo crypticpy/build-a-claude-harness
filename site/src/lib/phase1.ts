@@ -75,7 +75,7 @@ export const TOPICS: Topic[] = [
     title: "MCP servers",
     blurb: "Connecting Claude Code to outside tools and data.",
     path: "phase-1/mcp",
-    built: false,
+    built: true,
   },
   {
     n: 9,
