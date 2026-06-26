@@ -1,0 +1,151 @@
+---
+import Explorable from "../../layouts/Explorable.astro";
+import { href } from "../../lib/href";
+import { neighbors } from "../../lib/phase1";
+
+const { prev, next } = neighbors("phase-1/stock-demo");
+
+const scenes = [
+  {
+    id: "intro",
+    eyebrow: "The stock demo",
+    title: "One prompt: “build me a tic-tac-toe game.”",
+    body: "Nothing special set up. Just stock Claude Code and a single request. Watch every part from Phase 1 work together, start to finish, to turn that sentence into a working game.",
+  },
+  {
+    id: "plan",
+    eyebrow: "Step 1",
+    title: "It plans the files first.",
+    body: "Bigger than one edit, so it plans before it acts. The game needs a page, a look, and the logic: three files. That short plan is the to-do list it will work through.",
+  },
+  {
+    id: "build",
+    eyebrow: "Step 2",
+    title: "It writes them, one tool call at a time.",
+    body: "Now the agent loop runs. For each file it asks for the write tool, the harness writes the file, and the result comes back. The game takes shape on the right as each file lands.",
+  },
+  {
+    id: "check",
+    eyebrow: "Step 3",
+    title: "It runs the game and fixes what breaks.",
+    body: "It doesn't just trust the code. It runs the game, sees a move that didn't register, and goes back around the loop to fix it. Read, act, check, repeat, until the game actually works.",
+  },
+  {
+    id: "play",
+    eyebrow: "The result",
+    title: "Here's what it built. Play it.",
+    body: "This is a real, working tic-tac-toe game, the kind of thing the loop you just watched produces. Stock Claude Code, one prompt, every part pulling together. Go ahead and play.",
+  },
+];
+---
+
+<Explorable
+  title="The stock demo · Phase 1 · Harness Atlas"
+  description="A capstone: stock Claude Code builds a tic-tac-toe game end to end, with every Phase 1 part working together. Plan the files, write them one tool call at a time, run and fix, then play the real game it built."
+  backHref={href("phase-1")}
+  backLabel="Phase 1"
+  tag="Part 09 · The stock demo"
+  eyebrow="The stock demo"
+  h1="Every part, working together."
+  lede="One prompt, stock Claude Code, no customization. This is the whole of Phase 1 in a single run: a plan, the agent loop, tool calls writing files, and a check-and-fix pass, all to build a small game. At the end, the real thing it built, for you to play."
+  canvasId="demo-canvas"
+  canvasAria="A build trace: a status pill, a list of three files filling in from to-do to done, and a tic-tac-toe preview that takes shape as each file is written."
+  legend={[
+    { accent: "action", label: "Work in progress" },
+    { accent: "verified", label: "Done" },
+    { accent: "context", label: "The game taking shape" },
+  ]}
+  outroEyebrow="End of Phase 1"
+  outroTitle="That's stock Claude Code."
+  outroBody="A plan, a loop, tool calls, context and memory, hooks, commands and skills, subagents, and MCP. That is the whole standard toolkit, working together to take a prompt to a finished, working program. Phase 2 picks up here: how a custom setup extends this same machine to run longer, remember more, and hold a higher bar."
+  prev={prev}
+  next={next}
+  fallbackHref="phase-2"
+  fallbackLabel="On to Phase 2"
+>
+  {
+    scenes.map((s) => (
+      <article class="scene" data-scene={s.id}>
+        <p class="scene-eyebrow">{s.eyebrow}</p>
+        <h2>{s.title}</h2>
+        <p>{s.body}</p>
+        {s.id === "play" && (
+          <div class="ttt" id="ttt">
+            <p class="ttt-status" id="ttt-status">X to move</p>
+            <div class="ttt-grid">
+              {Array.from({ length: 9 }).map((_, i) => (
+                <button
+                  class="ttt-cell"
+                  data-cell={i}
+                  type="button"
+                  aria-label={`cell ${i + 1}`}
+                />
+              ))}
+            </div>
+            <button class="ctl" id="ttt-reset" type="button">
+              Reset
+            </button>
+          </div>
+        )}
+      </article>
+    ))
+  }
+</Explorable>
+<script>
+  import { initDemo } from "../../scripts/demo";
+  initDemo();
+</script>
+<style>
+  .ttt {
+    margin-top: 24px;
+  }
+  .ttt-status {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--ink-soft);
+    letter-spacing: 0.02em;
+    margin: 0 0 12px;
+  }
+  .ttt-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 64px);
+    grid-template-rows: repeat(3, 64px);
+    gap: 8px;
+  }
+  .ttt-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--serif);
+    font-size: 30px;
+    font-weight: 600;
+    color: var(--ink);
+    background: var(--paper-2);
+    border: 1.5px solid var(--hair-strong);
+    border-radius: 12px;
+    cursor: pointer;
+    transition:
+      border-color 0.14s ease,
+      transform 0.1s ease;
+  }
+  .ttt-cell:hover:not(:disabled) {
+    border-color: var(--context);
+    transform: translateY(-1px);
+  }
+  .ttt-cell:disabled {
+    cursor: default;
+  }
+  .ttt-cell.x {
+    color: var(--context);
+  }
+  .ttt-cell.o {
+    color: var(--action);
+  }
+  .ttt-cell:focus-visible {
+    outline: 2px solid var(--context);
+    outline-offset: 2px;
+  }
+  #ttt-reset {
+    margin-top: 18px;
+  }
+</style>

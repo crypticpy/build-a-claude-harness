@@ -83,7 +83,7 @@ export const TOPICS: Topic[] = [
     blurb:
       "Watch stock Claude Code build a small game, end to end, with every part working together.",
     path: "phase-1/stock-demo",
-    built: false,
+    built: true,
   },
 ];
 
