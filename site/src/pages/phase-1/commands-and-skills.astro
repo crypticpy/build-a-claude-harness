@@ -1,0 +1,94 @@
+---
+import Explorable from "../../layouts/Explorable.astro";
+import { href } from "../../lib/href";
+import { neighbors } from "../../lib/phase1";
+
+const { prev, next } = neighbors("phase-1/commands-and-skills");
+
+const scenes = [
+  {
+    id: "intro",
+    eyebrow: "Commands and skills",
+    title: "You ask for the same things, again and again.",
+    body: "“Review my code.” “Write a commit message.” Each one is really a short list of steps you'd have to spell out every time. Typing them out again and again gets old, and small differences creep in.",
+  },
+  {
+    id: "command",
+    eyebrow: "A command",
+    title: "A command saves those steps under a name.",
+    body: "Write the steps down once, give them a name, and call it by typing that name. /review always runs the same review, the same way. You type a few characters; the model gets the full instructions.",
+  },
+  {
+    id: "skill",
+    eyebrow: "A skill",
+    title: "A skill is one the model reaches for itself.",
+    body: "A skill is the same idea, but you don't call it by name. Each skill has a description of when it applies. When your task matches, the model picks it up on its own, without you asking for it directly.",
+  },
+  {
+    id: "trigger",
+    eyebrow: "The difference",
+    title: "The difference is who starts it.",
+    body: "Both bundle the same steps so you never retype them. You call a command. The model calls a skill when the task fits. That's the whole distinction.",
+  },
+  {
+    id: "try",
+    eyebrow: "Your turn",
+    title: "Open one and see its steps.",
+    body: "Pick a command or a skill. You'll see the steps it expands into, and a label for who starts it: you, or the model.",
+  },
+];
+---
+
+<Explorable
+  title="Commands and skills · Phase 1 · Harness Atlas"
+  description="Commands and skills both save a set of steps under a name so you never retype them. You call a command by typing its name; the model reaches for a skill on its own when the task fits."
+  backHref={href("phase-1")}
+  backLabel="Phase 1"
+  tag="Part 06 · Commands and skills"
+  eyebrow="Commands and skills"
+  h1="Reusable instructions, named."
+  lede="Some requests are really a fixed list of steps you keep repeating. A command and a skill both save that list under a name so you don't retype it. The one real difference is who starts it: you call a command, and the model reaches for a skill when the task fits."
+  canvasId="cs-canvas"
+  canvasAria="A named pill on the left expands, along a labeled arrow, into a card listing the full saved steps on the right. The arrow's label says who starts it: you call a command, the model calls a skill."
+  legend={[
+    { accent: "context", label: "A command (you call it)" },
+    { accent: "action", label: "A skill (the model calls it)" },
+  ]}
+  outroEyebrow="The takeaway"
+  outroTitle="Name it once, reuse it."
+  outroBody="A command and a skill both turn a repeated list of steps into one named thing, so the work stays consistent and you stop retyping. You trigger a command; the model triggers a skill. Next, what happens when one job is too big for a single train of thought: handing part of it to a separate agent."
+  prev={prev}
+  next={next}
+  fallbackHref="phase-1"
+  fallbackLabel="Back to Phase 1"
+>
+  {
+    scenes.map((s) => (
+      <article class="scene" data-scene={s.id}>
+        <p class="scene-eyebrow">{s.eyebrow}</p>
+        <h2>{s.title}</h2>
+        <p>{s.body}</p>
+        {s.id === "try" && (
+          <div class="controls">
+            <button class="ctl" data-item="review" type="button">
+              /review
+            </button>
+            <button class="ctl" data-item="commit" type="button">
+              /commit
+            </button>
+            <button class="ctl" data-item="pdf" type="button">
+              Fill a PDF form
+            </button>
+            <button class="ctl" data-item="voice" type="button">
+              Match brand voice
+            </button>
+          </div>
+        )}
+      </article>
+    ))
+  }
+</Explorable>
+<script>
+  import { initCommandsSkills } from "../../scripts/commandsSkills";
+  initCommandsSkills();
+</script>

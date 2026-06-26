@@ -60,7 +60,7 @@ export const TOPICS: Topic[] = [
     blurb:
       "Reusable instructions you can name and call, so you don't retype them.",
     path: "phase-1/commands-and-skills",
-    built: false,
+    built: true,
   },
   {
     n: 7,
