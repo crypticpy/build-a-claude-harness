@@ -10,37 +10,43 @@ const scenes = [
     id: "intro",
     eyebrow: "Tool calls",
     title: "On its own, the model only writes text.",
-    body: "By itself, the model can't open a file or run a command on your computer. It can only produce words. To do anything real, it uses a tool.",
+    body: "By itself, the model can't open a file or run a command on your computer. It can only produce words. To do anything on your machine, it has to go through the harness.",
   },
   {
-    id: "ask",
+    id: "offer",
     eyebrow: "Step 1",
-    title: "First it asks.",
-    body: "The model names a tool and what to give it: read this file, run this command, edit these lines. The request is just text, until the harness acts on it.",
+    title: "The harness hands it a list of tools.",
+    body: "The harness gives the model a set of tools it can call: read a file, run a command, edit lines, search the code. The model can see the whole list, so it knows what it has to work with.",
+  },
+  {
+    id: "pick",
+    eyebrow: "Step 2",
+    title: "It calls the one that fits the task.",
+    body: "The task here is to find out what's inside README.md. The tool that fits is Read file, so the model calls it and says which file. The call is just text, until the harness runs it.",
   },
   {
     id: "run",
-    eyebrow: "Step 2",
+    eyebrow: "Step 3",
     title: "The harness runs the tool.",
-    body: "This is the only part that touches your computer. Here it reads the file the model pointed at, and nothing else.",
+    body: "This is the only part that touches your computer. It reads the file the model pointed at, and nothing else.",
   },
   {
     id: "result",
-    eyebrow: "Step 3",
+    eyebrow: "Step 4",
     title: "The result comes back.",
-    body: "The tool returns new information to the model: the file's contents, a command's output, whether the edit worked. The result re-enters as context.",
+    body: "The tool returns what it found: here, the file's text. That result re-enters the model as new context it can use.",
   },
   {
     id: "decide",
-    eyebrow: "Step 4",
+    eyebrow: "Step 5",
     title: "Now it knows more, and decides.",
-    body: "The model reads the result and picks the next move, which is usually the next tool. That back-and-forth is the loop from the last part, seen up close.",
+    body: "The model reads the result and picks the next move, usually the next tool. That back-and-forth is the loop from the last part, seen up close.",
   },
   {
     id: "try",
     eyebrow: "Your turn",
     title: "Pick the tool.",
-    body: "The model needs to know what's inside a file called README.md. Which tool should it ask for? Try one and watch what comes back.",
+    body: "The model needs to know what's inside a file called README.md. From its list of tools, which one answers that? Try any of them and watch the round trip and what comes back.",
   },
 ];
 ---
@@ -69,8 +75,8 @@ const scenes = [
         <h1>How the model acts.</h1>
         <p class="lede">
           A tool is one specific action the harness can run for the model: read a file, run a command,
-          edit some lines, search the code. The model asks, the harness runs it, the result comes back.
-          That round trip is how anything gets done.
+          edit some lines, look something up. Whatever the tool does, it works the same way. The model
+          calls for it, the harness runs it on your computer, and the result comes back.
         </p>
         <p class="scroll-hint">Scroll to begin ↓</p>
       </section>
@@ -109,10 +115,10 @@ const scenes = [
             <canvas
               id="tc-canvas"
               role="img"
-              aria-label="A round trip: the model asks for a tool, the harness runs it on your computer, and the result returns to the model as context."
+              aria-label="A round trip: the model calls a tool from the list the harness offers, the harness runs it on your computer, and the result returns to the model as context."
             ></canvas>
             <ul class="legend" aria-hidden="true">
-              <li class="leg leg--action"><span class="leg-dot"></span> Asks for a tool</li>
+              <li class="leg leg--action"><span class="leg-dot"></span> Calls a tool</li>
               <li class="leg leg--verified"><span class="leg-dot"></span> Tool runs</li>
               <li class="leg leg--context"><span class="leg-dot"></span> Result returns</li>
             </ul>
@@ -122,11 +128,11 @@ const scenes = [
 
       <section class="outro">
         <p class="eyebrow">The takeaway</p>
-        <h2>Every action is a round trip.</h2>
+        <h2>Every tool call is a round trip.</h2>
         <p>
-          The model can't reach your computer directly. It asks for a tool, the harness runs it, and the
-          result comes back as something the model now knows. String those round trips together and you
-          get the loop. Next, how the model decides which steps to take before it starts.
+          The model can't reach your computer directly. It calls a tool from the list the harness offers,
+          the harness runs it, and the result comes back as something the model now knows. String those
+          round trips together and you get the loop. Next, how the model plans the steps before it starts.
         </p>
       </section>
 
