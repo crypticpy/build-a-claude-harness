@@ -10,7 +10,7 @@ const scenes = [
     id: "intro",
     eyebrow: "The stock demo",
     title: "One prompt: “build me a tic-tac-toe game.”",
-    body: "Nothing special set up. Just stock Claude Code and a single request. Watch every part from Phase 1 work together, start to finish, to turn that sentence into a working game.",
+    body: "Nothing special set up. Just stock Claude Code and a single request. Watch every part from Lesson 1 work together, start to finish, to turn that sentence into a working game.",
   },
   {
     id: "plan",
@@ -40,14 +40,14 @@ const scenes = [
 ---
 
 <Explorable
-  title="The stock demo · Phase 1 · Harness Atlas"
-  description="A capstone: stock Claude Code builds a tic-tac-toe game end to end, with every Phase 1 part working together. Plan the files, write them one tool call at a time, run and fix, then play the real game it built."
+  title="The stock demo · Lesson 1 · Harness Atlas"
+  description="A capstone: stock Claude Code builds a tic-tac-toe game end to end, with every Lesson 1 part working together. Plan the files, write them one tool call at a time, run and fix, then play the real game it built."
   backHref={href("phase-1")}
-  backLabel="Phase 1"
+  backLabel="Lesson 1"
   tag="Part 09 · The stock demo"
   eyebrow="The stock demo"
   h1="Every part, working together."
-  lede="One prompt, stock Claude Code, no customization. This is the whole of Phase 1 in a single run: a plan, the agent loop, tool calls writing files, and a check-and-fix pass, all to build a small game. At the end, the real thing it built, for you to play."
+  lede="One prompt, stock Claude Code, no customization. This is the whole of Lesson 1 in a single run: a plan, the agent loop, tool calls writing files, and a check-and-fix pass, all to build a small game. At the end, the real thing it built, for you to play."
   canvasId="demo-canvas"
   canvasAria="A build trace: a status pill, a list of three files filling in from to-do to done, and a tic-tac-toe preview that takes shape as each file is written."
   legend={[
@@ -55,13 +55,13 @@ const scenes = [
     { accent: "verified", label: "Done" },
     { accent: "context", label: "The game taking shape" },
   ]}
-  outroEyebrow="End of Phase 1"
+  outroEyebrow="End of Lesson 1"
   outroTitle="That's stock Claude Code."
-  outroBody="A plan, a loop, tool calls, context and memory, hooks, commands and skills, subagents, and MCP. That is the whole standard toolkit, working together to take a prompt to a finished, working program. Phase 2 picks up here: how a custom setup extends this same machine to run longer, remember more, and hold a higher bar."
+  outroBody="A plan, a loop, tool calls, context and memory, hooks, commands and skills, subagents, and MCP. That is the whole standard toolkit, working together to take a prompt to a finished, working program. Lesson 2 picks up here: how a custom setup extends this same machine to run longer, remember more, and hold a higher bar."
   prev={prev}
   next={next}
   fallbackHref="phase-2"
-  fallbackLabel="On to Phase 2"
+  fallbackLabel="On to Lesson 2"
 >
   {
     scenes.map((s) => (

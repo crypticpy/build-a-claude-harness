@@ -55,11 +55,11 @@ const scenes = [
       content="How an AI model acts: it asks for a tool, the harness runs it on your computer, and the result comes back as context. The round trip behind every action Claude Code takes."
     />
     <link rel="icon" href={href("favicon.svg")} />
-    <title>Tool calls · Phase 1 · Harness Atlas</title>
+    <title>Tool calls · Lesson 1 · Harness Atlas</title>
   </head>
   <body>
     <header class="topbar">
-      <a class="topbar-back" href={href("phase-1")}>← Phase 1</a>
+      <a class="topbar-back" href={href("phase-1")}>← Lesson 1</a>
       <span class="topbar-tag">Part 02 · Tool calls</span>
     </header>
 
@@ -130,7 +130,7 @@ const scenes = [
         </p>
       </section>
 
-      <nav class="pager" aria-label="Phase 1 navigation">
+      <nav class="pager" aria-label="Lesson 1 navigation">
         {prev ? <a class="pager-link" href={href(prev.path)}>← {prev.title}</a> : <span></span>}
         {
           next ? (
@@ -139,7 +139,7 @@ const scenes = [
             </a>
           ) : (
             <a class="pager-link pager-next" href={href("phase-1")}>
-              Back to Phase 1 →
+              Back to Lesson 1 →
             </a>
           )
         }

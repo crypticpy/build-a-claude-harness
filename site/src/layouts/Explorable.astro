@@ -1,5 +1,5 @@
 ---
-// Shared shell for the Phase 1 topic explorables: warm-paper page, topbar,
+// Shared shell for the Lesson 1 topic explorables: warm-paper page, topbar,
 // hero, the sticky-canvas scrollytelling grid, outro, and prev/next pager.
 // The page supplies the narrative scenes (default slot) and a <script> in the
 // "script" slot; everything else comes from props so each topic stays thin and
@@ -87,7 +87,7 @@ const p = Astro.props as Props;
         <p>{p.outroBody}</p>
       </section>
 
-      <nav class="pager" aria-label="Phase 1 navigation">
+      <nav class="pager" aria-label="Lesson 1 navigation">
         {p.prev ? <a class="pager-link" href={href(p.prev.path)}>← {p.prev.title}</a> : <span />}
         {
           p.next ? (

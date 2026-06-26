@@ -34,7 +34,7 @@ const scenes = [
     id: "compact",
     eyebrow: "Step 4",
     title: "Compaction trades detail for room.",
-    body: "Claude Code replaces the old detail with a shorter summary and keeps working. That frees up room, but some of the fine detail is gone. Phase 2 shows one way a custom setup carries more across this point.",
+    body: "Claude Code replaces the old detail with a shorter summary and keeps working. That frees up room, but some of the fine detail is gone. Lesson 2 shows one way a custom setup carries more across this point.",
   },
   {
     id: "try",
@@ -46,10 +46,10 @@ const scenes = [
 ---
 
 <Explorable
-  title="Context and memory · Phase 1 · Harness Atlas"
+  title="Context and memory · Lesson 1 · Harness Atlas"
   description="What the model knows right now is a fixed budget, the context window. Stock Claude Code keeps continuity with project instructions, conversation history, and compaction."
   backHref={href("phase-1")}
-  backLabel="Phase 1"
+  backLabel="Lesson 1"
   tag="Part 04 · Context and memory"
   eyebrow="Context and memory"
   h1="What the model knows, right now."
@@ -63,11 +63,11 @@ const scenes = [
   ]}
   outroEyebrow="The takeaway"
   outroTitle="A fixed window, kept useful."
-  outroBody="The model works from a limited window. Project instructions keep the standing facts present, and compaction makes room by trading detail for a summary. That trade is exactly the gap a custom setup can close, which is where Phase 2 goes. Next, the points where you can run your own code mid-session."
+  outroBody="The model works from a limited window. Project instructions keep the standing facts present, and compaction makes room by trading detail for a summary. That trade is exactly the gap a custom setup can close, which is where Lesson 2 goes. Next, the points where you can run your own code mid-session."
   prev={prev}
   next={next}
   fallbackHref="phase-1"
-  fallbackLabel="Back to Phase 1"
+  fallbackLabel="Back to Lesson 1"
 >
   {
     scenes.map((s) => (

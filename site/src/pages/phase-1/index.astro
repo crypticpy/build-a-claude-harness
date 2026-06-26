@@ -13,24 +13,24 @@ const builtCount = TOPICS.filter((t) => t.built).length;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Phase 1 of Harness Atlas: how Claude Code works, one part at a time. The agent loop, tool calls, planning, context and memory, hooks, commands and skills, subagents, and MCP, ending with a stock demo."
+      content="Lesson 1 of Harness Atlas: how Claude Code works, one part at a time. The agent loop, tool calls, planning, context and memory, hooks, commands and skills, subagents, and MCP, ending with a stock demo."
     />
     <link rel="icon" href={href("favicon.svg")} />
-    <title>Phase 1: How Claude Code works · Harness Atlas</title>
+    <title>Lesson 1: How Claude Code works · Harness Atlas</title>
   </head>
   <body>
     <header class="topbar">
       <a class="topbar-back" href={href()}>← Harness Atlas</a>
-      <span class="topbar-tag">Phase 1 · How Claude Code works</span>
+      <span class="topbar-tag">Lesson 1 · How Claude Code works</span>
     </header>
 
     <main id="main">
       <section class="hero">
-        <p class="eyebrow">Phase 1</p>
+        <p class="eyebrow">Lesson 1</p>
         <h1>How Claude Code works</h1>
         <p class="lede">
           Claude Code is a harness: the software around an AI model that lets it act on your project.
-          This phase takes it apart one part at a time. Each part gets a plain explanation, a picture,
+          This lesson takes it apart one part at a time. Each part gets a plain explanation, a picture,
           and something you can try. You don't need to write code to follow it.
         </p>
         <p class="lede-2">
@@ -39,7 +39,7 @@ const builtCount = TOPICS.filter((t) => t.built).length;
         </p>
       </section>
 
-      <section class="topics" aria-label="Phase 1 topics">
+      <section class="topics" aria-label="Lesson 1 topics">
         <ol class="topic-list">
           {
             TOPICS.map((t) =>
@@ -79,7 +79,7 @@ const builtCount = TOPICS.filter((t) => t.built).length;
       <section class="closing">
         <p class="closing-links">
           <a href={href("agent-loop")}>Start with the agent loop →</a>
-          <a href={href("phase-2")}>Phase 2: Customizing Claude Code</a>
+          <a href={href("phase-2")}>Lesson 2: Customizing Claude Code</a>
           <a href={REPO} rel="noopener">Source on GitHub</a>
         </p>
       </section>
