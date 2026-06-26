@@ -1,245 +1,473 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import { href } from '../lib/href';
-import facts from '../generated/facts.json';
+import { href } from "../lib/href";
+import facts from "../generated/facts.json";
 
-const learn = [
-  'Why a session turn is really a trip through five lifecycle events, and what a hook can do at each one.',
-  'How a single router dispatches every hook, so adding behavior never means rewiring the system.',
-  'How a hook can fail quietly instead of taking your whole turn down with it.',
-  'How the agent keeps its memory across hours of work and a context compaction.',
-  'How commands, skills, and subagents divide the labor between you and the model.',
-  'How a second model gates the few actions you cannot undo, which is what makes an unattended run safe.',
+const REPO = "https://github.com/crypticpy/build-a-claude-harness";
+const sha = (facts as { shortSha?: string }).shortSha ?? "";
+const settingsUrl = (facts as { provenance?: { settings?: string } }).provenance?.settings ?? REPO;
+
+const outcomes = [
+  "Name the six moments in every session where a builder can change what the AI does.",
+  "Explain how one small router runs all of them, so adding a behavior never means rewiring.",
+  "Show how the AI keeps its memory across hours of work, even after the conversation gets trimmed.",
+  "Say why a second model guards the few actions you can't undo, which is what makes an unattended run safe.",
 ];
 ---
 
-<BaseLayout title="Harness Atlas — how a Claude Code agent runs on its own" phase="1">
-  <main id="main" class="wrap landing">
-    <section class="hero">
-      <p class="kicker mono">A VISUAL GUIDE TO ONE REAL HARNESS</p>
-      <h1 class="hero-line">How a Claude Code agent is wired to run on its own.</h1>
-      <p class="tagline prose">
-        Sixteen short, visual modules take a working harness apart: the hooks, the memory, the
-        subagents, and the approval gate that let a coding agent run for hours without a human
-        watching. No setup, no code to write. Just the architecture, shown plainly.
-      </p>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="A visual guide to how Claude Code works, and how one real harness extends it. The model writes the code; the harness decides whether it works. No setup, no code to write."
+    />
+    <link rel="icon" href={href("favicon.svg")} />
+    <title>Harness Atlas — the model writes the code, the harness decides whether it works</title>
+  </head>
+  <body>
+    <header class="topbar">
+      <span class="topbar-brand">Harness Atlas</span>
+      <span class="topbar-tag">A visual guide · built on Claude Code</span>
+    </header>
 
-      <div class="cta-row">
-        <a class="btn btn-primary" href={href('phase-1/lifecycle-wire')}>Start with module 1</a>
-        <a class="btn btn-ghost" href={href('phase-1')}>Browse all 16 modules</a>
-      </div>
+    <main id="main">
+      <section class="hero">
+        <p class="eyebrow">How Claude Code actually works</p>
+        <h1>The model writes the code.<br />The harness decides whether it works.</h1>
+        <p class="lede">
+          When an AI builds software, the model gets the credit. But the model only produces words.
+          Everything that turns those words into working code happens <em>around</em> it: reading your
+          project, choosing a tool, running the checks, remembering what it already tried. That
+          surrounding machine is the harness. This is a visual tour of one real harness built on Claude
+          Code, shown plainly enough that you don't need to write code to follow it.
+        </p>
+        <p class="thesis">
+          An AI coding harness is not the model. It is the operating environment that turns model
+          reasoning into reliable software work.
+        </p>
+      </section>
 
-      <p class="meta-line mono">
-        Two phases · 16 modules · about 90 minutes · free, no signup · readable without JavaScript
-      </p>
-    </section>
+      <section class="start" aria-labelledby="start-h">
+        <h2 id="start-h">Start with the loop.</h2>
+        <p class="start-lede">
+          Before any of the machinery makes sense, you need one idea: Claude Code runs in a loop. It
+          reads, plans, acts, checks its own work, and goes again. Watch that loop turn one plain
+          request into finished code. Then we open the real harness and show every part.
+        </p>
+        <div class="start-cards">
+          <a class="card card--primary" href={href("agent-loop")}>
+            <span class="card-tag">Begin here · 2 minutes</span>
+            <span class="card-title">Watch the agent loop</span>
+            <span class="card-sub">
+              One plain request, six steps, a strong harness against a weak one. The whole idea in a
+              single scroll.
+            </span>
+            <span class="card-go">Watch it run →</span>
+          </a>
+          <a class="card" href={href("how-it-works")}>
+            <span class="card-tag">Then · the real machine</span>
+            <span class="card-title">Open this harness</span>
+            <span class="card-sub">
+              The same loop, now wired to a real settings file: six lifecycle moments, one router, and a
+              memory that survives between sessions.
+            </span>
+            <span class="card-go">See how it's wired →</span>
+          </a>
+        </div>
+      </section>
 
-    <section class="learn" aria-labelledby="learn-h">
-      <h2 id="learn-h" class="section-h">What you will come away understanding</h2>
-      <ol class="learn-grid">
+      <section class="outcomes" aria-labelledby="outcomes-h">
+        <h2 id="outcomes-h">By the end, you can</h2>
+        <ul class="outcomes-list">
+          {
+            outcomes.map((o) => (
+              <li class="outcome">
+                <span class="outcome-mark" aria-hidden="true">→</span>
+                <span>{o}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <section class="phases" aria-labelledby="phases-h">
+        <h2 id="phases-h">The full teardown, in two phases</h2>
+        <p class="phases-lede">
+          Sixteen short modules take the harness apart, one piece at a time. Start the loop above first;
+          these go deeper once the shape is familiar.
+        </p>
+        <nav class="phase-nav" aria-label="Phases">
+          <a class="phase-card" href={href("phase-1")}>
+            <span class="phase-tag">Phase 1 · 8 modules</span>
+            <span class="phase-title">Foundations</span>
+            <span class="phase-sub">
+              The building blocks: lifecycle moments, the router, fail-safe hooks, the memory stack,
+              commands, skills, subagents, and MCP.
+            </span>
+            <span class="phase-go">Begin Phase 1 →</span>
+          </a>
+          <a class="phase-card" href={href("phase-2")}>
+            <span class="phase-tag">Phase 2 · 8 modules</span>
+            <span class="phase-title">The teardown</span>
+            <span class="phase-sub">
+              A guided teardown of the reference harness, layer by layer, up to the approval gate that
+              keeps a long, unattended run safe.
+            </span>
+            <span class="phase-go">Begin Phase 2 →</span>
+          </a>
+        </nav>
+      </section>
+
+      <section class="closing">
         {
-          learn.map((item, i) => (
-            <li class="learn-item">
-              <span class="learn-num mono">{String(i + 1).padStart(2, '0')}</span>
-              <span class="learn-text">{item}</span>
-            </li>
-          ))
+          sha && (
+            <p class="prov">
+              Every claim links to the exact line of the real harness it came from, pinned to commit{" "}
+              <a href={settingsUrl} rel="noopener"><code>{sha}</code></a>. Nothing here is invented for
+              the lesson.
+            </p>
+          )
         }
-      </ol>
-    </section>
+        <p class="closing-links">
+          <a href={href("agent-loop")}>Start with the agent loop →</a>
+          <a href={REPO} rel="noopener">Source on GitHub</a>
+        </p>
+      </section>
+    </main>
 
-    <section class="phases" aria-labelledby="phases-h">
-      <h2 id="phases-h" class="section-h">The two phases</h2>
-      <nav class="phase-nav" aria-label="Phases">
-        <a class="phase-card" href={href('phase-1')}>
-          <span class="phase-tag mono">PHASE 1 · 8 MODULES</span>
-          <span class="phase-title">Foundations</span>
-          <span class="phase-sub prose">
-            The building blocks, one at a time: lifecycle events, the router, fail-safe hooks, the
-            memory stack, commands, skills, subagents, and MCP. Start here.
-          </span>
-          <span class="phase-go mono">Begin Phase 1 →</span>
-        </a>
-        <a class="phase-card" href={href('phase-2')}>
-          <span class="phase-tag mono">PHASE 2 · 8 MODULES</span>
-          <span class="phase-title">The Teardown</span>
-          <span class="phase-sub prose">
-            A guided teardown of the reference harness, layer by layer, up to the second-model
-            approval gate that keeps a long, unattended run safe.
-          </span>
-          <span class="phase-go mono">Begin Phase 2 →</span>
-        </a>
-      </nav>
-    </section>
+    <style is:global>
+      :root {
+        --paper: #fbfaf6;
+        --paper-2: #ffffff;
+        --ink: #221f1a;
+        --ink-soft: #5c554b;
+        --ink-faint: #968d7d;
+        --hair: #e6e0d4;
+        --hair-strong: #d6cdbb;
+        --context: #2f6bd8;
+        --action: #c9740a;
+        --verified: #1f9a63;
+        --risk: #d6453f;
+        --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, ui-serif,
+          serif;
+        --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial,
+          sans-serif;
+        --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      }
 
-    <p class="provenance prose">
-      Every claim in the Atlas links to the exact source it came from, pinned to commit
-      <a href={facts.provenance.settings}>{facts.shortSha}</a> of the reference harness. Nothing here
-      is invented for the lesson.
-    </p>
-  </main>
-</BaseLayout>
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: var(--sans);
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+      }
 
-<style>
-  .landing {
-    padding-block: var(--sp-12) var(--sp-8);
-  }
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 18px clamp(20px, 5vw, 56px);
+        border-bottom: 1px solid var(--hair);
+        position: sticky;
+        top: 0;
+        background: color-mix(in srgb, var(--paper) 92%, transparent);
+        z-index: 20;
+      }
+      .topbar-brand {
+        font-family: var(--serif);
+        font-weight: 600;
+        font-size: 17px;
+        color: var(--ink);
+      }
+      .topbar-tag {
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--ink-faint);
+      }
 
-  /* ── Hero ──────────────────────────────────────────────────────── */
-  .kicker {
-    color: var(--signal);
-    letter-spacing: 0.18em;
-    font-size: var(--fs-xs);
-    margin: 0 0 var(--sp-4);
-  }
-  .hero-line {
-    font-size: clamp(1.9rem, 5.5vw, var(--fs-3xl));
-    max-width: 22ch;
-    margin: 0 0 var(--sp-6);
-  }
-  .tagline {
-    color: var(--ink-muted);
-    font-size: var(--fs-lg);
-    margin: 0 0 var(--sp-8);
-    max-width: 60ch;
-  }
+      main {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 0 clamp(20px, 5vw, 56px);
+      }
 
-  .cta-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--sp-3);
-    margin-bottom: var(--sp-4);
-  }
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    min-height: var(--target-comfortable);
-    padding: 0 var(--sp-6);
-    border-radius: var(--radius-panel);
-    font-size: var(--fs-base);
-    font-weight: 600;
-    text-decoration: none;
-    border: 1px solid transparent;
-    transition:
-      background var(--motion-settle) var(--ease-settle),
-      border-color var(--motion-settle) var(--ease-settle);
-  }
-  .btn-primary {
-    background: var(--signal);
-    color: #1a1206;
-  }
-  .btn-primary:hover {
-    background: #ffc473;
-  }
-  .btn-ghost {
-    color: var(--ink);
-    border-color: rgba(232, 235, 240, 0.18);
-  }
-  .btn-ghost:hover {
-    border-color: var(--signal-dim);
-    background: var(--surface);
-  }
-  .meta-line {
-    color: var(--ink-faint);
-    font-size: var(--fs-xs);
-    margin: 0 0 var(--sp-16);
-  }
+      .eyebrow {
+        font-family: var(--mono);
+        font-size: 12.5px;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+        color: var(--action);
+        margin: 0 0 14px;
+      }
 
-  /* ── Section heads ─────────────────────────────────────────────── */
-  .section-h {
-    font-size: var(--fs-xl);
-    margin: 0 0 var(--sp-6);
-    padding-bottom: var(--sp-3);
-    border-bottom: var(--border-hairline);
-  }
+      /* ---- hero / cold open ---- */
+      .hero {
+        padding: clamp(56px, 11vh, 128px) 0 clamp(32px, 6vh, 64px);
+        max-width: min(74ch, 100%);
+      }
+      .hero h1 {
+        font-family: var(--serif);
+        font-weight: 600;
+        font-size: clamp(34px, 6vw, 64px);
+        line-height: 1.05;
+        letter-spacing: -0.015em;
+        margin: 0 0 28px;
+      }
+      .lede {
+        font-size: clamp(18px, 2.2vw, 22px);
+        line-height: 1.55;
+        color: var(--ink-soft);
+        max-width: 60ch;
+        margin: 0 0 32px;
+      }
+      .lede em {
+        font-style: normal;
+        color: var(--ink);
+        border-bottom: 2px solid color-mix(in srgb, var(--action) 55%, transparent);
+        padding-bottom: 1px;
+      }
+      .thesis {
+        font-family: var(--serif);
+        font-size: clamp(19px, 2.4vw, 25px);
+        line-height: 1.4;
+        color: var(--ink);
+        max-width: 52ch;
+        margin: 0;
+        padding-left: 20px;
+        border-left: 3px solid var(--action);
+      }
 
-  /* ── What you'll learn ─────────────────────────────────────────── */
-  .learn {
-    margin-bottom: var(--sp-16);
-  }
-  .learn-grid {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    gap: var(--sp-5, 20px);
-    grid-template-columns: 1fr;
-  }
-  @media (min-width: 48rem) {
-    .learn-grid {
-      grid-template-columns: 1fr 1fr;
-      column-gap: var(--sp-8);
-    }
-  }
-  .learn-item {
-    display: flex;
-    gap: var(--sp-4);
-    align-items: baseline;
-  }
-  .learn-num {
-    color: var(--signal-dim);
-    font-size: var(--fs-sm);
-    flex: none;
-  }
-  .learn-text {
-    color: var(--ink-muted);
-    font-size: var(--fs-base);
-  }
+      /* ---- section heads ---- */
+      .start,
+      .outcomes,
+      .phases {
+        padding-block: clamp(40px, 8vh, 88px) 0;
+      }
+      .start h2,
+      .outcomes h2,
+      .phases h2 {
+        font-family: var(--serif);
+        font-weight: 600;
+        font-size: clamp(26px, 3.6vw, 40px);
+        line-height: 1.1;
+        letter-spacing: -0.012em;
+        margin: 0 0 16px;
+      }
+      .start-lede,
+      .phases-lede {
+        font-size: clamp(17px, 2vw, 20px);
+        line-height: 1.6;
+        color: var(--ink-soft);
+        max-width: 58ch;
+        margin: 0 0 32px;
+      }
 
-  /* ── Phases ────────────────────────────────────────────────────── */
-  .phases {
-    margin-bottom: var(--sp-12);
-  }
-  .phase-nav {
-    display: grid;
-    gap: var(--sp-6);
-    grid-template-columns: 1fr;
-  }
-  @media (min-width: 48rem) {
-    .phase-nav {
-      grid-template-columns: 1fr 1fr;
-    }
-  }
-  .phase-card {
-    display: grid;
-    gap: var(--sp-2);
-    padding: var(--sp-6);
-    background: var(--surface);
-    border: var(--border-hairline);
-    border-radius: var(--radius-panel);
-    color: var(--ink);
-    text-decoration: none;
-    transition: border-color var(--motion-settle) var(--ease-settle);
-  }
-  .phase-card:hover,
-  .phase-card:focus-visible {
-    border-color: var(--signal-dim);
-  }
-  .phase-tag {
-    color: var(--signal);
-    font-size: var(--fs-xs);
-    letter-spacing: 0.1em;
-  }
-  .phase-title {
-    font-family: var(--font-display);
-    font-size: var(--fs-xl);
-  }
-  .phase-sub {
-    color: var(--ink-muted);
-    font-size: var(--fs-sm);
-  }
-  .phase-go {
-    color: var(--signal);
-    font-size: var(--fs-sm);
-    margin-top: var(--sp-2);
-  }
+      /* ---- start cards ---- */
+      .start-cards {
+        display: grid;
+        gap: clamp(16px, 2.5vw, 24px);
+        grid-template-columns: 1fr 1fr;
+      }
+      .card {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: clamp(22px, 3vw, 32px);
+        background: var(--paper-2);
+        border: 1px solid var(--hair);
+        border-radius: 16px;
+        text-decoration: none;
+        color: var(--ink);
+        box-shadow:
+          0 1px 2px rgba(40, 38, 32, 0.04),
+          0 16px 36px -28px rgba(40, 38, 32, 0.22);
+        transition:
+          border-color 0.16s ease,
+          transform 0.12s ease,
+          box-shadow 0.16s ease;
+      }
+      .card:hover {
+        transform: translateY(-2px);
+        border-color: var(--hair-strong);
+        box-shadow:
+          0 1px 2px rgba(40, 38, 32, 0.05),
+          0 24px 48px -28px rgba(40, 38, 32, 0.28);
+      }
+      .card--primary {
+        border-color: color-mix(in srgb, var(--action) 45%, var(--hair));
+        background: color-mix(in srgb, var(--action) 5%, var(--paper-2));
+      }
+      .card--primary:hover {
+        border-color: var(--action);
+      }
+      .card-tag {
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--action);
+      }
+      .card-title {
+        font-family: var(--serif);
+        font-size: clamp(21px, 2.6vw, 27px);
+        font-weight: 600;
+        line-height: 1.15;
+      }
+      .card-sub {
+        font-size: 16px;
+        line-height: 1.55;
+        color: var(--ink-soft);
+        margin-top: 2px;
+      }
+      .card-go {
+        margin-top: auto;
+        padding-top: 14px;
+        font-weight: 600;
+        font-size: 15px;
+        color: var(--context);
+      }
 
-  /* ── Provenance ────────────────────────────────────────────────── */
-  .provenance {
-    color: var(--ink-faint);
-    font-size: var(--fs-sm);
-    border-top: var(--border-hairline);
-    padding-top: var(--sp-4);
-    max-width: 70ch;
-  }
-</style>
+      /* ---- outcomes ---- */
+      .outcomes-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: 16px 40px;
+        grid-template-columns: 1fr 1fr;
+        max-width: 90ch;
+      }
+      .outcome {
+        display: flex;
+        gap: 14px;
+        align-items: baseline;
+        font-size: clamp(16px, 1.8vw, 18px);
+        line-height: 1.5;
+        color: var(--ink-soft);
+      }
+      .outcome-mark {
+        color: var(--action);
+        font-weight: 700;
+        flex: none;
+      }
+
+      /* ---- phases ---- */
+      .phase-nav {
+        display: grid;
+        gap: clamp(16px, 2.5vw, 24px);
+        grid-template-columns: 1fr 1fr;
+      }
+      .phase-card {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding: clamp(22px, 3vw, 30px);
+        background: var(--paper-2);
+        border: 1px solid var(--hair);
+        border-radius: 16px;
+        text-decoration: none;
+        color: var(--ink);
+        transition:
+          border-color 0.16s ease,
+          transform 0.12s ease;
+      }
+      .phase-card:hover {
+        transform: translateY(-2px);
+        border-color: var(--hair-strong);
+      }
+      .phase-tag {
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--ink-faint);
+      }
+      .phase-title {
+        font-family: var(--serif);
+        font-size: clamp(20px, 2.4vw, 26px);
+        font-weight: 600;
+      }
+      .phase-sub {
+        font-size: 16px;
+        line-height: 1.55;
+        color: var(--ink-soft);
+        margin-top: 2px;
+      }
+      .phase-go {
+        margin-top: 10px;
+        font-weight: 600;
+        font-size: 15px;
+        color: var(--context);
+      }
+
+      /* ---- closing ---- */
+      .closing {
+        padding: clamp(48px, 9vh, 104px) 0 clamp(72px, 14vh, 140px);
+        max-width: 72ch;
+      }
+      .prov {
+        font-size: 15px;
+        line-height: 1.6;
+        color: var(--ink-faint);
+        border-top: 1px solid var(--hair);
+        padding-top: 22px;
+        margin: 0 0 24px;
+      }
+      .prov code {
+        font-family: var(--mono);
+        background: color-mix(in srgb, var(--action) 9%, var(--paper-2));
+        padding: 1px 7px;
+        border-radius: 6px;
+        color: var(--action);
+      }
+      .prov a {
+        text-decoration: none;
+      }
+      .closing-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px 28px;
+        margin: 0;
+      }
+      .closing-links a {
+        color: var(--context);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 16px;
+      }
+      .closing-links a:hover {
+        text-decoration: underline;
+      }
+
+      @media (max-width: 760px) {
+        .start-cards,
+        .phase-nav,
+        .outcomes-list {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+        .card,
+        .phase-card {
+          transition: none;
+        }
+      }
+    </style>
+  </body>
+</html>
