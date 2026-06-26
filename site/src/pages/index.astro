@@ -7,10 +7,10 @@ const sha = (facts as { shortSha?: string }).shortSha ?? "";
 const settingsUrl = (facts as { provenance?: { settings?: string } }).provenance?.settings ?? REPO;
 
 const outcomes = [
-  "Name the six moments in every session where a builder can change what the AI does.",
-  "Explain how one small router runs all of them, so adding a behavior never means rewiring.",
-  "Show how the AI keeps its memory across hours of work, even after the conversation gets trimmed.",
-  "Say why a second model guards the few actions you can't undo, which is what makes an unattended run safe.",
+  "Name the points in a session where you can run your own code and change what the AI does.",
+  "Explain how one router runs all of them, so adding a behavior doesn't mean rewiring.",
+  "Describe how the AI keeps its memory through long tasks, after the conversation is trimmed.",
+  "Explain how an approval step can hold back actions that can't be undone.",
 ];
 ---
 
@@ -21,10 +21,10 @@ const outcomes = [
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="A visual guide to how Claude Code works, and how one real harness extends it. The model writes the code; the harness decides whether it works. No setup, no code to write."
+      content="A visual guide to how an AI coding harness works. An AI model can't touch the files on your computer on its own; a harness gives it that ability, and decides how complex and how long a task it can handle. Built on Claude Code."
     />
     <link rel="icon" href={href("favicon.svg")} />
-    <title>Harness Atlas — the model writes the code, the harness decides whether it works</title>
+    <title>Harness Atlas: how an AI coding harness works</title>
   </head>
   <body>
     <header class="topbar">
@@ -34,44 +34,42 @@ const outcomes = [
 
     <main id="main">
       <section class="hero">
-        <p class="eyebrow">How Claude Code actually works</p>
-        <h1>The model writes the code.<br />The harness decides whether it works.</h1>
+        <h1>How an AI coding harness works</h1>
         <p class="lede">
-          When an AI builds software, the model gets the credit. But the model only produces words.
-          Everything that turns those words into working code happens <em>around</em> it: reading your
-          project, choosing a tool, running the checks, remembering what it already tried. That
-          surrounding machine is the harness. This is a visual tour of one real harness built on Claude
-          Code, shown plainly enough that you don't need to write code to follow it.
+          An AI model can't open, read, or change the files on your computer. On its own, it only
+          produces text. A harness is the software around the model that connects it to your project and
+          lets it act: read and edit files, run commands, and check its own work.
         </p>
-        <p class="thesis">
-          An AI coding harness is not the model. It is the operating environment that turns model
-          reasoning into reliable software work.
+        <p class="lede">
+          What goes into a harness does more than give the model file access. It sets how complex a task
+          the model can take on, and how long it can keep working before it needs you. Claude Code is a
+          harness. This site explains how it works, one part at a time, and how you can extend it. You
+          don't need to write code to follow it.
         </p>
       </section>
 
       <section class="start" aria-labelledby="start-h">
-        <h2 id="start-h">Start with the loop.</h2>
+        <h2 id="start-h">How the AI gets work done</h2>
         <p class="start-lede">
-          Before any of the machinery makes sense, you need one idea: Claude Code runs in a loop. It
-          reads, plans, acts, checks its own work, and goes again. Watch that loop turn one plain
-          request into finished code. Then we open the real harness and show every part.
+          Claude Code works in a loop: it reads your project, makes a plan, changes a file, checks the
+          result, and repeats until the task is done. It doesn't finish in one step. The first
+          walkthrough follows this loop through a single request, one step at a time.
         </p>
         <div class="start-cards">
           <a class="card card--primary" href={href("agent-loop")}>
-            <span class="card-tag">Begin here · 2 minutes</span>
-            <span class="card-title">Watch the agent loop</span>
+            <span class="card-tag">Start here</span>
+            <span class="card-title">The agent loop</span>
             <span class="card-sub">
-              One plain request, six steps, a strong harness against a weak one. The whole idea in a
-              single scroll.
+              Follow one request through the loop that turns it into finished code, one step at a time.
             </span>
-            <span class="card-go">Watch it run →</span>
+            <span class="card-go">Open the walkthrough →</span>
           </a>
           <a class="card" href={href("how-it-works")}>
-            <span class="card-tag">Then · the real machine</span>
-            <span class="card-title">Open this harness</span>
+            <span class="card-tag">Next</span>
+            <span class="card-title">Inside a real harness</span>
             <span class="card-sub">
-              The same loop, now wired to a real settings file: six lifecycle moments, one router, and a
-              memory that survives between sessions.
+              The same loop wired to a real settings file: the points where you can change what the AI
+              does, the router behind them, and how it keeps memory between sessions.
             </span>
             <span class="card-go">See how it's wired →</span>
           </a>
@@ -93,29 +91,29 @@ const outcomes = [
       </section>
 
       <section class="phases" aria-labelledby="phases-h">
-        <h2 id="phases-h">The full teardown, in two phases</h2>
+        <h2 id="phases-h">The two phases</h2>
         <p class="phases-lede">
-          Sixteen short modules take the harness apart, one piece at a time. Start the loop above first;
-          these go deeper once the shape is familiar.
+          Phase 1 covers the parts of Claude Code and what each one does. Phase 2 shows how to combine
+          them into a more capable setup.
         </p>
         <nav class="phase-nav" aria-label="Phases">
           <a class="phase-card" href={href("phase-1")}>
-            <span class="phase-tag">Phase 1 · 8 modules</span>
-            <span class="phase-title">Foundations</span>
+            <span class="phase-tag">Phase 1</span>
+            <span class="phase-title">How Claude Code works</span>
             <span class="phase-sub">
-              The building blocks: lifecycle moments, the router, fail-safe hooks, the memory stack,
-              commands, skills, subagents, and MCP.
+              The parts, one at a time: tool calls, planning, memory, hooks, commands, skills,
+              subagents, and MCP. It ends with a stock setup building a small program.
             </span>
-            <span class="phase-go">Begin Phase 1 →</span>
+            <span class="phase-go">Start Phase 1 →</span>
           </a>
           <a class="phase-card" href={href("phase-2")}>
-            <span class="phase-tag">Phase 2 · 8 modules</span>
-            <span class="phase-title">The teardown</span>
+            <span class="phase-tag">Phase 2</span>
+            <span class="phase-title">Customizing Claude Code</span>
             <span class="phase-sub">
-              A guided teardown of the reference harness, layer by layer, up to the approval gate that
-              keeps a long, unattended run safe.
+              How to combine those parts into a setup that handles longer, more complex tasks. Our
+              harness is one example, not the only way.
             </span>
-            <span class="phase-go">Begin Phase 2 →</span>
+            <span class="phase-go">Start Phase 2 →</span>
           </a>
         </nav>
       </section>
@@ -203,16 +201,7 @@ const outcomes = [
         padding: 0 clamp(20px, 5vw, 56px);
       }
 
-      .eyebrow {
-        font-family: var(--mono);
-        font-size: 12.5px;
-        letter-spacing: 0.13em;
-        text-transform: uppercase;
-        color: var(--action);
-        margin: 0 0 14px;
-      }
-
-      /* ---- hero / cold open ---- */
+      /* ---- hero ---- */
       .hero {
         padding: clamp(56px, 11vh, 128px) 0 clamp(32px, 6vh, 64px);
         max-width: min(74ch, 100%);
@@ -220,8 +209,8 @@ const outcomes = [
       .hero h1 {
         font-family: var(--serif);
         font-weight: 600;
-        font-size: clamp(34px, 6vw, 64px);
-        line-height: 1.05;
+        font-size: clamp(34px, 6vw, 60px);
+        line-height: 1.07;
         letter-spacing: -0.015em;
         margin: 0 0 28px;
       }
@@ -229,24 +218,11 @@ const outcomes = [
         font-size: clamp(18px, 2.2vw, 22px);
         line-height: 1.55;
         color: var(--ink-soft);
-        max-width: 60ch;
-        margin: 0 0 32px;
+        max-width: 62ch;
+        margin: 0 0 20px;
       }
-      .lede em {
-        font-style: normal;
-        color: var(--ink);
-        border-bottom: 2px solid color-mix(in srgb, var(--action) 55%, transparent);
-        padding-bottom: 1px;
-      }
-      .thesis {
-        font-family: var(--serif);
-        font-size: clamp(19px, 2.4vw, 25px);
-        line-height: 1.4;
-        color: var(--ink);
-        max-width: 52ch;
-        margin: 0;
-        padding-left: 20px;
-        border-left: 3px solid var(--action);
+      .lede:last-child {
+        margin-bottom: 0;
       }
 
       /* ---- section heads ---- */
@@ -270,7 +246,7 @@ const outcomes = [
         font-size: clamp(17px, 2vw, 20px);
         line-height: 1.6;
         color: var(--ink-soft);
-        max-width: 58ch;
+        max-width: 62ch;
         margin: 0 0 32px;
       }
 
