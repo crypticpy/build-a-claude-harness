@@ -36,7 +36,7 @@ export const TOPICS: Topic[] = [
     blurb:
       "Plan mode and the to-do list: how Claude Code plans before it acts.",
     path: "phase-1/planning",
-    built: false,
+    built: true,
   },
   {
     n: 4,
@@ -44,7 +44,7 @@ export const TOPICS: Topic[] = [
     blurb:
       "The context window, project instructions, and what compaction keeps.",
     path: "phase-1/context-and-memory",
-    built: false,
+    built: true,
   },
   {
     n: 5,
@@ -52,7 +52,7 @@ export const TOPICS: Topic[] = [
     blurb:
       "The six moments in a session where Claude Code can run your own code.",
     path: "phase-1/hooks",
-    built: false,
+    built: true,
   },
   {
     n: 6,

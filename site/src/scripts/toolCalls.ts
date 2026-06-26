@@ -283,8 +283,13 @@ export function initToolCalls(): void {
   if (!reduce) raf = requestAnimationFrame(frame);
   else render();
 
+  // a scroll-jitter re-fire of the same scene must not reset a finished pick;
+  // ignore a repeat of the active scene, only a real change re-runs it.
+  let curScene = "";
   function setScene(id: string) {
     if (running) return;
+    if (id === curScene) return;
+    curScene = id;
     result = { kind: null, text: "" };
     modelActive = false;
     toolLabel = "Tool";

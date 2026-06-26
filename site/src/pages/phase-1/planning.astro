@@ -1,0 +1,95 @@
+---
+import Explorable from "../../layouts/Explorable.astro";
+import { href } from "../../lib/href";
+import { neighbors } from "../../lib/phase1";
+
+const { prev, next } = neighbors("phase-1/planning");
+
+const scenes = [
+  {
+    id: "intro",
+    eyebrow: "The plan system",
+    title: "For anything bigger than one edit, it plans first.",
+    body: "A small change, the model just makes. For larger work, going straight to edits tends to go wrong. So Claude Code plans before it acts.",
+  },
+  {
+    id: "propose",
+    eyebrow: "Step 1",
+    title: "It proposes the steps.",
+    body: "The model breaks the goal into a short list of steps and shows it to you. One step here is flagged as risky, because it changes how the whole page looks.",
+  },
+  {
+    id: "approve",
+    eyebrow: "Step 2",
+    title: "It waits for your go.",
+    body: "In plan mode, the model changes nothing until you approve. You can accept the plan or edit it first. Nothing on your computer has changed yet.",
+  },
+  {
+    id: "work",
+    eyebrow: "Step 3",
+    title: "Then it works the list.",
+    body: "Once you approve, the loop runs the steps in order. Each one moves from waiting to working to done.",
+  },
+  {
+    id: "track",
+    eyebrow: "Step 4",
+    title: "The to-do list keeps it on track.",
+    body: "On a long task, the checklist is how the work stays honest. The model marks each step done as it finishes, so nothing is skipped or repeated.",
+  },
+  {
+    id: "try",
+    eyebrow: "Your turn",
+    title: "Approve it, or change it first.",
+    body: "Approve the plan as written, or edit a step and then approve. Either way, the loop follows the version you approved.",
+  },
+];
+---
+
+<Explorable
+  title="The plan system · Phase 1 · Harness Atlas"
+  description="How Claude Code plans before it acts: plan mode proposes the steps and waits for your approval, then a to-do list tracks them as the loop works through them."
+  backHref={href("phase-1")}
+  backLabel="Phase 1"
+  tag="Part 03 · The plan system"
+  eyebrow="The plan system"
+  h1="It plans before it acts."
+  lede="Claude Code doesn't jump straight to changing files. It proposes a short plan, waits for you to approve it, then works the list step by step. Here is that plan, from proposal to done."
+  canvasId="pl-canvas"
+  canvasAria="A plan shown as a checklist of four steps. It waits for approval, then each step fills in from waiting to done as the loop works through it."
+  legend={[
+    { accent: "action", label: "Working on it" },
+    { accent: "verified", label: "Done" },
+    { accent: "context", label: "Waiting for you" },
+  ]}
+  outroEyebrow="The takeaway"
+  outroTitle="Plan first, then act."
+  outroBody="A plan makes the work checkable. You see the steps before anything changes, the risky one is flagged, and the to-do list proves each step got done. Next, what the model actually knows while it works, and how it remembers."
+  prev={prev}
+  next={next}
+  fallbackHref="phase-1"
+  fallbackLabel="Back to Phase 1"
+>
+  {
+    scenes.map((s) => (
+      <article class="scene" data-scene={s.id}>
+        <p class="scene-eyebrow">{s.eyebrow}</p>
+        <h2>{s.title}</h2>
+        <p>{s.body}</p>
+        {s.id === "try" && (
+          <div class="controls">
+            <button class="ctl" id="pl-approve" type="button">
+              Approve plan
+            </button>
+            <button class="ctl" id="pl-edit" type="button">
+              Edit step 2, then approve
+            </button>
+          </div>
+        )}
+      </article>
+    ))
+  }
+</Explorable>
+<script>
+  import { initPlanning } from "../../scripts/planning";
+  initPlanning();
+</script>

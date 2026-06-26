@@ -1,0 +1,97 @@
+---
+import Explorable from "../../layouts/Explorable.astro";
+import { href } from "../../lib/href";
+import { neighbors } from "../../lib/phase1";
+
+const { prev, next } = neighbors("phase-1/hooks");
+
+const scenes = [
+  {
+    id: "intro",
+    eyebrow: "Hooks",
+    title: "Every session hits the same fixed moments.",
+    body: "A session starts. You send a prompt. A tool is about to run. A tool just ran. The window is about to compact. The turn is about to end. These six moments happen every time, in order.",
+  },
+  {
+    id: "moments",
+    eyebrow: "The six moments",
+    title: "These are the seams.",
+    body: "Claude Code passes through each moment as it works. On their own they're just markers. They become useful when you attach something to them.",
+  },
+  {
+    id: "run",
+    eyebrow: "What a hook is",
+    title: "A hook runs your code at a moment.",
+    body: "At any of these moments, Claude Code can run a small program you wrote. That program is a hook. Here, a hook at PreToolUse checks an action before it runs.",
+  },
+  {
+    id: "addstop",
+    eyebrow: "What a hook can do",
+    title: "It can add to the work, or stop it.",
+    body: "A hook can look at what's happening and add to it, like formatting a file and logging the change after a tool runs. Or it can stop an action before it happens.",
+  },
+  {
+    id: "try",
+    eyebrow: "Your turn",
+    title: "Pick a moment.",
+    body: "Click any of the six moments to see when it fires and one plain example of what a hook there could do.",
+  },
+];
+---
+
+<Explorable
+  title="Hooks · Phase 1 · Harness Atlas"
+  description="The six moments in a session where Claude Code can run your own code: SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, PreCompact, and Stop. The seams that make customization possible."
+  backHref={href("phase-1")}
+  backLabel="Phase 1"
+  tag="Part 05 · Hooks"
+  eyebrow="Hooks"
+  h1="Where you can step in."
+  lede="A hook is a small program Claude Code runs at a set moment in a session. There are six such moments, and they're the seams that make everything in Phase 2 possible. Here they are, and what a hook at each one can do."
+  canvasId="hk-canvas"
+  canvasAria="The six lifecycle moments arranged as stations around a ring, with a token orbiting through them in order. Selecting a moment shows when it fires and an example hook."
+  legend={[{ accent: "action", label: "A lifecycle moment" }]}
+  outroEyebrow="The takeaway"
+  outroTitle="Six seams, your code."
+  outroBody="The six moments are always there. A hook lets you run your own code at one of them, to add to the work or stop an action. Phase 2 is largely the story of wiring all six. Next, a simpler kind of customization: reusable instructions you can name and call."
+  prev={prev}
+  next={next}
+  fallbackHref="phase-1"
+  fallbackLabel="Back to Phase 1"
+>
+  {
+    scenes.map((s) => (
+      <article class="scene" data-scene={s.id}>
+        <p class="scene-eyebrow">{s.eyebrow}</p>
+        <h2>{s.title}</h2>
+        <p>{s.body}</p>
+        {s.id === "try" && (
+          <div class="controls">
+            <button class="ctl" data-moment="start" type="button">
+              SessionStart
+            </button>
+            <button class="ctl" data-moment="prompt" type="button">
+              UserPromptSubmit
+            </button>
+            <button class="ctl" data-moment="pretool" type="button">
+              PreToolUse
+            </button>
+            <button class="ctl" data-moment="posttool" type="button">
+              PostToolUse
+            </button>
+            <button class="ctl" data-moment="precompact" type="button">
+              PreCompact
+            </button>
+            <button class="ctl" data-moment="stop" type="button">
+              Stop
+            </button>
+          </div>
+        )}
+      </article>
+    ))
+  }
+</Explorable>
+<script>
+  import { initHooks } from "../../scripts/hooks";
+  initHooks();
+</script>

@@ -1,0 +1,101 @@
+---
+import Explorable from "../../layouts/Explorable.astro";
+import { href } from "../../lib/href";
+import { neighbors } from "../../lib/phase1";
+
+const { prev, next } = neighbors("phase-1/context-and-memory");
+
+const scenes = [
+  {
+    id: "intro",
+    eyebrow: "Context and memory",
+    title: "The model only knows what's in front of it.",
+    body: "Right now, the model knows your prompt and the project's standing instructions. Not your whole codebase, not last week's chat. Just what's been put in front of it.",
+  },
+  {
+    id: "stack",
+    eyebrow: "Step 1",
+    title: "Context is a stack of sources.",
+    body: "As it works, more goes in: the files it read, the output of commands it ran, the earlier conversation. Together, all of this is the context window.",
+  },
+  {
+    id: "claudemd",
+    eyebrow: "Step 2",
+    title: "Some context is always there.",
+    body: "A project file called CLAUDE.md is read at the start of every session. The standing facts about your project are always present, so you don't have to repeat them.",
+  },
+  {
+    id: "full",
+    eyebrow: "Step 3",
+    title: "The window has a limit.",
+    body: "It can only hold so much. Read enough files and run enough commands, and the window fills. When it's full, something has to give.",
+  },
+  {
+    id: "compact",
+    eyebrow: "Step 4",
+    title: "Compaction trades detail for room.",
+    body: "Claude Code replaces the old detail with a shorter summary and keeps working. That frees up room, but some of the fine detail is gone. Phase 2 shows one way a custom setup carries more across this point.",
+  },
+  {
+    id: "try",
+    eyebrow: "Your turn",
+    title: "Fill it, then compact it.",
+    body: "Add and remove sources and watch the window fill. When it's near full, press compact and see the stack collapse to a summary.",
+  },
+];
+---
+
+<Explorable
+  title="Context and memory · Phase 1 · Harness Atlas"
+  description="What the model knows right now is a fixed budget, the context window. Stock Claude Code keeps continuity with project instructions, conversation history, and compaction."
+  backHref={href("phase-1")}
+  backLabel="Phase 1"
+  tag="Part 04 · Context and memory"
+  eyebrow="Context and memory"
+  h1="What the model knows, right now."
+  lede="The model doesn't remember everything. It works from a fixed budget called the context window: your prompt, the project's instructions, the files it read, and the conversation so far. Here is what fills it, and what happens when it runs out of room."
+  canvasId="cm-canvas"
+  canvasAria="A context-window gauge above a stack of context cards flowing into the model. The gauge fills as cards are added; compaction collapses the stack to a summary and the gauge drops."
+  legend={[
+    { accent: "context", label: "A source of context" },
+    { accent: "verified", label: "Room to spare" },
+    { accent: "risk", label: "Nearly full" },
+  ]}
+  outroEyebrow="The takeaway"
+  outroTitle="A fixed window, kept useful."
+  outroBody="The model works from a limited window. Project instructions keep the standing facts present, and compaction makes room by trading detail for a summary. That trade is exactly the gap a custom setup can close, which is where Phase 2 goes. Next, the points where you can run your own code mid-session."
+  prev={prev}
+  next={next}
+  fallbackHref="phase-1"
+  fallbackLabel="Back to Phase 1"
+>
+  {
+    scenes.map((s) => (
+      <article class="scene" data-scene={s.id}>
+        <p class="scene-eyebrow">{s.eyebrow}</p>
+        <h2>{s.title}</h2>
+        <p>{s.body}</p>
+        {s.id === "try" && (
+          <div class="controls">
+            <button class="ctl" data-card="files" type="button">
+              Files it read
+            </button>
+            <button class="ctl" data-card="output" type="button">
+              Command output
+            </button>
+            <button class="ctl" data-card="history" type="button">
+              Earlier conversation
+            </button>
+            <button class="ctl" id="cm-compact" type="button">
+              Compact
+            </button>
+          </div>
+        )}
+      </article>
+    ))
+  }
+</Explorable>
+<script>
+  import { initContextMemory } from "../../scripts/contextMemory";
+  initContextMemory();
+</script>
