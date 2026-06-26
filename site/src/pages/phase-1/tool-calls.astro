@@ -1,0 +1,450 @@
+---
+import { href } from "../../lib/href";
+import { neighbors } from "../../lib/phase1";
+
+const REPO = "https://github.com/crypticpy/build-a-claude-harness";
+const { prev, next } = neighbors("phase-1/tool-calls");
+
+const scenes = [
+  {
+    id: "intro",
+    eyebrow: "Tool calls",
+    title: "On its own, the model only writes text.",
+    body: "By itself, the model can't open a file or run a command on your computer. It can only produce words. To do anything real, it uses a tool.",
+  },
+  {
+    id: "ask",
+    eyebrow: "Step 1",
+    title: "First it asks.",
+    body: "The model names a tool and what to give it: read this file, run this command, edit these lines. The request is just text, until the harness acts on it.",
+  },
+  {
+    id: "run",
+    eyebrow: "Step 2",
+    title: "The harness runs the tool.",
+    body: "This is the only part that touches your computer. Here it reads the file the model pointed at, and nothing else.",
+  },
+  {
+    id: "result",
+    eyebrow: "Step 3",
+    title: "The result comes back.",
+    body: "The tool returns new information to the model: the file's contents, a command's output, whether the edit worked. The result re-enters as context.",
+  },
+  {
+    id: "decide",
+    eyebrow: "Step 4",
+    title: "Now it knows more, and decides.",
+    body: "The model reads the result and picks the next move, which is usually the next tool. That back-and-forth is the loop from the last part, seen up close.",
+  },
+  {
+    id: "try",
+    eyebrow: "Your turn",
+    title: "Pick the tool.",
+    body: "The model needs to know what's inside a file called README.md. Which tool should it ask for? Try one and watch what comes back.",
+  },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="How an AI model acts: it asks for a tool, the harness runs it on your computer, and the result comes back as context. The round trip behind every action Claude Code takes."
+    />
+    <link rel="icon" href={href("favicon.svg")} />
+    <title>Tool calls · Phase 1 · Harness Atlas</title>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="topbar-back" href={href("phase-1")}>← Phase 1</a>
+      <span class="topbar-tag">Part 02 · Tool calls</span>
+    </header>
+
+    <main id="main">
+      <section class="hero">
+        <p class="eyebrow">Tool calls</p>
+        <h1>How the model acts.</h1>
+        <p class="lede">
+          A tool is one specific action the harness can run for the model: read a file, run a command,
+          edit some lines, search the code. The model asks, the harness runs it, the result comes back.
+          That round trip is how anything gets done.
+        </p>
+        <p class="scroll-hint">Scroll to begin ↓</p>
+      </section>
+
+      <section class="scrolly">
+        <div class="narrative">
+          {
+            scenes.map((s) => (
+              <article class="scene" data-scene={s.id}>
+                <p class="scene-eyebrow">{s.eyebrow}</p>
+                <h2>{s.title}</h2>
+                <p>{s.body}</p>
+                {s.id === "try" && (
+                  <div class="picker">
+                    <button class="pick" data-tool="read" aria-pressed="false" type="button">
+                      Read file
+                    </button>
+                    <button class="pick" data-tool="bash" aria-pressed="false" type="button">
+                      Run command
+                    </button>
+                    <button class="pick" data-tool="edit" aria-pressed="false" type="button">
+                      Edit file
+                    </button>
+                    <button class="pick" data-tool="grep" aria-pressed="false" type="button">
+                      Search code
+                    </button>
+                  </div>
+                )}
+              </article>
+            ))
+          }
+        </div>
+
+        <div class="visual">
+          <div class="visual-inner">
+            <canvas
+              id="tc-canvas"
+              role="img"
+              aria-label="A round trip: the model asks for a tool, the harness runs it on your computer, and the result returns to the model as context."
+            ></canvas>
+            <ul class="legend" aria-hidden="true">
+              <li class="leg leg--action"><span class="leg-dot"></span> Asks for a tool</li>
+              <li class="leg leg--verified"><span class="leg-dot"></span> Tool runs</li>
+              <li class="leg leg--context"><span class="leg-dot"></span> Result returns</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="outro">
+        <p class="eyebrow">The takeaway</p>
+        <h2>Every action is a round trip.</h2>
+        <p>
+          The model can't reach your computer directly. It asks for a tool, the harness runs it, and the
+          result comes back as something the model now knows. String those round trips together and you
+          get the loop. Next, how the model decides which steps to take before it starts.
+        </p>
+      </section>
+
+      <nav class="pager" aria-label="Phase 1 navigation">
+        {prev ? <a class="pager-link" href={href(prev.path)}>← {prev.title}</a> : <span></span>}
+        {
+          next ? (
+            <a class="pager-link pager-next" href={href(next.path)}>
+              {next.title} →
+            </a>
+          ) : (
+            <a class="pager-link pager-next" href={href("phase-1")}>
+              Back to Phase 1 →
+            </a>
+          )
+        }
+      </nav>
+    </main>
+
+    <script>
+      import { initToolCalls } from "../../scripts/toolCalls";
+      initToolCalls();
+    </script>
+
+    <style is:global>
+      :root {
+        --paper: #fbfaf6;
+        --paper-2: #ffffff;
+        --ink: #221f1a;
+        --ink-soft: #5c554b;
+        --ink-faint: #968d7d;
+        --hair: #e6e0d4;
+        --hair-strong: #d6cdbb;
+        --context: #2f6bd8;
+        --action: #c9740a;
+        --verified: #1f9a63;
+        --risk: #d6453f;
+        --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, ui-serif,
+          serif;
+        --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial,
+          sans-serif;
+        --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: var(--sans);
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 18px clamp(20px, 5vw, 56px);
+        border-bottom: 1px solid var(--hair);
+        position: sticky;
+        top: 0;
+        background: color-mix(in srgb, var(--paper) 92%, transparent);
+        z-index: 20;
+      }
+      .topbar-back {
+        color: var(--ink);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 15px;
+      }
+      .topbar-back:hover {
+        color: var(--context);
+      }
+      .topbar-tag {
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--ink-faint);
+      }
+
+      main {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 0 clamp(20px, 5vw, 56px);
+      }
+
+      .eyebrow,
+      .scene-eyebrow {
+        font-family: var(--mono);
+        font-size: 12.5px;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+        color: var(--action);
+        margin: 0 0 14px;
+      }
+
+      .hero {
+        padding: clamp(52px, 10vh, 116px) 0 clamp(36px, 7vh, 72px);
+        max-width: min(72ch, 100%);
+      }
+      .hero h1 {
+        font-family: var(--serif);
+        font-weight: 600;
+        font-size: clamp(34px, 6vw, 60px);
+        line-height: 1.06;
+        letter-spacing: -0.015em;
+        margin: 0 0 26px;
+      }
+      .lede {
+        font-size: clamp(18px, 2.2vw, 22px);
+        line-height: 1.55;
+        color: var(--ink-soft);
+        max-width: 58ch;
+        margin: 0 0 34px;
+      }
+      .scroll-hint {
+        font-family: var(--mono);
+        font-size: 13px;
+        color: var(--ink-faint);
+        letter-spacing: 0.04em;
+        margin: 0;
+      }
+
+      /* ---- scrollytelling ---- */
+      .scrolly {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: clamp(24px, 5vw, 72px);
+        align-items: start;
+      }
+      .narrative {
+        padding-block: 6vh 10vh;
+      }
+      .scene {
+        min-height: 84vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        max-width: 44ch;
+      }
+      .scene h2 {
+        font-family: var(--serif);
+        font-weight: 600;
+        font-size: clamp(25px, 3.4vw, 36px);
+        line-height: 1.12;
+        letter-spacing: -0.01em;
+        margin: 0 0 18px;
+      }
+      .scene p {
+        font-size: clamp(17px, 1.9vw, 20px);
+        line-height: 1.62;
+        color: var(--ink-soft);
+        margin: 0;
+      }
+
+      .visual {
+        position: sticky;
+        top: 11vh;
+        align-self: start;
+        height: min(78vh, 600px);
+      }
+      .visual-inner {
+        background: var(--paper-2);
+        border: 1px solid var(--hair);
+        border-radius: 18px;
+        box-shadow:
+          0 1px 2px rgba(40, 38, 32, 0.04),
+          0 18px 40px -24px rgba(40, 38, 32, 0.22);
+        height: 100%;
+        padding: 18px 18px 14px;
+        display: flex;
+        flex-direction: column;
+      }
+      #tc-canvas {
+        width: 100%;
+        flex: 1;
+        display: block;
+      }
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 18px;
+        list-style: none;
+        margin: 8px 0 0;
+        padding: 12px 4px 2px;
+        border-top: 1px solid var(--hair);
+      }
+      .leg {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 12.5px;
+        color: var(--ink-soft);
+        font-weight: 500;
+      }
+      .leg-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+      .leg--context .leg-dot {
+        background: var(--context);
+      }
+      .leg--action .leg-dot {
+        background: var(--action);
+      }
+      .leg--verified .leg-dot {
+        background: var(--verified);
+      }
+
+      /* ---- picker ---- */
+      .picker {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 26px;
+      }
+      .pick {
+        font-family: var(--sans);
+        font-size: 15px;
+        font-weight: 600;
+        padding: 11px 16px;
+        border-radius: 11px;
+        border: 1.5px solid var(--hair-strong);
+        background: var(--paper-2);
+        color: var(--ink);
+        cursor: pointer;
+        transition:
+          border-color 0.16s ease,
+          background 0.16s ease,
+          transform 0.1s ease;
+      }
+      .pick:hover {
+        transform: translateY(-1px);
+        border-color: var(--context);
+      }
+      .pick[aria-pressed="true"] {
+        border-color: var(--context);
+        background: color-mix(in srgb, var(--context) 10%, var(--paper-2));
+        color: color-mix(in srgb, var(--context) 72%, var(--ink));
+      }
+      .pick:focus-visible {
+        outline: 2px solid var(--context);
+        outline-offset: 2px;
+      }
+
+      /* ---- outro + pager ---- */
+      .outro {
+        max-width: 60ch;
+        padding: clamp(40px, 9vh, 110px) 0 clamp(28px, 5vh, 48px);
+      }
+      .outro h2 {
+        font-family: var(--serif);
+        font-weight: 600;
+        font-size: clamp(26px, 3.6vw, 40px);
+        line-height: 1.1;
+        margin: 0 0 18px;
+        letter-spacing: -0.012em;
+      }
+      .outro p {
+        font-size: clamp(17px, 2vw, 20px);
+        line-height: 1.6;
+        color: var(--ink-soft);
+        margin: 0;
+      }
+      .pager {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        border-top: 1px solid var(--hair);
+        padding: 22px 0 clamp(64px, 12vh, 120px);
+      }
+      .pager-link {
+        color: var(--context);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 16px;
+      }
+      .pager-link:hover {
+        text-decoration: underline;
+      }
+      .pager-next {
+        margin-left: auto;
+      }
+
+      @media (max-width: 820px) {
+        .scrolly {
+          grid-template-columns: 1fr;
+        }
+        .visual {
+          position: sticky;
+          top: 64px;
+          height: 44vh;
+          order: -1;
+          margin-bottom: 8px;
+        }
+        .scene {
+          min-height: 68vh;
+          max-width: none;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+        .pick {
+          transition: none;
+        }
+      }
+    </style>
+  </body>
+</html>
